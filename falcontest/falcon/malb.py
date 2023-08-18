@@ -24,6 +24,9 @@ def v_mul(a, b):
 #def v_inv(a):
 #    return list(map(lambda x: complex(*operator.inv(x)), vector(CC, a)))
 
+def v_inv(a):
+    return [complex(1) / x for x in a]
+
 def v_round(a):
     a = ifft(a)
     a = [round(a_) for a_ in a]
@@ -37,16 +40,16 @@ def mat_mul(A, x):
             y[i] = v_add(y[i], v_mul(A[i][j], x[j]))
     return y
 
-a_inv = a
+a_inv = v_inv(a)
 bc = v_mul(b, c)
 bc_a = v_mul(v_mul(b, c), a_inv)
 aa = v_mul(a, a)
 bc_a_d = v_sub(bc_a, d)
 
-a_ = v_sub(a_inv, v_mul(bc, (v_mul(aa, bc_a_d))))
-b_ = v_mul(b, (v_mul(a, bc_a_d)))
-c_ = v_mul(c, (v_mul(a, bc_a_d)))
-d_ = v_sub([0]*32, (bc_a_d))
+a_ = v_sub(a_inv, v_mul(bc, v_inv(v_mul(aa, bc_a_d))))
+b_ = v_mul(b, v_inv(v_mul(a, bc_a_d)))
+c_ = v_mul(c, v_inv(v_mul(a, bc_a_d)))
+d_ = v_sub([0]*32, v_inv(bc_a_d))
 
 B0_inv_fft = [[a_, b_], [c_, d_]]
 
