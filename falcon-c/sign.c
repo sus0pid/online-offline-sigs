@@ -66,7 +66,7 @@ void v_mul(const fpr* a, const fpr* b, fpr* result, size_t size) {
 
 fpr v_inv(const fpr* a, size_t size) {
     for (size_t i = 0; i < size; i++) {
-        a[i] = 1 / a[i];
+        a[i] = 1.0d / a[i];
     }
 }
 
