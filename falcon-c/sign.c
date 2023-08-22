@@ -48,36 +48,43 @@
 /// ONLINE OFFLINE DEFINING SOME FUNCTIONS
 fpr v_add(const fpr* a, const fpr* b, fpr* result, size_t size) {
     for (size_t i = 0; i < size; i++) {
-        result[i] = a[i] + b[i];
+        result[i] = fpr_add(a[i], b[i]);
     }
 }
 
 fpr v_sub(const fpr* a, const fpr* b, fpr* result, size_t size) {
     for (size_t i = 0; i < size; i++) {
-        result[i] = a[i] - b[i];
+        result[i] = fpr_sub(a[i], b[i]);
     }
 }
 
 void v_mul(const fpr* a, const fpr* b, fpr* result, size_t size) {
     for (size_t i = 0; i < size; i++) {
-        result[i] = a[i] * b[i];
+        result[i] = fpr_mul(a[i], b[i]);
     }
 }
 
-fpr v_inv(const fpr* a, size_t size) {
+void v_neg(const fpr* a, fpr* result, size_t size) {
     for (size_t i = 0; i < size; i++) {
-        a[i] = 1.0d / a[i];
+        result[i] = fpr_neg(a[i]);
     }
 }
 
-fpr v_round(const fpr* a, size_t size) {
-    PQCLEAN_FALCON512_CLEAN_iFFT(a);
+void v_inv(const fpr* a, fpr* result, size_t size) {
+    for (size_t i = 0; i < size; i++) {
+        result[i] = fpr_inv(a[i]);
+    }
+}
+
+fpr v_round(fpr* a, unsigned logn, size_t size) {
+    Zf(iFFT)(a, logn);
     for (size_t i = 0; i < size; i++) {
         a[i] = fpr_rint(a[i]);
     }
-    PQCLEAN_FALCON512_CLEAN_FFT(a);
+    Zf(FFT)(a, logn);
 }
 
+/* currently not used
 fpr mat_mul(const fpr A[2][2], const fpr x[2], fpr y[2], size_t size) {
     fpr temp[2];
     for (size_t i = 0; i < size; i++) {
@@ -85,9 +92,22 @@ fpr mat_mul(const fpr A[2][2], const fpr x[2], fpr y[2], size_t size) {
         v_add(y, temp, y, size);
     }
 }
+*/
 
 int randint(int min, int max) {
     return min + rand() % (max - min + 1);
+}
+
+#define IMAX_BITS(m) ((m)/((m)%255+1) / 255%255*8 + 7-86/((m)%255+12))
+#define RAND_MAX_WIDTH IMAX_BITS(RAND_MAX)
+
+uint32_t rand32(void) {
+  uint32_t r = 0;
+  for (int i = 0; i < 32; i += RAND_MAX_WIDTH) {
+    r <<= RAND_MAX_WIDTH;
+    r ^= (unsigned) rand();
+  }
+  return r;
 }
 
 /*
@@ -1141,9 +1161,10 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
     size_t n, u;
     fpr *t0, *t1, *tx, *ty;
     fpr *b00, *b01, *b10, *b11, *g00, *g01, *g11;
+
     /// ONLINE OFFLINE declare new stuff
-    fpr a, b, c, d;
-    fpr *bc, *bc_a, *aa, *bc_a_d;
+    //fpr *a, *b, *c, *d;
+    //fpr *a_inv, *bc, *bc_a, *aa, *bc_a_d;
     
     fpr ni;
     uint32_t sqn, ng;
@@ -1169,143 +1190,116 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
     Zf(poly_neg)(b01, logn);
     Zf(poly_neg)(b11, logn);
 
+	/// ONLINE OFFLINE COMPUTATIONS
+	/// STAGE 1
+	/// set the copies of a,b,c,d
+	fpr* a = calloc(n, sizeof(fpr));
+	memcpy(a, b00, n * sizeof(fpr));
+	
+	fpr* b = calloc(n, sizeof(fpr));
+	memcpy(b, b01, n * sizeof(fpr));
 
-    /*
-     * We rename variables to make things clearer.
-     */
-    a = b00;
-    b = b01;
-    c = b10;
-    d = b11;
+	fpr* c = calloc(n, sizeof(fpr));
+	memcpy(c, b10, n * sizeof(fpr));
 
-	fpr a_inv = v_inv(&a, sizeof &a);
-	bc    = v_mul(&b, &c, &bc, sizeof &b);
-	bc_a  = v_mul(bc, sizeof a_inv);
+	fpr* d = calloc(n, sizeof(fpr));
+	memcpy(d, b11, n * sizeof(fpr));	
 
+	/// Calculate the inverse of a, write to a_inv
+	fpr* a_inv = calloc(n, sizeof(fpr));
+	memcpy(a_inv, a, n * sizeof(fpr));
+	v_inv(a, a_inv, n);
 
+	/// Calculate b * c, write to bc
+	fpr* bc = calloc(n, sizeof(fpr));
+	v_mul(b, c, bc, n);
 
-    //g11 = b10;
-    //b01 = t0;
-    //t0 = b01 + n;
-    //t1 = t0 + n;
+	/// Calculate bc * a_inv, write to bc_a
+	fpr* bc_a = calloc(n, sizeof(fpr));
+	v_mul(bc, a_inv, bc_a, n);
 
-    /*
-     * Memory layout at that point:
-     *   g00 g01 g11 b11 b01 t0 t1
-     */
+	/// Calculate a * a, write to aa
+	fpr* aa = calloc(n, sizeof(fpr));
+	v_mul(a, a, aa, n);
 
-    /*
-     * Set the target vector to [hm, 0] (hm is the hashed message).
-     */
-    for (u = 0; u < n; u ++) {
-        t0[u] = fpr_of(hm[u]);
-        /* This is implicit.
-        t1[u] = fpr_zero;
-        */
+	/// Calculate bc_a - d, write to bc_a_d
+	fpr* bc_a_d = calloc(n, sizeof(fpr));
+	v_mul(bc_a, d, bc_a_d, n);
+
+	/// STAGE 2
+	/// calculate a_,b_,c_,d_
+	/// calc a_
+	fpr* a_ = calloc(n, sizeof(fpr));
+	v_mul(aa, bc_a_d, a_, n);
+	v_inv(a_,a_,n);
+	v_mul(bc,a_,a_,n);
+	v_sub(a_inv,a_,a_,n);
+	/// calc b_
+	fpr* b_ = calloc(n, sizeof(fpr));
+	v_mul(a,bc_a_d,b_,n);
+	v_inv(b_,b_,n);
+	v_mul(b,b_,b_,n);
+	/// calc c_
+	fpr* c_ = calloc(n, sizeof(fpr));
+	v_mul(a,bc_a_d,c_,n);
+	v_inv(c_,c_,n);
+	v_mul(c,c_,c_,n);
+	/// calc d_
+	fpr* d_ = calloc(n, sizeof(fpr));
+	v_inv(bc_a_d,d_,n);
+	v_neg(d_,d_,n);
+
+	/// STAGE 3
+	/// we have B0_inv_fft = [[a_, b_], [c_, d_]]
+	/// but without explicitly defining it in code
+	/// generate the random input x = [x1, x2]
+	int rand_size = 32;
+	fpr* x1 = calloc(rand_size, sizeof(fpr));
+	for (int i = 0; i < rand_size; i++) {
+        x1[i] = (double) rand32() % 2001 - 1000;
+    }
+	fpr* x2 = calloc(rand_size, sizeof(fpr));
+	for (int i = 0; i < rand_size; i++) {
+        x2[i] = (fpr) rand() % 2001 - 1000;
     }
 
-    /*
-     * Apply the lattice basis to obtain the real target
-     * vector (after normalization with regards to modulus).
-     */
-    Zf(FFT)(t0, logn);
-    ni = fpr_inverse_of_q;
-    memcpy(t1, t0, n * sizeof *t0);
-    Zf(poly_mul_fft)(t1, b01, logn);
-    Zf(poly_mulconst)(t1, fpr_neg(ni), logn);
-    Zf(poly_mul_fft)(t0, b11, logn);
-    Zf(poly_mulconst)(t0, ni, logn);
+	/// calculate y = mat_mul(B0_inv_fft, x)
+	fpr* y1  = calloc(n, sizeof(fpr));
+	fpr* y1a = calloc(n, sizeof(fpr));
+	fpr* y1b = calloc(n, sizeof(fpr));
+	v_mul(a_, x1, y1a, n);
+	v_mul(b_, x2, y1b, n);
+	v_add(y1a, y1b, y1, n);
 
-    /*
-     * b01 and b11 can be discarded, so we move back (t0,t1).
-     * Memory layout is now:
-     *      g00 g01 g11 t0 t1
-     */
-    memcpy(b11, t0, n * 2 * sizeof *t0);
-    t0 = g11 + n;
-    t1 = t0 + n;
+	fpr* y2  = calloc(n, sizeof(fpr));
+	fpr* y2a = calloc(n, sizeof(fpr));
+	fpr* y2b = calloc(n, sizeof(fpr));
+	v_mul(c_, x1, y2a, n);
+	v_mul(d_, x2, y2b, n);
+	v_add(y2a, y2b, y2, n);
 
-    /*
-     * Apply sampling; result is written over (t0,t1).
-     */
-    ffSampling_fft_dyntree(samp, samp_ctx,
-        t0, t1, g00, g01, g11, logn, logn, t1 + n);
+	/// round the values in y
+	v_round(y1, logn, n);
+	v_round(y2, logn, n);
 
-    /*
-     * We arrange the layout back to:
-     *     b00 b01 b10 b11 t0 t1
-     *
-     * We did not conserve the matrix basis, so we must recompute
-     * it now.
-     */
-    b00 = tmp;
-    b01 = b00 + n;
-    b10 = b01 + n;
-    b11 = b10 + n;
-    memmove(b11 + n, t0, n * 2 * sizeof *t0);
-    t0 = b11 + n;
-    t1 = t0 + n;
-    smallints_to_fpr(b01, f, logn);
-    smallints_to_fpr(b00, g, logn);
-    smallints_to_fpr(b11, F, logn);
-    smallints_to_fpr(b10, G, logn);
-    Zf(FFT)(b01, logn);
-    Zf(FFT)(b00, logn);
-    Zf(FFT)(b11, logn);
-    Zf(FFT)(b10, logn);
-    Zf(poly_neg)(b01, logn);
-    Zf(poly_neg)(b11, logn);
-    tx = t1 + n;
-    ty = tx + n;
+	/// calculate xx_ = mat_mul(sk.B0_fft, y)
+	/// same operation as before, but using
+	/// e.g. a instead of a_, w/o rounding
+	/// calculate xx_ = mat_mul(B0_fft, x)
+	fpr* xx1  = calloc(n, sizeof(fpr));
+	fpr* xx1a = calloc(n, sizeof(fpr));
+	fpr* xx1b = calloc(n, sizeof(fpr));
+	v_mul(a, y1, xx1a, n);
+	v_mul(b, y2, xx1b, n);
+	v_add(xx1a, xx1b, xx1, n);
 
-    /*
-     * Get the lattice point corresponding to that tiny vector.
-     */
-    memcpy(tx, t0, n * sizeof *t0);
-    memcpy(ty, t1, n * sizeof *t1);
-    Zf(poly_mul_fft)(tx, b00, logn);
-    Zf(poly_mul_fft)(ty, b10, logn);
-    Zf(poly_add)(tx, ty, logn);
-    memcpy(ty, t0, n * sizeof *t0);
-    Zf(poly_mul_fft)(ty, b01, logn);
+	fpr* xx2  = calloc(n, sizeof(fpr));
+	fpr* xx2a = calloc(n, sizeof(fpr));
+	fpr* xx2b = calloc(n, sizeof(fpr));
+	v_mul(c, y1, xx2a, n);
+	v_mul(d, y2, xx2b, n);
+	v_add(xx2a, xx2b, xx2, n);
 
-    memcpy(t0, tx, n * sizeof *tx);
-    Zf(poly_mul_fft)(t1, b11, logn);
-    Zf(poly_add)(t1, ty, logn);
-    Zf(iFFT)(t0, logn);
-    Zf(iFFT)(t1, logn);
-
-    s1tmp = (int16_t *)tx;
-    sqn = 0;
-    ng = 0;
-    for (u = 0; u < n; u ++) {
-        int32_t z;
-
-        z = (int32_t)hm[u] - (int32_t)fpr_rint(t0[u]);
-        sqn += (uint32_t)(z * z);
-        ng |= sqn;
-        s1tmp[u] = (int16_t)z;
-    }
-    sqn |= -(ng >> 31);
-
-    /*
-     * With "normal" degrees (e.g. 512 or 1024), it is very
-     * improbable that the computed vector is not short enough;
-     * however, it may happen in practice for the very reduced
-     * versions (e.g. degree 16 or below). In that case, the caller
-     * will loop, and we must not write anything into s2[] because
-     * s2[] may overlap with the hashed message hm[] and we need
-     * hm[] for the next iteration.
-     */
-    s2tmp = (int16_t *)tmp;
-    for (u = 0; u < n; u ++) {
-        s2tmp[u] = (int16_t)-fpr_rint(t1[u]);
-    }
-    if (Zf(is_short_half)(sqn, s2tmp, logn)) {
-        memcpy(s2, s2tmp, n * sizeof *s2);
-        memcpy(tmp, s1tmp, n * sizeof *s1tmp);
-        return 1;
-    }
     return 0;
 }
 
