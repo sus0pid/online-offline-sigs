@@ -731,53 +731,9 @@ falcon_sign_dyn(shake256_context *rng,
 		privkey, privkey_len, &hd, nonce, tmp, tmp_len);
 }
 
-/// ONLINE OFFLINE DEFINING SOME FUNCTIONS
-void v_add(const fpr* a, const fpr* b, fpr* result, size_t size) {
-    for (size_t i = 0; i < size; i++) {
-        result[i] = a[i] + b[i];
-    }
-}
-
-void v_sub(const fpr* a, const fpr* b, fpr* result, size_t size) {
-    for (size_t i = 0; i < size; i++) {
-        result[i] = a[i] - b[i];
-    }
-}
-
-void v_mul(const fpr* a, const fpr* b, fpr* result, size_t size) {
-    for (size_t i = 0; i < size; i++) {
-        result[i] = a[i] * b[i];
-    }
-}
-
-void v_inv(const fpr* a, size_t size) {
-    for (size_t i = 0; i < size; i++) {
-        a[i] = 1 / a[i];
-    }
-}
-
-void v_round(const fpr* a, size_t size) {
-    Zf(iFFT)(a, logn)
-    for (size_t i = 0; i < size; i++) {
-        a[i] = fpr_rint(a[i]);
-    }
-    Zf(FFT)(a, logn)
-}
-
-void mat_mul(const fpr A[2][2], const fpr x[2], fpr y[2], size_t size) {
-    fpr temp[2];
-    for (size_t i = 0; i < size; i++) {
-        v_mul(A[i], x[i], temp, size);
-        v_add(y, temp, y, size);
-    }
-}
-
-int randint(int min, int max) {
-    return min + rand() % (max - min + 1);
-}
-
 /// ONLINE OFFLINE SIGN FUNCTION
 /* see falcon.h */
+/*
 int
 falcon_sign_dyn_lazy(shake256_context *rng,
     void *sig, size_t *sig_len, int sig_type,
@@ -788,10 +744,6 @@ falcon_sign_dyn_lazy(shake256_context *rng,
     shake256_context hd;
     uint8_t nonce[40];
     int r;
-    
-    
-    
-    
 
     r = falcon_sign_start(rng, nonce, &hd);
     if (r != 0) {
@@ -801,6 +753,7 @@ falcon_sign_dyn_lazy(shake256_context *rng,
     return falcon_sign_dyn_finish(rng, sig, sig_len, sig_type,
         privkey, privkey_len, &hd, nonce, tmp, tmp_len);
 }
+*/
 
 /* see falcon.h */
 int

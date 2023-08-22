@@ -76,10 +76,13 @@ void v_inv(const fpr* a, fpr* result, size_t size) {
     }
 }
 
-fpr v_round(fpr* a, unsigned logn, size_t size) {
+fpr v_round(fpr* a, unsigned n, unsigned logn, size_t size) {
+	int64_t* result  = calloc(n, sizeof(int64_t));
+	//fpr* result_fpr  = calloc(n, sizeof(fpr));
     Zf(iFFT)(a, logn);
     for (size_t i = 0; i < size; i++) {
-        a[i] = fpr_rint(a[i]);
+        result[i] = fpr_rint(a[i]);
+		a[i]      = FPR(result[i]); 
     }
     Zf(FFT)(a, logn);
 }
@@ -1256,11 +1259,12 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 	int rand_size = 32;
 	fpr* x1 = calloc(rand_size, sizeof(fpr));
 	for (int i = 0; i < rand_size; i++) {
-        x1[i] = (double) rand32() % 2001 - 1000;
+		x1[i] = FPR(rand32());
+       // x1[i] = r1 % 2001 - 1000;
     }
 	fpr* x2 = calloc(rand_size, sizeof(fpr));
 	for (int i = 0; i < rand_size; i++) {
-        x2[i] = (fpr) rand() % 2001 - 1000;
+		x2[i] = FPR(rand32());
     }
 
 	/// calculate y = mat_mul(B0_inv_fft, x)
@@ -1279,8 +1283,8 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 	v_add(y2a, y2b, y2, n);
 
 	/// round the values in y
-	v_round(y1, logn, n);
-	v_round(y2, logn, n);
+	//v_round(y1, y1, logn, n);
+	//v_round(y2, y2, logn, n);
 
 	/// calculate xx_ = mat_mul(sk.B0_fft, y)
 	/// same operation as before, but using
