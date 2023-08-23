@@ -1792,9 +1792,9 @@ Zf(sign_dyn_lazy)(int16_t *sig, inner_shake256_context *rng,
 		 * (the verifier recomputes s1 from s2, the hashed message,
 		 * and the public key).
 		 */
-		sampler_context spc;
-		samplerZ samp;
-		void *samp_ctx;
+		//sampler_context spc;
+		//samplerZ samp;
+		//void *samp_ctx;
 
 		/*
 		 * Normal sampling. We use a fast PRNG seeded from our
@@ -1802,8 +1802,8 @@ Zf(sign_dyn_lazy)(int16_t *sig, inner_shake256_context *rng,
 		 */
 		// spc.sigma_min = fpr_sigma_min[logn];
 		// Zf(prng_init)(&spc.p, rng);
-		samp = Zf(sampler); ///online offline we can remove this
-		samp_ctx = &spc;
+		samplerZ samp  = 0; //Zf(sampler); ///online offline we can remove this
+		void *samp_ctx = 0; //&spc;
 
 		/*
 		 * Do the actual signature.
