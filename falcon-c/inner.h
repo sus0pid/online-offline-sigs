@@ -1131,6 +1131,11 @@ void Zf(sign_dyn)(int16_t *sig, inner_shake256_context *rng,
 	const int8_t *restrict F, const int8_t *restrict G,
 	const uint16_t *hm, unsigned logn, uint8_t *tmp);
 
+void Zf(sign_dyn_lazy)(int16_t *sig, inner_shake256_context *rng,
+	const int8_t *restrict f, const int8_t *restrict g,
+	const int8_t *restrict F, const int8_t *restrict G,
+	const uint16_t *hm, unsigned logn, uint8_t *tmp);
+
 /*
  * Internal sampler engine. Exported for tests.
  *

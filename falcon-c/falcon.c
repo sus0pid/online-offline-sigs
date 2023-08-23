@@ -28,6 +28,7 @@
  *
  * @author   Thomas Pornin <thomas.pornin@nccgroup.com>
  */
+#include "stdio.h"
 
 #include "falcon.h"
 #include "inner.h"
@@ -496,6 +497,143 @@ falcon_sign_dyn_finish(shake256_context *rng,
 	}
 }
 
+/// ONLINE OFFLINE NEW FUNCTION FOR BENCHMARKING
+/* see falcon.h */
+int
+falcon_sign_dyn_lazy_finish(shake256_context *rng,
+	void *sig, size_t *sig_len, int sig_type,
+	const void *privkey, size_t privkey_len,
+	shake256_context *hash_data, const void *nonce,
+	void *tmp, size_t tmp_len)
+{
+	unsigned logn;
+	const uint8_t *sk;
+	uint8_t *es;
+	int8_t *f, *g, *F, *G;
+	uint16_t *hm;
+	int16_t *sv;
+	uint8_t *atmp;
+	size_t u, v, n, es_len;
+	unsigned oldcw;
+	inner_shake256_context sav_hash_data;
+	//printf("Hello World");
+
+	/*
+	 * Get degree from private key header byte, and check
+	 * parameters.
+	 */
+	if (privkey_len == 0) {
+		return FALCON_ERR_FORMAT;
+	}
+	sk = privkey;
+	if ((sk[0] & 0xF0) != 0x50) {
+		return FALCON_ERR_FORMAT;
+	}
+	logn = sk[0] & 0x0F;
+	if (logn < 1 || logn > 10) {
+		return FALCON_ERR_FORMAT;
+	}
+	if (privkey_len != FALCON_PRIVKEY_SIZE(logn)) {
+		return FALCON_ERR_FORMAT;
+	}
+	if (tmp_len < FALCON_TMPSIZE_SIGNDYN(logn)) {
+		return FALCON_ERR_SIZE;
+	}
+	es_len = *sig_len;
+	if (es_len < 41) {
+		return FALCON_ERR_SIZE;
+	}
+	switch (sig_type) {
+	case FALCON_SIG_COMPRESSED:
+		break;
+	case FALCON_SIG_PADDED:
+		if (*sig_len < FALCON_SIG_PADDED_SIZE(logn)) {
+			return FALCON_ERR_SIZE;
+		}
+		break;
+	case FALCON_SIG_CT:
+		if (*sig_len < FALCON_SIG_CT_SIZE(logn)) {
+			return FALCON_ERR_SIZE;
+		}
+		break;
+	default:
+		return FALCON_ERR_BADARG;
+	}
+
+	/*
+	 * Decode private key elements, and complete private key.
+	 */
+	n = (size_t)1 << logn;
+	f = (int8_t *)tmp;
+	g = f + n;
+	F = g + n;
+	G = F + n;
+	hm = (uint16_t *)(G + n);
+	sv = (int16_t *)hm;
+	atmp = align_u64(hm + n);
+	// u = 1;
+	// v = Zf(trim_i8_decode)(f, logn, Zf(max_fg_bits)[logn],
+	// 	sk + u, privkey_len - u);
+	// if (v == 0) {
+	// 	return FALCON_ERR_FORMAT;
+	// }
+	// u += v;
+	// v = Zf(trim_i8_decode)(g, logn, Zf(max_fg_bits)[logn],
+	// 	sk + u, privkey_len - u);
+	// if (v == 0) {
+	// 	return FALCON_ERR_FORMAT;
+	// }
+	// u += v;
+	// v = Zf(trim_i8_decode)(F, logn, Zf(max_FG_bits)[logn],
+	// 	sk + u, privkey_len - u);
+	// if (v == 0) {
+	// 	return FALCON_ERR_FORMAT;
+	// }
+	// u += v;
+	// if (u != privkey_len) {
+	// 	return FALCON_ERR_FORMAT;
+	// }
+	// if (!Zf(complete_private)(G, f, g, F, logn, atmp)) {
+	// 	return FALCON_ERR_FORMAT;
+	// }
+
+	/*
+	 * Hash message to a point.
+	 */
+	// shake256_flip(hash_data);
+	// sav_hash_data = *(inner_shake256_context *)hash_data;
+
+	/*
+	 * Compute and encode signature.
+	 */
+	for (;;) {
+		/*
+		 * Hash message to a point. We must redo it when looping
+		 * (in case of a padded signature format and a failed
+		 * attempt due to an oversized compressed signature), because
+		 * we overwrite the hash output with the signature (in order
+		 * to save some RAM).
+		 */
+		//*(inner_shake256_context *)hash_data = sav_hash_data;
+		*(inner_shake256_context *)hash_data;
+		// if (sig_type == FALCON_SIG_CT) {
+		// 	Zf(hash_to_point_ct)(
+		// 		(inner_shake256_context *)hash_data,
+		// 		hm, logn, atmp);
+		// } else {
+		// 	Zf(hash_to_point_vartime)(
+		// 		(inner_shake256_context *)hash_data,
+		// 		hm, logn);
+		// }
+		// oldcw = set_fpu_cw(2);
+		Zf(sign_dyn_lazy)(sv, (inner_shake256_context *)rng,
+			f, g, F, G, hm, logn, atmp);
+		
+		return 0;
+	}
+}
+
+
 /* see falcon.h */
 int
 falcon_expand_privkey(void *expanded_key, size_t expanded_key_len,
@@ -733,7 +871,6 @@ falcon_sign_dyn(shake256_context *rng,
 
 /// ONLINE OFFLINE SIGN FUNCTION
 /* see falcon.h */
-/*
 int
 falcon_sign_dyn_lazy(shake256_context *rng,
     void *sig, size_t *sig_len, int sig_type,
@@ -745,15 +882,14 @@ falcon_sign_dyn_lazy(shake256_context *rng,
     uint8_t nonce[40];
     int r;
 
-    r = falcon_sign_start(rng, nonce, &hd);
+    //r = falcon_sign_start(rng, nonce, &hd);
     if (r != 0) {
         return r;
     }
-    shake256_inject(&hd, data, data_len);
-    return falcon_sign_dyn_finish(rng, sig, sig_len, sig_type,
+    //shake256_inject(&hd, data, data_len);
+    return falcon_sign_dyn_lazy_finish(rng, sig, sig_len, sig_type,
         privkey, privkey_len, &hd, nonce, tmp, tmp_len);
 }
-*/
 
 /* see falcon.h */
 int

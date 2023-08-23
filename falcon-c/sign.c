@@ -29,6 +29,7 @@
  * @author   Thomas Pornin <thomas.pornin@nccgroup.com>
  */
 
+#include "stdio.h"
 #include "inner.h"
 
 /* =================================================================== */
@@ -1165,6 +1166,8 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
     fpr *t0, *t1, *tx, *ty;
     fpr *b00, *b01, *b10, *b11, *g00, *g01, *g11;
 
+	//printf("Hello World");
+
     /// ONLINE OFFLINE declare new stuff
     //fpr *a, *b, *c, *d;
     //fpr *a_inv, *bc, *bc_a, *aa, *bc_a_d;
@@ -1744,6 +1747,53 @@ Zf(sign_dyn)(int16_t *sig, inner_shake256_context *rng,
 		if (do_sign_dyn(samp, samp_ctx, sig,
 			f, g, F, G, hm, logn, ftmp))
 		{
+			break;
+		}
+	}
+}
+
+/* see inner.h */
+void
+Zf(sign_dyn_lazy)(int16_t *sig, inner_shake256_context *rng,
+	const int8_t *restrict f, const int8_t *restrict g,
+	const int8_t *restrict F, const int8_t *restrict G,
+	const uint16_t *hm, unsigned logn, uint8_t *tmp)
+{
+	fpr *ftmp;
+
+	ftmp = (fpr *)tmp;
+	for (;;) {
+		/*
+		 * Signature produces short vectors s1 and s2. The
+		 * signature is acceptable only if the aggregate vector
+		 * s1,s2 is short; we must use the same bound as the
+		 * verifier.
+		 *
+		 * If the signature is acceptable, then we return only s2
+		 * (the verifier recomputes s1 from s2, the hashed message,
+		 * and the public key).
+		 */
+		sampler_context spc;
+		samplerZ samp;
+		void *samp_ctx;
+
+		/*
+		 * Normal sampling. We use a fast PRNG seeded from our
+		 * SHAKE context ('rng').
+		 */
+		// spc.sigma_min = fpr_sigma_min[logn];
+		// Zf(prng_init)(&spc.p, rng);
+		// samp = Zf(sampler);
+		// samp_ctx = &spc;
+
+		/*
+		 * Do the actual signature.
+		 */
+		if (do_sign_dyn_lazy(samp, samp_ctx, sig,
+			f, g, F, G, hm, logn, ftmp))
+		{
+			break;
+		} else {
 			break;
 		}
 	}
