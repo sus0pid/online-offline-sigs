@@ -47,13 +47,13 @@
  */
 
 /// ONLINE OFFLINE DEFINING SOME FUNCTIONS
-fpr v_add(const fpr* a, const fpr* b, fpr* result, size_t size) {
+void v_add(const fpr* a, const fpr* b, fpr* result, size_t size) {
     for (size_t i = 0; i < size; i++) {
         result[i] = fpr_add(a[i], b[i]);
     }
 }
 
-fpr v_sub(const fpr* a, const fpr* b, fpr* result, size_t size) {
+void v_sub(const fpr* a, const fpr* b, fpr* result, size_t size) {
     for (size_t i = 0; i < size; i++) {
         result[i] = fpr_sub(a[i], b[i]);
     }
@@ -77,7 +77,7 @@ void v_inv(const fpr* a, fpr* result, size_t size) {
     }
 }
 
-fpr v_round(fpr* a, unsigned n, unsigned logn, size_t size) {
+void v_round(fpr* a, unsigned n, unsigned logn, size_t size) {
 	int64_t* result  = calloc(n, sizeof(int64_t));
 	//fpr* result_fpr  = calloc(n, sizeof(fpr));
     Zf(iFFT)(a, logn);
@@ -1162,9 +1162,11 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
     const int8_t *restrict F, const int8_t *restrict G,
     const uint16_t *hm, unsigned logn, fpr *restrict tmp)
 {
-    size_t n, u;
-    fpr *t0, *t1, *tx, *ty;
-    fpr *b00, *b01, *b10, *b11, *g00, *g01, *g11;
+    size_t n;
+	//size_t u;
+    //fpr *t0, *t1, *tx, *ty;
+    fpr *b00, *b01, *b10, *b11; 
+	//fpr *g00, *g01, *g11;
 
 	//printf("Hello World");
 
@@ -1172,9 +1174,21 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
     //fpr *a, *b, *c, *d;
     //fpr *a_inv, *bc, *bc_a, *aa, *bc_a_d;
     
-    fpr ni;
-    uint32_t sqn, ng;
-    int16_t *s1tmp, *s2tmp;
+    //fpr ni;
+    //uint32_t sqn, ng;
+    //int16_t *s1tmp, *s2tmp;
+
+
+	/// adding some stuff to get rid of warnings
+	samplerZ dummy1 = (samplerZ)samp;
+	dummy1 = dummy1+1;	
+	int8_t *dummy2 = (int8_t *)samp_ctx;
+	dummy2 = dummy2+1;
+	int16_t *dummy3 = (int16_t *)s2;
+	dummy3 = dummy3+1;
+	int16_t *dummy4 = (int16_t *)hm;
+	dummy4 = dummy4+1;
+	///
 
     n = MKN(logn);
 
@@ -1761,6 +1775,11 @@ Zf(sign_dyn_lazy)(int16_t *sig, inner_shake256_context *rng,
 {
 	fpr *ftmp;
 
+	/// adding some stuff to get rid of warnings
+	inner_shake256_context *dummy1 = (inner_shake256_context *)rng;
+	dummy1 = dummy1+1;
+	///	
+
 	ftmp = (fpr *)tmp;
 	for (;;) {
 		/*
@@ -1783,8 +1802,8 @@ Zf(sign_dyn_lazy)(int16_t *sig, inner_shake256_context *rng,
 		 */
 		// spc.sigma_min = fpr_sigma_min[logn];
 		// Zf(prng_init)(&spc.p, rng);
-		// samp = Zf(sampler);
-		// samp_ctx = &spc;
+		samp = Zf(sampler); ///online offline we can remove this
+		samp_ctx = &spc;
 
 		/*
 		 * Do the actual signature.

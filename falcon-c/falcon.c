@@ -508,15 +508,25 @@ falcon_sign_dyn_lazy_finish(shake256_context *rng,
 {
 	unsigned logn;
 	const uint8_t *sk;
-	uint8_t *es;
+	//uint8_t *es;
 	int8_t *f, *g, *F, *G;
 	uint16_t *hm;
 	int16_t *sv;
 	uint8_t *atmp;
-	size_t u, v, n, es_len;
-	unsigned oldcw;
-	inner_shake256_context sav_hash_data;
+	//size_t u, v; 
+	size_t n, es_len;
+	//unsigned oldcw;
+	//inner_shake256_context sav_hash_data;
 	//printf("Hello World");
+
+	/// adding some stuff to get rid of warnings
+	int8_t *dummy1 = (int8_t *)sig;
+	dummy1 = dummy1+1;
+	shake256_context *dummy2 = (shake256_context *)hash_data;
+	dummy2 = dummy2+1;
+	const void *dummy3 = (int8_t *)nonce;
+	dummy3 = dummy3+1;
+	///
 
 	/*
 	 * Get degree from private key header byte, and check
@@ -615,7 +625,7 @@ falcon_sign_dyn_lazy_finish(shake256_context *rng,
 		 * to save some RAM).
 		 */
 		//*(inner_shake256_context *)hash_data = sav_hash_data;
-		*(inner_shake256_context *)hash_data;
+		//*(inner_shake256_context *)hash_data;
 		// if (sig_type == FALCON_SIG_CT) {
 		// 	Zf(hash_to_point_ct)(
 		// 		(inner_shake256_context *)hash_data,
@@ -880,12 +890,19 @@ falcon_sign_dyn_lazy(shake256_context *rng,
 {
     shake256_context hd;
     uint8_t nonce[40];
-    int r;
+    //int r;
+
+	/// adding some stuff to get rid of warnings
+	int8_t *dummy1 = (int8_t *)data;
+	dummy1 = dummy1+1;
+	int8_t *dummy3 = (int8_t *)data_len;
+	dummy3 = dummy3+1;
+	///
 
     //r = falcon_sign_start(rng, nonce, &hd);
-    if (r != 0) {
-        return r;
-    }
+    //if (r != 0) {
+    //    return r;
+    //}
     //shake256_inject(&hd, data, data_len);
     return falcon_sign_dyn_lazy_finish(rng, sig, sig_len, sig_type,
         privkey, privkey_len, &hd, nonce, tmp, tmp_len);
