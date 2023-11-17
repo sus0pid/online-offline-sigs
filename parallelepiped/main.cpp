@@ -192,8 +192,8 @@ void score_and_gradient(const uint64_t m, const uint64_t nsamples,
     for (uint64_t i=0; i<nsamples; ++i) {
         const cplx_t *s = samples_fft + i * 2 * m;
         for (uint64_t j = 0; j < m; ++j) {
-            v1[j] = s[j] * theta_fft[j];
-            v2[j] = s[j + m] * theta_fft[j + m];
+            v1[j] = s[j] * conj(theta_fft[j]);
+            v2[j] = s[j + m] * conj(theta_fft[j + m]);
         }
         negacyclic_ifft(N, realv1.data(), v1.data());
         negacyclic_ifft(N, realv2.data(), v2.data());
@@ -205,8 +205,8 @@ void score_and_gradient(const uint64_t m, const uint64_t nsamples,
         }
         negacyclic_fft(N, v1.data(), realv1.data());
         for (uint64_t j = 0; j < m; ++j) {
-            grad_fft[j] += s[j] * v1[j];
-            grad_fft[j + m] += s[j + m] * v1[j];
+            grad_fft[j] += s[j] * conj(v1[j]);
+            grad_fft[j + m] += s[j + m] * conj(v1[j]);
         }
     }
 }
@@ -256,7 +256,7 @@ int main(int argc, char** argv) {
     // read the samples (here, we generate a fake dataset instead)
     uint64_t N = 16;
     uint64_t m = N/2;
-    uint64_t nsamples = 1000;
+    uint64_t nsamples = 5000;
     std::vector<double> basis; // secret basis (just to verify)
     std::vector<double> samples;
     generate_fake_dataset(N, nsamples, 5, basis, samples);
@@ -388,7 +388,7 @@ int main(int argc, char** argv) {
     std::vector<cplx_t> theta_fft(2*m);
     std::vector<cplx_t> grad_fft(2*m);
     double score;
-    uint64_t niters = 5000;
+    uint64_t niters = 1000;
     double learn_rate = 0.1/nsamples;
     // gradient descent init: initialize theta_fft at random (unitary)
     {
@@ -407,11 +407,13 @@ int main(int argc, char** argv) {
     for (uint64_t i=0; i<niters; ++i) {
         // compute score and gradient
         score_and_gradient(m, nsamples, &score, grad_fft.data(), theta_fft.data(), samples_fft.data());
-        std::cout << "iteration " << i << "; score " << score << std::endl;
+        if (i%10==0) {
+            std::cout << "iteration " << i << "; score " << score << std::endl;
+        }
         // move in the direction of the gradient and normalize
         double norm = 0;
         for (uint64_t j=0; j<2*m; ++j) {
-            theta_fft[j] += learn_rate*grad_fft[j];
+            theta_fft[j] -= learn_rate*grad_fft[j];
             norm += pow(abs(theta_fft[j]),2);
         }
         norm = sqrt(norm/m);
@@ -420,7 +422,33 @@ int main(int argc, char** argv) {
         }
     }
     // once the gradient descent converges, theta * R should be one basis vector
-    // TODO
+    std::vector<cplx_t> solution_fft(2*m);
+    std::vector<double> solution(2*N);
+    for (uint64_t j=0; j<m; ++j) {
+        solution_fft[j]=theta_fft[j]*r_fft[j];
+        solution_fft[j+m]=theta_fft[j]*r_fft[j+2*m]+theta_fft[j+m]*r_fft[j+m];
+    }
+    negacyclic_ifft(N, solution.data(), solution_fft.data());
+    negacyclic_ifft(N, solution.data()+N, solution_fft.data()+m);
+    std::cout << "solution: " << std::endl;
+    double dist = 0;
+    for (uint64_t j=0; j<N; ++j) {
+        double d = solution[j]-rint(solution[j]);
+        std::cout << rint(solution[j]);
+        if (fabs(d)>0.25) std::cout << "?";
+        std::cout << " ";
+        if (fabs(d)>dist) dist=fabs(d);
+    }
+    std::cout << "distance: " << dist << std::endl;
+    std::cout << "basis: " << std::endl;
+    for (uint64_t j=0; j<N; ++j) {
+        std::cout << basis[j] << " ";
+    }
+    std::cout << std::endl;
+    for (uint64_t j=0; j<N; ++j) {
+        std::cout << basis[j+2*N] << " ";
+    }
+    std::cout << std::endl;
 
     return 0;
 }
