@@ -62,7 +62,7 @@ void negacyclic_fft(const uint64_t N, cplx_t* res, const double* x) {
     for (uint64_t i=0; i<m; ++i) {
         vnorm += pow(abs(res[i]),2);
     }
-    REQUIRE_DRAMATICALLY(fabs(vnorm-m*norm)<1e-8, "fft problem");
+    REQUIRE_DRAMATICALLY(fabs(1-m*norm/vnorm)<1e-8, "fft problem");
 }
 
 void negacyclic_ifft(const uint64_t N, double* res, const cplx_t* x) {
@@ -79,7 +79,7 @@ void negacyclic_ifft(const uint64_t N, double* res, const cplx_t* x) {
         res[i + m]=v[i].imag()/m;
         norm += pow(res[i],2)+pow(res[i+m],2);
     }
-    REQUIRE_DRAMATICALLY(fabs(vnorm-m*norm)<1e-8, "fft problem");
+    REQUIRE_DRAMATICALLY(fabs(1.-m*norm/vnorm)<1e-8, "fft problem");
 }
 
 
@@ -209,6 +209,22 @@ void score_and_gradient(const uint64_t m, const uint64_t nsamples,
             grad_fft[j + m] += s[j + m] * conj(v1[j]);
         }
     }
+    // normalize the result
+    *score /= (nsamples * N);
+    for (uint64_t j = 0; j < m; ++j) {
+        grad_fft[j] *= 4./nsamples;
+        grad_fft[j+m] *= 4./nsamples;
+    }
+}
+
+#include <NTL/LLL.h>
+#include <random>
+
+double random_double() {
+    static std::random_device rd;  // Will be used to obtain a seed for the random number engine
+    static std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
+    static std::uniform_real_distribution<> dis(0.0, 1.0);
+    return dis(gen);
 }
 
 void generate_fake_dataset(const uint64_t N, const uint64_t nsamples, const int32_t Bnorm,
@@ -223,8 +239,7 @@ void generate_fake_dataset(const uint64_t N, const uint64_t nsamples, const int3
     }
     std::vector<cplx_t> basis_fft(4*m);
     cplx_t* a = basis_fft.data();
-    cplx_t* b = a+m;
-    cplx_t* c = a+2*m;
+    cplx_t* b = a+m;    cplx_t* c = a+2*m;
     cplx_t* d = a+3*m;
     negacyclic_fft(N, a, basis.data());
     negacyclic_fft(N, b, basis.data()+N);
@@ -237,8 +252,8 @@ void generate_fake_dataset(const uint64_t N, const uint64_t nsamples, const int3
     for (uint64_t i=0; i<nsamples; ++i) {
         double* s = samples.data()+i*2*N;
         for (uint64_t j=0; j<N; ++j) {
-            s[j] = (rand()/double(RAND_MAX))-0.5;
-            s[j+N] = (rand()/double(RAND_MAX))-0.5;
+            s[j] = random_double()-0.5;//(rand()/double(RAND_MAX))-0.5;
+            s[j+N] = random_double()-0.5;//(rand()/double(RAND_MAX))-0.5;
         }
         negacyclic_fft(N, u, s);
         negacyclic_fft(N, v, s+N);
@@ -254,7 +269,7 @@ void generate_fake_dataset(const uint64_t N, const uint64_t nsamples, const int3
 
 int main(int argc, char** argv) {
     // read the samples (here, we generate a fake dataset instead)
-    uint64_t N = 16;
+    uint64_t N = 512;
     uint64_t m = N/2;
     uint64_t nsamples = 5000;
     std::vector<double> basis; // secret basis (just to verify)
@@ -389,7 +404,7 @@ int main(int argc, char** argv) {
     std::vector<cplx_t> grad_fft(2*m);
     double score;
     uint64_t niters = 1000;
-    double learn_rate = 0.1/nsamples;
+    double learn_rate = 0.02;
     // gradient descent init: initialize theta_fft at random (unitary)
     {
         double norm = 0;
@@ -404,12 +419,17 @@ int main(int argc, char** argv) {
             theta_fft[j] /= norm;
         }
     }
+    double last_score = 1./0.;
+    clock_t last_update = 0;
     for (uint64_t i=0; i<niters; ++i) {
         // compute score and gradient
         score_and_gradient(m, nsamples, &score, grad_fft.data(), theta_fft.data(), samples_fft.data());
-        if (i%10==0) {
+        if (clock()>last_update+CLOCKS_PER_SEC) {
+            last_update = clock();
             std::cout << "iteration " << i << "; score " << score << std::endl;
         }
+        if (score < 2./80. && score > last_score) break;
+        last_score = score;
         // move in the direction of the gradient and normalize
         double norm = 0;
         for (uint64_t j=0; j<2*m; ++j) {
