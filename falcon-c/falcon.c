@@ -636,8 +636,13 @@ falcon_sign_dyn_lazy_finish(shake256_context *rng,
 		// 		hm, logn);
 		// }
 		// oldcw = set_fpu_cw(2);
+
+		//printf("you have made it here\n");
+
 		Zf(sign_dyn_lazy)(sv, (inner_shake256_context *)rng,
 			f, g, F, G, hm, logn, atmp);
+		
+		//printf("you have made it here HERERERERE\n");
 		
 		return 0;
 	}

@@ -94,6 +94,7 @@ do_bench(bench_fun bf, void *ctx, double threshold)
 	for (;;) {
 		clock_t begin, end;
 		double tt;
+		double tt_clks;
 
 		begin = clock();
 		r = bf(ctx, num);
@@ -102,17 +103,23 @@ do_bench(bench_fun bf, void *ctx, double threshold)
 			fprintf(stderr, "ERR: %d\n", r);
 			return 0.0;
 		}
-		tt = (double)(end - begin) / (double)CLOCKS_PER_SEC;
-		if (tt >= threshold) {
-			return tt * 1000000000.0 / (double)num;
-		}
+		tt_clks = (double)(end - begin); // edit to find clocks, not runtime
+		//printf("\nClock counter: %lf,   Interation counter:%lu\n", tt_clks,num);
+	    //printf("CLOCKS_PER_SEC: %ld\n", (long)CLOCKS_PER_SEC);
+		tt      = (double)(end - begin) / (double)CLOCKS_PER_SEC; // time in seconds
 
+		if (tt >= threshold) {
+			return tt * 1000000000.0 / (double)num; // convert to nanosecs, then avg
+			//return tt_clks * 1.0 / (double)num;
+		}
+		
 		/*
 		 * If the function ran for less than 0.1 seconds then
 		 * we simply double the iteration number; otherwise, we
 		 * use the run time to try to get a "correct" number of
 		 * iterations quickly.
 		 */
+
 		if (tt < 0.1) {
 			num <<= 1;
 		} else {
@@ -328,6 +335,7 @@ test_speed_falcon(unsigned logn, double threshold)
 	bc.sigct = xmalloc(FALCON_SIG_CT_SIZE(logn));
 	bc.sigct_len = 0;
 
+	//// below is for runtimes (ms and us)
 	printf(" %8.2f",
 		do_bench(&bench_keygen, &bc, threshold) / 1000000.0);
 	fflush(stdout);
@@ -358,6 +366,37 @@ test_speed_falcon(unsigned logn, double threshold)
 		do_bench(&bench_verify_ct, &bc, threshold) / 1000.0);
 	fflush(stdout);
 
+	//// below is for clocks
+	// printf(" %8.2f",
+	// 	do_bench(&bench_keygen, &bc, threshold));
+	// fflush(stdout);
+	// printf(" %8.2f",
+	// 	do_bench(&bench_expand_privkey, &bc, threshold));
+	// fflush(stdout);
+	// printf(" %8.2f",
+	// 	do_bench(&bench_sign_dyn, &bc, threshold));
+	// fflush(stdout);
+	// printf(" %8.2f",
+	// 	do_bench(&bench_sign_dyn_ct, &bc, threshold));
+	// fflush(stdout);
+    // /// online offline lazy
+    // printf(" %8.2f",
+    //     do_bench(&bench_sign_dyn_ct_lazy, &bc, threshold));
+    // fflush(stdout);
+    
+	// printf(" %8.2f",
+	// 	do_bench(&bench_sign_tree, &bc, threshold));
+	// fflush(stdout);
+	// printf(" %8.2f",
+	// 	do_bench(&bench_sign_tree_ct, &bc, threshold));
+	// fflush(stdout);
+	// printf(" %8.2f",
+	// 	do_bench(&bench_verify, &bc, threshold));
+	// fflush(stdout);
+	// printf(" %8.2f",
+	// 	do_bench(&bench_verify_ct, &bc, threshold));
+	// fflush(stdout);
+
 	printf("\n");
 	fflush(stdout);
 
@@ -370,12 +409,12 @@ test_speed_falcon(unsigned logn, double threshold)
 }
 
 int
-main(int argc, char *argv[])
+main(int argc, char *argv[])        
 {
 	double threshold;
 
 	if (argc < 2) {
-		threshold = 2.0;
+		threshold = 3.0;
 	} else if (argc == 2) {
 		threshold = atof(argv[1]);
 	} else {
@@ -389,6 +428,7 @@ main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 	printf("time threshold = %.4f s\n", threshold);
+    printf("CLOCKS_PER_SEC: %ld\n", (long)CLOCKS_PER_SEC);
 	printf("kg = keygen, ek = expand private key, sd = sign (without expanded key)\n");
 	printf("st = sign (with expanded key), vv = verify\n");
 	printf("sdc, stc, vvc: like sd, st and vv, but with constant-time hash-to-point\n");

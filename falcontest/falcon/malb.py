@@ -56,6 +56,10 @@ B0_inv_fft = [[a_, b_], [c_, d_]]
 # construct some input x
 x = [fft([randint(-1000,1000) for _ in range(32)]), fft([randint(-1000, 1000) for _ in range(32)])]
 # inverse
+print(len(a_))
+print(len(b_))
+print(len(c_))
+print(len(d_))
 y = mat_mul(B0_inv_fft, x)
 # round
 y = [v_round(y[0]), v_round(y[1])]

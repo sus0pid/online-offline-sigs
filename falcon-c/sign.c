@@ -31,6 +31,7 @@
 
 #include "stdio.h"
 #include "inner.h"
+#include "math.h"
 
 /* =================================================================== */
 
@@ -47,6 +48,9 @@
  */
 
 /// ONLINE OFFLINE DEFINING SOME FUNCTIONS
+
+//#define NEAREST_PLANE_ENABLED
+
 void v_add(const fpr* a, const fpr* b, fpr* result, size_t size) {
     for (size_t i = 0; i < size; i++) {
         result[i] = fpr_add(a[i], b[i]);
@@ -83,7 +87,7 @@ void v_round(fpr* a, unsigned n, unsigned logn, size_t size) {
     Zf(iFFT)(a, logn);
     for (size_t i = 0; i < size; i++) {
         result[i] = fpr_rint(a[i]);
-		a[i]      = FPR(result[i]); 
+		a[i]      = fpr_of(result[i]); 
     }
     Zf(FFT)(a, logn);
 }
@@ -112,6 +116,16 @@ uint32_t rand32(void) {
     r ^= (unsigned) rand();
   }
   return r;
+}
+
+double calc_norm(const double* array, size_t size) {
+    double norm = 0.0;
+    
+    for (size_t i = 0; i < size; i++) {
+        norm += array[i] * array[i];
+    }
+    
+    return sqrt(norm);
 }
 
 /*
@@ -417,8 +431,15 @@ ffSampling_fft_dyntree(samplerZ samp, void *samp_ctx,
 
 		leaf = g00[0];
 		leaf = fpr_mul(fpr_sqrt(leaf), fpr_inv_sigma[orig_logn]);
-		t0[0] = fpr_of(samp(samp_ctx, t0[0], leaf));
-		t1[0] = fpr_of(samp(samp_ctx, t1[0], leaf));
+
+		#ifdef NEAREST_PLANE_ENABLED
+			t0[0] = fpr_of(fpr_rint(t0[0]));
+			t1[0] = fpr_of(fpr_rint(t1[0]));
+		#else
+			t0[0] = fpr_of(samp(samp_ctx, t0[0], leaf));
+			t1[0] = fpr_of(samp(samp_ctx, t1[0], leaf));
+		#endif		
+		
 		return;
 	}
 
@@ -1276,12 +1297,12 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 	int rand_size = 32;
 	fpr* x1 = calloc(rand_size, sizeof(fpr));
 	for (int i = 0; i < rand_size; i++) {
-		x1[i] = FPR(rand32());
+		x1[i] = fpr_of(rand32());
        // x1[i] = r1 % 2001 - 1000;
     }
 	fpr* x2 = calloc(rand_size, sizeof(fpr));
 	for (int i = 0; i < rand_size; i++) {
-		x2[i] = FPR(rand32());
+		x2[i] = fpr_of(rand32());
     }
 
 	/// calculate y = mat_mul(B0_inv_fft, x)
@@ -1320,6 +1341,10 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 	v_mul(c, y1, xx2a, n);
 	v_mul(d, y2, xx2b, n);
 	v_add(xx2a, xx2b, xx2, n);
+
+	//int loop;
+	//for(loop = 0; loop < 10; loop++)
+	//	printf("Output[%d]: (%d, %d),\n", loop, xx1[loop], xx2[loop]);
 
     return 0;
 }
@@ -1753,6 +1778,7 @@ Zf(sign_dyn)(int16_t *sig, inner_shake256_context *rng,
 		spc.sigma_min = fpr_sigma_min[logn];
 		Zf(prng_init)(&spc.p, rng);
 		samp = Zf(sampler);
+
 		samp_ctx = &spc;
 
 		/*
