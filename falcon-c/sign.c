@@ -51,56 +51,90 @@
 
 //#define NEAREST_PLANE_ENABLED
 
-void v_add(const fpr* a, const fpr* b, fpr* result, size_t size) {
+void v_add(const fpr a[], const fpr b[], fpr result[], size_t size) {
     for (size_t i = 0; i < size; i++) {
         result[i] = fpr_add(a[i], b[i]);
     }
 }
 
-void v_sub(const fpr* a, const fpr* b, fpr* result, size_t size) {
+void v_sub(const fpr a[], const fpr b[], fpr result[], size_t size) {
     for (size_t i = 0; i < size; i++) {
         result[i] = fpr_sub(a[i], b[i]);
     }
 }
 
-void v_mul(const fpr* a, const fpr* b, fpr* result, size_t size) {
+void v_mul(const fpr a[], const fpr b[], fpr result[], size_t size) {
     for (size_t i = 0; i < size; i++) {
         result[i] = fpr_mul(a[i], b[i]);
     }
 }
 
-void v_neg(const fpr* a, fpr* result, size_t size) {
+void v_neg(const fpr a[], fpr result[], size_t size) {
     for (size_t i = 0; i < size; i++) {
         result[i] = fpr_neg(a[i]);
     }
 }
 
-void v_inv(const fpr* a, fpr* result, size_t size) {
+void v_inv(const fpr a[], fpr result[], size_t size) {
     for (size_t i = 0; i < size; i++) {
         result[i] = fpr_inv(a[i]);
     }
 }
 
-void v_round(fpr* a, unsigned n, unsigned logn, size_t size) {
-	int64_t* result  = calloc(n, sizeof(int64_t));
-	//fpr* result_fpr  = calloc(n, sizeof(fpr));
+void v_round(const fpr a[], fpr result[], unsigned logn, size_t size) {
     Zf(iFFT)(a, logn);
     for (size_t i = 0; i < size; i++) {
-        result[i] = fpr_rint(a[i]);
-		a[i]      = fpr_of(result[i]); 
+        result[i] = fpr_of(fpr_rint(a[i]));
+		//a[i]      = fpr_of(result[i]); 
     }
-    Zf(FFT)(a, logn);
+    Zf(FFT)(result, logn);
 }
 
-/* currently not used
-fpr mat_mul(const fpr A[2][2], const fpr x[2], fpr y[2], size_t size) {
-    fpr temp[2];
+static inline int64_t
+fpr_print(fpr x)
+{
+	int64_t r;
+
+	r = (int64_t)x.v;
+	return r;
+}
+
+// void make_matrix(fpr A[2][2], const fpr arr1[], const fpr arr2[], const fpr arr3[], const fpr arr4[], size_t size) {
+//     A[0][0] = arr1[0];
+//     A[0][1] = arr2[0];
+//     A[1][0] = arr3[0];
+//     A[1][1] = arr4[0];
+// }
+
+// void make_vector(fpr A[], const fpr arr1[1], const fpr arr2[1], size_t size) {
+//     A[0] = arr1[0];
+//     A[1] = arr2[0];
+// }
+
+// rewriting this to just take 6 arrays as inputs instead of a 2x2 matrix of arrays and 2 arrays
+// void mat_mul(const fpr A[2][2], const fpr x[2], fpr y[2], size_t size) {
+//     fpr temp[2];
+//     for (size_t i = 0; i < size; i++) {
+//         v_mul(A[i], &x[i], temp, size);
+//         v_add(y, temp, y, size);
+//     }
+// }
+void mat_mul(const fpr A00[], const fpr A01[], const fpr A10[], const fpr A11[], const fpr x1[], const fpr x2[], fpr y1[], fpr y2[], size_t size) {
     for (size_t i = 0; i < size; i++) {
-        v_mul(A[i], x[i], temp, size);
-        v_add(y, temp, y, size);
+        fpr temp1 = fpr_add((A00[i], x1[i]), fpr_mul(A01[i], x2[i]));
+        fpr temp2 = fpr_add(fpr_mul(A10[i], x1[i]), fpr_mul(A11[i], x2[i]));
+        y1[i] = fpr_add(y1[i], temp1);
+        y2[i] = fpr_add(y2[i], temp2);
     }
 }
-*/
+
+// scalar is set to a float as this is what we need currently
+void v_scalar_mul(const fpr a[], const fpr s, fpr result[], size_t size) {
+	for (int i = 0; i < size; i++) {
+		// might need casting
+		result[i] = fpr_mul(s, a[i]);
+	}
+}
 
 int randint(int min, int max) {
     return min + rand() % (max - min + 1);
@@ -116,6 +150,22 @@ uint32_t rand32(void) {
     r ^= (unsigned) rand();
   }
   return r;
+}
+
+/// base gaussian sampler working 
+static void
+gaussian_sampler(int result[], size_t size)
+{
+    for (size_t i = 0; i < size; i++) {
+		uint32_t rand = rand32();
+		prng p;
+		p.buf.dummy_u64 = rand;
+        result[i] = Zf(gaussian0_sampler)(&p);
+		if (rand32() % 2 == 0) {
+			result[i] = -result[i];
+		}
+    }
+
 }
 
 double calc_norm(const double* array, size_t size) {
@@ -1224,6 +1274,163 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
     smallints_to_fpr(b00, g, logn);
     smallints_to_fpr(b11, F, logn);
     smallints_to_fpr(b10, G, logn);
+    Zf(FFT)(b01, logn); // f
+    Zf(FFT)(b00, logn); // g
+    Zf(FFT)(b11, logn); // F
+    Zf(FFT)(b10, logn); // G
+    Zf(poly_neg)(b01, logn);
+    Zf(poly_neg)(b11, logn);
+
+	/// ONLINE OFFLINE COMPUTATIONS
+	/// STAGE 1
+	/// set the copies of a,b,c,d
+	//fpr* smallg = calloc(n, sizeof(fpr));
+	fpr smallg[n];
+	memcpy(smallg, b00, n * sizeof(fpr));
+	
+	//fpr* smallf = calloc(n, sizeof(fpr));
+	fpr smallf[n];
+	memcpy(smallf, b01, n * sizeof(fpr));
+
+	//fpr* capG = calloc(n, sizeof(fpr));
+	fpr capG[n];	
+	memcpy(capG, b10, n * sizeof(fpr));
+
+	//fpr* capF = calloc(n, sizeof(fpr));
+	fpr capF[n];
+	memcpy(capF, b11, n * sizeof(fpr));	
+
+	/// make the qB0_inv_fft matrix
+	/// calc v_neg(g)
+	//fpr* v_neg_g = calloc(n, sizeof(fpr));
+	fpr v_neg_g[n];
+	v_neg(smallg, v_neg_g, n);
+	/// calc v_neg(F)
+	//fpr* v_neg_F = calloc(n, sizeof(fpr));
+	fpr v_neg_F[n];
+	v_neg(capF, v_neg_F, n);
+	/// format it
+	fpr qB0_inv_fft_fF_0[n];
+	fpr qB0_inv_fft_fF_1[n];
+	fpr qB0_inv_fft_gG_0[n];
+	fpr qB0_inv_fft_gG_1[n];
+
+	// qB0_inv_fft == capG, v_neg_g, v_neg_F, smallf
+
+	/// STAGE 2
+	/// running tests
+	/// 1st mat mult
+	mat_mul(capG, v_neg_g, v_neg_F, smallf, smallf, capF, qB0_inv_fft_fF_0, qB0_inv_fft_fF_1, n);
+	/// 2nd mat mult
+	mat_mul(capG, v_neg_g, v_neg_F, smallf, smallg, capG, qB0_inv_fft_gG_0, qB0_inv_fft_gG_1, n);
+
+	/// declare more
+	fpr qB0_inv_fft_fF_0_scalar0[n];
+	fpr qB0_inv_fft_fF_1_scalar1[n];
+	fpr qB0_inv_fft_gG_0_scalar0[n];
+	fpr qB0_inv_fft_gG_1_scalar1[n];
+
+	/// 1st and 2nd scalar mult
+	v_scalar_mul(qB0_inv_fft_fF_0, fpr_inverse_of_q, qB0_inv_fft_fF_0_scalar0, n);
+	v_scalar_mul(qB0_inv_fft_fF_1, fpr_inverse_of_q, qB0_inv_fft_fF_1_scalar1, n);
+	/// 3rd and 4th scalar mult
+	v_scalar_mul(qB0_inv_fft_gG_0, fpr_inverse_of_q, qB0_inv_fft_gG_0_scalar0, n);
+	v_scalar_mul(qB0_inv_fft_gG_1, fpr_inverse_of_q, qB0_inv_fft_gG_1_scalar1, n);
+
+	/// 4 roundings
+	/// declare
+	fpr qB0_inv_fft_fF_0_scalar0_rounded[n];
+	fpr qB0_inv_fft_fF_1_scalar1_rounded[n];
+	fpr qB0_inv_fft_gG_0_scalar0_rounded[n];
+	fpr qB0_inv_fft_gG_1_scalar1_rounded[n];
+
+	/// rounding
+	v_round(qB0_inv_fft_fF_0, qB0_inv_fft_fF_0_scalar0_rounded, logn, n);
+	v_round(qB0_inv_fft_fF_1, qB0_inv_fft_fF_1_scalar1_rounded, logn, n);
+	v_round(qB0_inv_fft_gG_0, qB0_inv_fft_gG_0_scalar0_rounded, logn, n);
+	v_round(qB0_inv_fft_gG_1, qB0_inv_fft_gG_1_scalar1_rounded, logn, n);
+
+	// int loop;
+	// for(loop = 0; loop < 10; loop++)
+	// 	printf("Output[%d]: (%llu, %llu, %llu, %llu),\n", loop, fpr_print(qB0_inv_fft_fF_0_scalar0_rounded[loop]), 
+	// 	fpr_print(qB0_inv_fft_fF_1_scalar1_rounded[loop]), fpr_print(qB0_inv_fft_gG_0_scalar0_rounded[loop]), fpr_print(qB0_inv_fft_gG_1_scalar1_rounded[loop]));
+
+	// /// STAGE 3 -- ONLINE
+	int rand_size = 64;
+	fpr x1[rand_size];
+	for (int i = 0; i < rand_size; i++) {
+		x1[i] = fpr_of(rand32());
+    }
+	fpr x2[rand_size];
+	for (int i = 0; i < rand_size; i++) {
+		x2[i] = fpr_of(rand32());
+    }
+
+	/// gaussian
+	fpr x3[rand_size];
+	gaussian_sampler(x3, n);
+
+	// testing randomness
+	int loop;
+	for(loop = 0; loop < 10; loop++)
+		printf("Output[%d]: (%d, %d, %d),\n", loop, x1[loop], x2[loop], x3[loop]);	
+
+	//int loop;
+	//for(loop = 0; loop < 10; loop++)
+	//	printf("Output[%d]: (%d, %d),\n", loop, xx1[loop], xx2[loop]);
+
+    return 0;
+}
+
+
+/// ONLINE OFFLINE DO SIGN FUNCTION
+static int
+do_sign_dyn_lazyOLD(samplerZ samp, void *samp_ctx, int16_t *s2,
+    const int8_t *restrict f, const int8_t *restrict g,
+    const int8_t *restrict F, const int8_t *restrict G,
+    const uint16_t *hm, unsigned logn, fpr *restrict tmp)
+{
+    size_t n;
+	//size_t u;
+    //fpr *t0, *t1, *tx, *ty;
+    fpr *b00, *b01, *b10, *b11; 
+	//fpr *g00, *g01, *g11;
+
+	//printf("Hello World");
+
+    /// ONLINE OFFLINE declare new stuff
+    //fpr *a, *b, *c, *d;
+    //fpr *a_inv, *bc, *bc_a, *aa, *bc_a_d;
+    
+    //fpr ni;
+    //uint32_t sqn, ng;
+    //int16_t *s1tmp, *s2tmp;
+
+
+	/// adding some stuff to get rid of warnings
+	samplerZ dummy1 = (samplerZ)samp;
+	dummy1 = dummy1+1;	
+	int8_t *dummy2 = (int8_t *)samp_ctx;
+	dummy2 = dummy2+1;
+	int16_t *dummy3 = (int16_t *)s2;
+	dummy3 = dummy3+1;
+	int16_t *dummy4 = (int16_t *)hm;
+	dummy4 = dummy4+1;
+	///
+
+    n = MKN(logn);
+
+    /*
+     * Lattice basis is B = [[g, -f], [G, -F]]. We convert it to FFT.
+     */
+    b00 = tmp;
+    b01 = b00 + n;
+    b10 = b01 + n;
+    b11 = b10 + n;
+    smallints_to_fpr(b01, f, logn);
+    smallints_to_fpr(b00, g, logn);
+    smallints_to_fpr(b11, F, logn);
+    smallints_to_fpr(b10, G, logn);
     Zf(FFT)(b01, logn);
     Zf(FFT)(b00, logn);
     Zf(FFT)(b11, logn);
@@ -1348,6 +1555,8 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 
     return 0;
 }
+
+
 
 
 /*

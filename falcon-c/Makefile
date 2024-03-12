@@ -44,11 +44,11 @@
 #               (normally not needed on x86, both 32-bit and 64-bit)
 
 # ONLINE/OFFLINE NOTES: add -DFALCON_FPEMU for emulated floating point arithmetic, 
-#                       remove or add FALCON_FPNATIVE for native.
+#                       remove or add -DFALCON_FPNATIVE for native.
 #                       -DNEAREST_PLANE_ENABLED adds rounding rather than SamplerZ.
 
 CC = clang
-CFLAGS = -Wall -Wextra -Wshadow -Wundef -O3 -DFALCON_FPEMU -DNEAREST_PLANE_ENABLED
+CFLAGS = -Wall -Wextra -Wshadow -Wundef -O3 -DNEAREST_PLANE_ENABLED -DFALCON_FPNATIVE
 #-pg -fno-pie
 LD = clang
 LDFLAGS = #-pg -no-pie
