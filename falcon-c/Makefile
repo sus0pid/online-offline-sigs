@@ -48,7 +48,7 @@
 #                       -DNEAREST_PLANE_ENABLED adds rounding rather than SamplerZ.
 
 CC = clang
-CFLAGS = -Wall -Wextra -Wshadow -Wundef -O3 -DNEAREST_PLANE_ENABLED -DFALCON_FPNATIVE
+CFLAGS = -Wall -Wextra -Wshadow -Wundef -O3 -DNEAREST_PLANE_ENABLED
 #-pg -fno-pie
 LD = clang
 LDFLAGS = #-pg -no-pie

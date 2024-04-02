@@ -90,14 +90,14 @@ void v_round(const fpr a[], fpr result[], unsigned logn, size_t size) {
     Zf(FFT)(result, logn);
 }
 
-static inline int64_t
-fpr_print(fpr x)
-{
-	int64_t r;
+// static inline int64_t
+// fpr_print(fpr x)
+// {
+// 	int64_t r;
 
-	r = (int64_t)x.v;
-	return r;
-}
+// 	r = (int64_t)x.v;
+// 	return r;
+// }
 
 // void make_matrix(fpr A[2][2], const fpr arr1[], const fpr arr2[], const fpr arr3[], const fpr arr4[], size_t size) {
 //     A[0][0] = arr1[0];
@@ -1251,14 +1251,14 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 
 
 	/// adding some stuff to get rid of warnings
-	samplerZ dummy1 = (samplerZ)samp;
-	dummy1 = dummy1+1;	
-	int8_t *dummy2 = (int8_t *)samp_ctx;
-	dummy2 = dummy2+1;
-	int16_t *dummy3 = (int16_t *)s2;
-	dummy3 = dummy3+1;
-	int16_t *dummy4 = (int16_t *)hm;
-	dummy4 = dummy4+1;
+	// samplerZ dummy1 = (samplerZ)samp;
+	// dummy1 = dummy1+1;	
+	// int8_t *dummy2 = (int8_t *)samp_ctx;
+	// dummy2 = dummy2+1;
+	// int16_t *dummy3 = (int16_t *)s2;
+	// dummy3 = dummy3+1;
+	// int16_t *dummy4 = (int16_t *)hm;
+	// dummy4 = dummy4+1;
 	///
 
     n = MKN(logn);
@@ -1278,6 +1278,8 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
     Zf(FFT)(b00, logn); // g
     Zf(FFT)(b11, logn); // F
     Zf(FFT)(b10, logn); // G
+
+	// don't need v_neg for parts of the implementation now
     Zf(poly_neg)(b01, logn);
     Zf(poly_neg)(b11, logn);
 
@@ -1304,11 +1306,17 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 	/// calc v_neg(g)
 	//fpr* v_neg_g = calloc(n, sizeof(fpr));
 	fpr v_neg_g[n];
-	v_neg(smallg, v_neg_g, n);
+	memcpy(smallg, smallg, n * sizeof(fpr));	
+
+	//v_neg(smallg, v_neg_g, n);
+	
 	/// calc v_neg(F)
 	//fpr* v_neg_F = calloc(n, sizeof(fpr));
 	fpr v_neg_F[n];
-	v_neg(capF, v_neg_F, n);
+	memcpy(capF, capF, n * sizeof(fpr));	
+
+	//v_neg(capF, v_neg_F, n);
+	
 	/// format it
 	fpr qB0_inv_fft_fF_0[n];
 	fpr qB0_inv_fft_fF_1[n];
@@ -1318,7 +1326,8 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 	// qB0_inv_fft == capG, v_neg_g, v_neg_F, smallf
 
 	/// STAGE 2
-	/// running tests
+	/// running tests, comment this out for benchmarks
+	/*
 	/// 1st mat mult
 	mat_mul(capG, v_neg_g, v_neg_F, smallf, smallf, capF, qB0_inv_fft_fF_0, qB0_inv_fft_fF_1, n);
 	/// 2nd mat mult
@@ -1349,6 +1358,7 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 	v_round(qB0_inv_fft_fF_1, qB0_inv_fft_fF_1_scalar1_rounded, logn, n);
 	v_round(qB0_inv_fft_gG_0, qB0_inv_fft_gG_0_scalar0_rounded, logn, n);
 	v_round(qB0_inv_fft_gG_1, qB0_inv_fft_gG_1_scalar1_rounded, logn, n);
+	*/
 
 	// int loop;
 	// for(loop = 0; loop < 10; loop++)
@@ -1356,24 +1366,55 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 	// 	fpr_print(qB0_inv_fft_fF_1_scalar1_rounded[loop]), fpr_print(qB0_inv_fft_gG_0_scalar0_rounded[loop]), fpr_print(qB0_inv_fft_gG_1_scalar1_rounded[loop]));
 
 	// /// STAGE 3 -- ONLINE
-	int rand_size = 64;
-	fpr x1[rand_size];
-	for (int i = 0; i < rand_size; i++) {
-		x1[i] = fpr_of(rand32());
+	// get random array t
+	fpr x1[n];
+	for (int i = 0; i < n; i++) {
+		x1[i] = fpr_of(rand32()); // may need mod q
     }
-	fpr x2[rand_size];
-	for (int i = 0; i < rand_size; i++) {
-		x2[i] = fpr_of(rand32());
-    }
+	// put this into x = x1,x2
+	// fpr x1[n];
+    // memset(x1, t, n * sizeof(fpr));
+	fpr x2[n];
+    memset(x2, 0, n * sizeof(fpr));
+	Zf(FFT)(x1, logn);		
+	Zf(FFT)(x2, logn);		
 
-	/// gaussian
-	fpr x3[rand_size];
-	gaussian_sampler(x3, n);
+	// inverse, calc y
+	// qB0_inv_fft == capG, v_neg_g, v_neg_F, smallf
+	fpr y1[n]; // this is (qB0_inv_fft * x)[0];
+	fpr y2[n]; // this is (qB0_inv_fft * x)[1];
+	mat_mul(capG, v_neg_g, v_neg_F, smallf, x1, x2, y1, y2, n);
+	// round, scale y and then round
+	fpr y1_scaled[n];
+	fpr y2_scaled[n];
+	v_scalar_mul(y1, fpr_inverse_of_q, y1_scaled, n);
+	v_scalar_mul(y2, fpr_inverse_of_q, y2_scaled, n);
+	fpr y1_round[n];
+	fpr y2_round[n];
+	v_round(y1_scaled, y1_round, logn, n);
+	v_round(y2_scaled, y2_round, logn, n);
+
+	// forward, take sk and mult by new y
+	// sk.B0_fft == smallf, smallg, capF, capG
+	fpr sk_y1[n];
+	fpr sk_y2[n];
+	mat_mul(smallf, smallg, capF, capG, y1_round, y2_round, sk_y1, sk_y2, n);
+
+	// subtraction, x-y
+	fpr final_x1[n];
+	fpr final_x2[n];	
+	v_sub(x1, sk_y1, final_x1, n);
+	v_sub(x2, sk_y2, final_x2, n);
+
+	// gaussian
+	//fpr x3[n];
+	//gaussian_sampler(x3, n);
+	//v_add(x1,x3,x2,n);
 
 	// testing randomness
-	int loop;
-	for(loop = 0; loop < 10; loop++)
-		printf("Output[%d]: (%d, %d, %d),\n", loop, x1[loop], x2[loop], x3[loop]);	
+	// int loop;
+	// for(loop = 0; loop < 10; loop++)
+	// 	printf("Output[%d]: (%d, %d, %d),\n", loop, x1[loop], x2[loop], final_x1[loop]);	
 
 	//int loop;
 	//for(loop = 0; loop < 10; loop++)
