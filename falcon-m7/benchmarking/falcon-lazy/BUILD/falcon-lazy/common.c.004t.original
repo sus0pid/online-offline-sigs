@@ -1,0 +1,527 @@
+
+;; Function set_fpu_cw (null)
+;; enabled by -tree-original
+
+
+{
+  return x;
+}
+
+
+;; Function fpr_ursh (null)
+;; enabled by -tree-original
+
+
+{
+  x = (long long unsigned int) (x >> 32 ^ x) & -(long long unsigned int) (n >> 5) ^ (long long unsigned int) x;
+  return x >> (n & 31);
+}
+
+
+;; Function fpr_irsh (null)
+;; enabled by -tree-original
+
+
+{
+  x = (long long int) (x >> 32 ^ x) & -(long long int) (n >> 5) ^ (long long int) x;
+  return x >> (n & 31);
+}
+
+
+;; Function fpr_ulsh (null)
+;; enabled by -tree-original
+
+
+{
+  x = (long long unsigned int) (x << 32 ^ x) & -(long long unsigned int) (n >> 5) ^ (long long unsigned int) x;
+  return x << (n & 31);
+}
+
+
+;; Function FPR (null)
+;; enabled by -tree-original
+
+
+{
+  fpr x;
+  uint32_t t;
+  unsigned int f;
+
+    fpr x;
+    uint32_t t;
+    unsigned int f;
+  e = e + 1076;
+  t = (long unsigned int) e >> 31;
+  m = (long long unsigned int) t + 18446744073709551615 & (long long unsigned int) m;
+  t = (long unsigned int) (m >> 54);
+  e = -(int) t & e;
+  x = ((long long unsigned int) s << 63 | (long long unsigned int) (m >> 2)) + ((long long unsigned int) (long unsigned int) e << 52);
+  f = (unsigned int) m & 7;
+  x = ((fpr) (200 >> f) & 1) + x;
+  return x;
+}
+
+
+;; Function fpr_of (null)
+;; enabled by -tree-original
+
+
+{
+  return falcon_inner_fpr_scaled (i, 0);
+}
+
+
+;; Function fpr_rint (null)
+;; enabled by -tree-original
+
+
+{
+  uint64_t m;
+  uint64_t d;
+  int e;
+  uint32_t s;
+  uint32_t dd;
+  uint32_t f;
+
+    uint64_t m;
+    uint64_t d;
+    int e;
+    uint32_t s;
+    uint32_t dd;
+    uint32_t f;
+  m = (long long unsigned int) (x << 10) & 4611686018427387903 | 4611686018427387904;
+  e = 1085 - ((int) (x >> 52) & 2047);
+  m = -(long long unsigned int) ((long unsigned int) (e + -64) >> 31) & (long long unsigned int) m;
+  e = e & 63;
+  d = fpr_ulsh (m, 63 - e);
+  dd = (long unsigned int) d | (long unsigned int) (d >> 32) & 536870911;
+  f = (long unsigned int) (d >> 61) | (long unsigned int) ((-dd | dd) >> 31);
+  m = (long long unsigned int) fpr_ursh (m, e) + ((long long unsigned int) (200 >> f) & 1);
+  s = (long unsigned int) (x >> 63);
+  return (int64_t) ((-(long long int) s ^ (long long int) m) + (long long int) s);
+}
+
+
+;; Function fpr_floor (null)
+;; enabled by -tree-original
+
+
+{
+  uint64_t t;
+  int64_t xi;
+  int e;
+  int cc;
+
+    uint64_t t;
+    int64_t xi;
+    int e;
+    int cc;
+  e = (int) (x >> 52) & 2047;
+  t = x >> 63;
+  xi = (long long int) ((long long unsigned int) (x << 10) | 4611686018427387904) & 9223372036854775807;
+  xi = (-(long long int) t ^ (long long int) xi) + (long long int) t;
+  cc = 1085 - e;
+  xi = fpr_irsh (xi, cc & 63);
+  xi = (-(long long int) t ^ (long long int) xi) & -(long long int) ((long unsigned int) (63 - cc) >> 31) ^ (long long int) xi;
+  return xi;
+}
+
+
+;; Function fpr_trunc (null)
+;; enabled by -tree-original
+
+
+{
+  uint64_t t;
+  uint64_t xu;
+  int e;
+  int cc;
+
+    uint64_t t;
+    uint64_t xu;
+    int e;
+    int cc;
+  e = (int) (x >> 52) & 2047;
+  xu = (long long unsigned int) (x << 10) & 4611686018427387903 | 4611686018427387904;
+  cc = 1085 - e;
+  xu = fpr_ursh (xu, cc & 63);
+  xu = -(long long unsigned int) ((long unsigned int) (cc + -64) >> 31) & (long long unsigned int) xu;
+  t = x >> 63;
+  xu = (-t ^ xu) + t;
+  return *(int64_t *) &xu;
+}
+
+
+;; Function fpr_sub (null)
+;; enabled by -tree-original
+
+
+{
+  y = (long long unsigned int) y ^ 9223372036854775808;
+  return falcon_inner_fpr_add (x, y);
+}
+
+
+;; Function fpr_neg (null)
+;; enabled by -tree-original
+
+
+{
+  x = (long long unsigned int) x ^ 9223372036854775808;
+  return x;
+}
+
+
+;; Function fpr_half (null)
+;; enabled by -tree-original
+
+
+{
+  uint32_t t;
+
+    uint32_t t;
+  x = (long long unsigned int) x + 18442240474082181120;
+  t = ((long unsigned int) (x >> 52) & 2047) + 1 >> 11;
+  x = (long long unsigned int) t + 18446744073709551615 & (long long unsigned int) x;
+  return x;
+}
+
+
+;; Function fpr_double (null)
+;; enabled by -tree-original
+
+
+{
+  x = ((long long unsigned int) (((unsigned int) (x >> 52) & 2047) + 2047 >> 11) << 52) + (long long unsigned int) x;
+  return x;
+}
+
+
+;; Function fpr_sqr (null)
+;; enabled by -tree-original
+
+
+{
+  return falcon_inner_fpr_mul (x, x);
+}
+
+
+;; Function fpr_inv (null)
+;; enabled by -tree-original
+
+
+{
+  return falcon_inner_fpr_div (4607182418800017408, x);
+}
+
+
+;; Function fpr_lt (null)
+;; enabled by -tree-original
+
+
+{
+  int cc0;
+  int cc1;
+
+    int cc0;
+    int cc1;
+  cc0 = *(int64_t *) &x < *(int64_t *) &y;
+  cc1 = *(int64_t *) &x > *(int64_t *) &y;
+  return (cc0 ^ cc1) & (int) ((x & y) >> 63) ^ cc0;
+}
+
+
+;; Function prng_get_u64 (null)
+;; enabled by -tree-original
+
+
+{
+  size_t u;
+
+    size_t u;
+  u = p->ptr;
+  if (u > 502)
+    {
+      falcon_inner_prng_refill (p);
+      u = 0;
+    }
+  p->ptr = u + 8;
+  return (uint64_t) ((((((((long long unsigned int) p->buf.d[u] | (long long unsigned int) p->buf.d[u + 1] << 8) | (long long unsigned int) p->buf.d[u + 2] << 16) | (long long unsigned int) p->buf.d[u + 3] << 24) | (long long unsigned int) p->buf.d[u + 4] << 32) | (long long unsigned int) p->buf.d[u + 5] << 40) | (long long unsigned int) p->buf.d[u + 6] << 48) | (long long unsigned int) p->buf.d[u + 7] << 56);
+}
+
+
+;; Function prng_get_u8 (null)
+;; enabled by -tree-original
+
+
+{
+  unsigned int v;
+
+    unsigned int v;
+  v = (unsigned int) p->buf.d[p->ptr++ ];
+  if (p->ptr == 512)
+    {
+      falcon_inner_prng_refill (p);
+    }
+  return v;
+}
+
+
+;; Function falcon_inner_hash_to_point_vartime (null)
+;; enabled by -tree-original
+
+
+{
+  size_t n;
+
+    size_t n;
+  n = 1 << logn;
+  goto <D.6919>;
+  <D.6918>:;
+  {
+    uint8_t buf[2];
+    uint32_t w;
+
+        uint8_t buf[2];
+        uint32_t w;
+    falcon_inner_i_shake256_extract (sc, (uint8_t *) &buf, 2);
+    w = (uint32_t) ((unsigned int) buf[0] << 8 | (unsigned int) buf[1]);
+    if (w <= 61444)
+      {
+        goto <D.6916>;
+        <D.6915>:;
+        w = (long unsigned int) w + 4294955007;
+        <D.6916>:;
+        if (w > 12288) goto <D.6915>; else goto <D.6917>;
+        <D.6917>:;
+        *x++  = (short unsigned int) w;
+        n-- ;
+      }
+  }
+  <D.6919>:;
+  if (n != 0) goto <D.6918>; else goto <D.6920>;
+  <D.6920>:;
+}
+
+
+;; Function falcon_inner_hash_to_point_ct (null)
+;; enabled by -tree-original
+
+
+{
+  static const uint16_t overtab[11] = {0, 65, 67, 71, 77, 86, 100, 122, 154, 205, 287};
+  unsigned int n;
+  unsigned int n2;
+  unsigned int u;
+  unsigned int m;
+  unsigned int p;
+  unsigned int over;
+  uint16_t * tt1;
+  uint16_t tt2[63];
+
+    static const uint16_t overtab[11] = {0, 65, 67, 71, 77, 86, 100, 122, 154, 205, 287};
+    unsigned int n;
+    unsigned int n2;
+    unsigned int u;
+    unsigned int m;
+    unsigned int p;
+    unsigned int over;
+    uint16_t * tt1;
+    uint16_t tt2[63];
+  n = 1 << logn;
+  n2 = n << 1;
+  over = (unsigned int) overtab[logn];
+  m = n + over;
+  tt1 = (uint16_t *) tmp;
+  u = 0;
+  goto <D.6940>;
+  <D.6939>:;
+  {
+    uint8_t buf[2];
+    uint32_t w;
+    uint32_t wr;
+
+        uint8_t buf[2];
+        uint32_t w;
+        uint32_t wr;
+    falcon_inner_i_shake256_extract (sc, (uint8_t *) &buf, 2);
+    w = (long unsigned int) buf[0] << 8 | (long unsigned int) buf[1];
+    wr = (long unsigned int) w - (((long unsigned int) w + 4294942718 >> 31) + 4294967295 & 24578);
+    wr = (long unsigned int) wr - (((long unsigned int) wr + 4294942718 >> 31) + 4294967295 & 24578);
+    wr = (long unsigned int) wr - (((long unsigned int) wr + 4294955007 >> 31) + 4294967295 & 12289);
+    wr = ((long unsigned int) w + 4294905851 >> 31) + 4294967295 | (long unsigned int) wr;
+    if (u < n)
+      {
+        *(x + (sizetype) (u * 2)) = (short unsigned int) wr;
+      }
+    else
+      {
+        if (u < n2)
+          {
+            *(tt1 + (sizetype) ((u - n) * 2)) = (short unsigned int) wr;
+          }
+        else
+          {
+            tt2[u - n2] = (short unsigned int) wr;
+          }
+      }
+  }
+  u++ ;
+  <D.6940>:;
+  if (u < m) goto <D.6939>; else goto <D.6941>;
+  <D.6941>:;
+  p = 1;
+  goto <D.6954>;
+  <D.6953>:;
+  {
+    unsigned int v;
+
+        unsigned int v;
+    v = 0;
+    u = 0;
+    goto <D.6951>;
+    <D.6950>:;
+    {
+      uint16_t * s;
+      uint16_t * d;
+      unsigned int j;
+      unsigned int sv;
+      unsigned int dv;
+      unsigned int mk;
+
+            uint16_t * s;
+            uint16_t * d;
+            unsigned int j;
+            unsigned int sv;
+            unsigned int dv;
+            unsigned int mk;
+      if (u < n)
+        {
+          s = x + (sizetype) (u * 2);
+        }
+      else
+        {
+          if (u < n2)
+            {
+              s = tt1 + (sizetype) ((u - n) * 2);
+            }
+          else
+            {
+              s = &tt2[u - n2];
+            }
+        }
+      sv = (unsigned int) *s;
+      j = u - v;
+      mk = (sv >> 15) + 4294967295;
+      v = v - mk;
+      if (u < p)
+        {
+          // predicted unlikely by continue predictor.;
+          goto <D.6949>;
+        }
+      if (u - p < n)
+        {
+          d = x + (sizetype) ((u - p) * 2);
+        }
+      else
+        {
+          if (u - p < n2)
+            {
+              d = tt1 + (sizetype) (((u - p) - n) * 2);
+            }
+          else
+            {
+              d = &tt2[(u - p) - n2];
+            }
+        }
+      dv = (unsigned int) *d;
+      mk = -((j & p) + 511 >> 9) & mk;
+      *s = (short unsigned int) sv ^ (short unsigned int) mk & ((short unsigned int) sv ^ (short unsigned int) dv);
+      *d = (short unsigned int) dv ^ (short unsigned int) mk & ((short unsigned int) sv ^ (short unsigned int) dv);
+    }
+    <D.6949>:;
+    u++ ;
+    <D.6951>:;
+    if (u < m) goto <D.6950>; else goto <D.6952>;
+    <D.6952>:;
+  }
+  p = p << 1;
+  <D.6954>:;
+  if (p <= over) goto <D.6953>; else goto <D.6955>;
+  <D.6955>:;
+}
+
+
+;; Function falcon_inner_is_short (null)
+;; enabled by -tree-original
+
+
+{
+  size_t n;
+  size_t u;
+  uint32_t s;
+  uint32_t ng;
+
+    size_t n;
+    size_t u;
+    uint32_t s;
+    uint32_t ng;
+  n = 1 << logn;
+  s = 0;
+  ng = 0;
+  u = 0;
+  goto <D.6968>;
+  <D.6967>:;
+  {
+    int32_t z;
+
+        int32_t z;
+    z = (int32_t) *(s1 + (sizetype) (u * 2));
+    s = (long unsigned int) (z * z) + (long unsigned int) s;
+    ng = ng | s;
+    z = (int32_t) *(s2 + (sizetype) (u * 2));
+    s = (long unsigned int) (z * z) + (long unsigned int) s;
+    ng = ng | s;
+  }
+  u++ ;
+  <D.6968>:;
+  if (u < n) goto <D.6967>; else goto <D.6969>;
+  <D.6969>:;
+  s = (uint32_t) ((signed int) ng >> 31) | s;
+  return l2bound[logn] >= (const uint32_t) s;
+}
+
+
+;; Function falcon_inner_is_short_half (null)
+;; enabled by -tree-original
+
+
+{
+  size_t n;
+  size_t u;
+  uint32_t ng;
+
+    size_t n;
+    size_t u;
+    uint32_t ng;
+  n = 1 << logn;
+  ng = (uint32_t) ((signed int) sqn >> 31);
+  u = 0;
+  goto <D.6980>;
+  <D.6979>:;
+  {
+    int32_t z;
+
+        int32_t z;
+    z = (int32_t) *(s2 + (sizetype) (u * 2));
+    sqn = (long unsigned int) (z * z) + (long unsigned int) sqn;
+    ng = ng | sqn;
+  }
+  u++ ;
+  <D.6980>:;
+  if (u < n) goto <D.6979>; else goto <D.6981>;
+  <D.6981>:;
+  sqn = (uint32_t) ((signed int) ng >> 31) | sqn;
+  return l2bound[logn] >= (const uint32_t) sqn;
+}
+

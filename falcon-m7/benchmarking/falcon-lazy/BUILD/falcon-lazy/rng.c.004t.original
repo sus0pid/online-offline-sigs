@@ -1,0 +1,495 @@
+
+;; Function set_fpu_cw (null)
+;; enabled by -tree-original
+
+
+{
+  return x;
+}
+
+
+;; Function fpr_ursh (null)
+;; enabled by -tree-original
+
+
+{
+  x = (long long unsigned int) (x >> 32 ^ x) & -(long long unsigned int) (n >> 5) ^ (long long unsigned int) x;
+  return x >> (n & 31);
+}
+
+
+;; Function fpr_irsh (null)
+;; enabled by -tree-original
+
+
+{
+  x = (long long int) (x >> 32 ^ x) & -(long long int) (n >> 5) ^ (long long int) x;
+  return x >> (n & 31);
+}
+
+
+;; Function fpr_ulsh (null)
+;; enabled by -tree-original
+
+
+{
+  x = (long long unsigned int) (x << 32 ^ x) & -(long long unsigned int) (n >> 5) ^ (long long unsigned int) x;
+  return x << (n & 31);
+}
+
+
+;; Function FPR (null)
+;; enabled by -tree-original
+
+
+{
+  fpr x;
+  uint32_t t;
+  unsigned int f;
+
+    fpr x;
+    uint32_t t;
+    unsigned int f;
+  e = e + 1076;
+  t = (long unsigned int) e >> 31;
+  m = (long long unsigned int) t + 18446744073709551615 & (long long unsigned int) m;
+  t = (long unsigned int) (m >> 54);
+  e = -(int) t & e;
+  x = ((long long unsigned int) s << 63 | (long long unsigned int) (m >> 2)) + ((long long unsigned int) (long unsigned int) e << 52);
+  f = (unsigned int) m & 7;
+  x = ((fpr) (200 >> f) & 1) + x;
+  return x;
+}
+
+
+;; Function fpr_of (null)
+;; enabled by -tree-original
+
+
+{
+  return falcon_inner_fpr_scaled (i, 0);
+}
+
+
+;; Function fpr_rint (null)
+;; enabled by -tree-original
+
+
+{
+  uint64_t m;
+  uint64_t d;
+  int e;
+  uint32_t s;
+  uint32_t dd;
+  uint32_t f;
+
+    uint64_t m;
+    uint64_t d;
+    int e;
+    uint32_t s;
+    uint32_t dd;
+    uint32_t f;
+  m = (long long unsigned int) (x << 10) & 4611686018427387903 | 4611686018427387904;
+  e = 1085 - ((int) (x >> 52) & 2047);
+  m = -(long long unsigned int) ((long unsigned int) (e + -64) >> 31) & (long long unsigned int) m;
+  e = e & 63;
+  d = fpr_ulsh (m, 63 - e);
+  dd = (long unsigned int) d | (long unsigned int) (d >> 32) & 536870911;
+  f = (long unsigned int) (d >> 61) | (long unsigned int) ((-dd | dd) >> 31);
+  m = (long long unsigned int) fpr_ursh (m, e) + ((long long unsigned int) (200 >> f) & 1);
+  s = (long unsigned int) (x >> 63);
+  return (int64_t) ((-(long long int) s ^ (long long int) m) + (long long int) s);
+}
+
+
+;; Function fpr_floor (null)
+;; enabled by -tree-original
+
+
+{
+  uint64_t t;
+  int64_t xi;
+  int e;
+  int cc;
+
+    uint64_t t;
+    int64_t xi;
+    int e;
+    int cc;
+  e = (int) (x >> 52) & 2047;
+  t = x >> 63;
+  xi = (long long int) ((long long unsigned int) (x << 10) | 4611686018427387904) & 9223372036854775807;
+  xi = (-(long long int) t ^ (long long int) xi) + (long long int) t;
+  cc = 1085 - e;
+  xi = fpr_irsh (xi, cc & 63);
+  xi = (-(long long int) t ^ (long long int) xi) & -(long long int) ((long unsigned int) (63 - cc) >> 31) ^ (long long int) xi;
+  return xi;
+}
+
+
+;; Function fpr_trunc (null)
+;; enabled by -tree-original
+
+
+{
+  uint64_t t;
+  uint64_t xu;
+  int e;
+  int cc;
+
+    uint64_t t;
+    uint64_t xu;
+    int e;
+    int cc;
+  e = (int) (x >> 52) & 2047;
+  xu = (long long unsigned int) (x << 10) & 4611686018427387903 | 4611686018427387904;
+  cc = 1085 - e;
+  xu = fpr_ursh (xu, cc & 63);
+  xu = -(long long unsigned int) ((long unsigned int) (cc + -64) >> 31) & (long long unsigned int) xu;
+  t = x >> 63;
+  xu = (-t ^ xu) + t;
+  return *(int64_t *) &xu;
+}
+
+
+;; Function fpr_sub (null)
+;; enabled by -tree-original
+
+
+{
+  y = (long long unsigned int) y ^ 9223372036854775808;
+  return falcon_inner_fpr_add (x, y);
+}
+
+
+;; Function fpr_neg (null)
+;; enabled by -tree-original
+
+
+{
+  x = (long long unsigned int) x ^ 9223372036854775808;
+  return x;
+}
+
+
+;; Function fpr_half (null)
+;; enabled by -tree-original
+
+
+{
+  uint32_t t;
+
+    uint32_t t;
+  x = (long long unsigned int) x + 18442240474082181120;
+  t = ((long unsigned int) (x >> 52) & 2047) + 1 >> 11;
+  x = (long long unsigned int) t + 18446744073709551615 & (long long unsigned int) x;
+  return x;
+}
+
+
+;; Function fpr_double (null)
+;; enabled by -tree-original
+
+
+{
+  x = ((long long unsigned int) (((unsigned int) (x >> 52) & 2047) + 2047 >> 11) << 52) + (long long unsigned int) x;
+  return x;
+}
+
+
+;; Function fpr_sqr (null)
+;; enabled by -tree-original
+
+
+{
+  return falcon_inner_fpr_mul (x, x);
+}
+
+
+;; Function fpr_inv (null)
+;; enabled by -tree-original
+
+
+{
+  return falcon_inner_fpr_div (4607182418800017408, x);
+}
+
+
+;; Function fpr_lt (null)
+;; enabled by -tree-original
+
+
+{
+  int cc0;
+  int cc1;
+
+    int cc0;
+    int cc1;
+  cc0 = *(int64_t *) &x < *(int64_t *) &y;
+  cc1 = *(int64_t *) &x > *(int64_t *) &y;
+  return (cc0 ^ cc1) & (int) ((x & y) >> 63) ^ cc0;
+}
+
+
+;; Function prng_get_u64 (null)
+;; enabled by -tree-original
+
+
+{
+  size_t u;
+
+    size_t u;
+  u = p->ptr;
+  if (u > 502)
+    {
+      falcon_inner_prng_refill (p);
+      u = 0;
+    }
+  p->ptr = u + 8;
+  return (uint64_t) ((((((((long long unsigned int) p->buf.d[u] | (long long unsigned int) p->buf.d[u + 1] << 8) | (long long unsigned int) p->buf.d[u + 2] << 16) | (long long unsigned int) p->buf.d[u + 3] << 24) | (long long unsigned int) p->buf.d[u + 4] << 32) | (long long unsigned int) p->buf.d[u + 5] << 40) | (long long unsigned int) p->buf.d[u + 6] << 48) | (long long unsigned int) p->buf.d[u + 7] << 56);
+}
+
+
+;; Function prng_get_u8 (null)
+;; enabled by -tree-original
+
+
+{
+  unsigned int v;
+
+    unsigned int v;
+  v = (unsigned int) p->buf.d[p->ptr++ ];
+  if (p->ptr == 512)
+    {
+      falcon_inner_prng_refill (p);
+    }
+  return v;
+}
+
+
+;; Function falcon_inner_get_seed (null)
+;; enabled by -tree-original
+
+
+{
+  (void) seed;
+  if (len == 0)
+    {
+      return 1;
+    }
+  return 0;
+}
+
+
+;; Function falcon_inner_prng_init (null)
+;; enabled by -tree-original
+
+
+{
+  falcon_inner_i_shake256_extract (src, (uint8_t *) &p->state.d, 56);
+  falcon_inner_prng_refill (p);
+}
+
+
+;; Function falcon_inner_prng_refill (null)
+;; enabled by -tree-original
+
+
+{
+  static const uint32_t CW[4] = {1634760805, 857760878, 2036477234, 1797285236};
+  uint64_t cc;
+  size_t u;
+
+    static const uint32_t CW[4] = {1634760805, 857760878, 2036477234, 1797285236};
+    uint64_t cc;
+    size_t u;
+  cc = *((uint64_t *) &p->state.d + 48);
+  u = 0;
+  goto <D.6946>;
+  <D.6945>:;
+  {
+    uint32_t state[16];
+    size_t v;
+    int i;
+
+        uint32_t state[16];
+        size_t v;
+        int i;
+    memcpy ((void * restrict) &state[0], (const void * restrict) &CW, 16);
+    memcpy ((void * restrict) &state[4], (const void * restrict) &p->state.d, 48);
+    state[14] = (long unsigned int) state[14] ^ (long unsigned int) cc;
+    state[15] = (long unsigned int) state[15] ^ (long unsigned int) (cc >> 32);
+    i = 0;
+    goto <D.6934>;
+    <D.6933>:;
+    state[0] = state[0] + state[4];
+    state[12] = state[12] ^ state[0];
+    state[12] = state[12] r<< 16;
+    state[8] = state[8] + state[12];
+    state[4] = state[4] ^ state[8];
+    state[4] = state[4] r<< 12;
+    state[0] = state[0] + state[4];
+    state[12] = state[12] ^ state[0];
+    state[12] = state[12] r<< 8;
+    state[8] = state[8] + state[12];
+    state[4] = state[4] ^ state[8];
+    state[4] = state[4] r<< 7;
+    state[1] = state[1] + state[5];
+    state[13] = state[13] ^ state[1];
+    state[13] = state[13] r<< 16;
+    state[9] = state[9] + state[13];
+    state[5] = state[5] ^ state[9];
+    state[5] = state[5] r<< 12;
+    state[1] = state[1] + state[5];
+    state[13] = state[13] ^ state[1];
+    state[13] = state[13] r<< 8;
+    state[9] = state[9] + state[13];
+    state[5] = state[5] ^ state[9];
+    state[5] = state[5] r<< 7;
+    state[2] = state[2] + state[6];
+    state[14] = state[14] ^ state[2];
+    state[14] = state[14] r<< 16;
+    state[10] = state[10] + state[14];
+    state[6] = state[6] ^ state[10];
+    state[6] = state[6] r<< 12;
+    state[2] = state[2] + state[6];
+    state[14] = state[14] ^ state[2];
+    state[14] = state[14] r<< 8;
+    state[10] = state[10] + state[14];
+    state[6] = state[6] ^ state[10];
+    state[6] = state[6] r<< 7;
+    state[3] = state[3] + state[7];
+    state[15] = state[15] ^ state[3];
+    state[15] = state[15] r<< 16;
+    state[11] = state[11] + state[15];
+    state[7] = state[7] ^ state[11];
+    state[7] = state[7] r<< 12;
+    state[3] = state[3] + state[7];
+    state[15] = state[15] ^ state[3];
+    state[15] = state[15] r<< 8;
+    state[11] = state[11] + state[15];
+    state[7] = state[7] ^ state[11];
+    state[7] = state[7] r<< 7;
+    state[0] = state[0] + state[5];
+    state[15] = state[15] ^ state[0];
+    state[15] = state[15] r<< 16;
+    state[10] = state[10] + state[15];
+    state[5] = state[5] ^ state[10];
+    state[5] = state[5] r<< 12;
+    state[0] = state[0] + state[5];
+    state[15] = state[15] ^ state[0];
+    state[15] = state[15] r<< 8;
+    state[10] = state[10] + state[15];
+    state[5] = state[5] ^ state[10];
+    state[5] = state[5] r<< 7;
+    state[1] = state[1] + state[6];
+    state[12] = state[12] ^ state[1];
+    state[12] = state[12] r<< 16;
+    state[11] = state[11] + state[12];
+    state[6] = state[6] ^ state[11];
+    state[6] = state[6] r<< 12;
+    state[1] = state[1] + state[6];
+    state[12] = state[12] ^ state[1];
+    state[12] = state[12] r<< 8;
+    state[11] = state[11] + state[12];
+    state[6] = state[6] ^ state[11];
+    state[6] = state[6] r<< 7;
+    state[2] = state[2] + state[7];
+    state[13] = state[13] ^ state[2];
+    state[13] = state[13] r<< 16;
+    state[8] = state[8] + state[13];
+    state[7] = state[7] ^ state[8];
+    state[7] = state[7] r<< 12;
+    state[2] = state[2] + state[7];
+    state[13] = state[13] ^ state[2];
+    state[13] = state[13] r<< 8;
+    state[8] = state[8] + state[13];
+    state[7] = state[7] ^ state[8];
+    state[7] = state[7] r<< 7;
+    state[3] = state[3] + state[4];
+    state[14] = state[14] ^ state[3];
+    state[14] = state[14] r<< 16;
+    state[9] = state[9] + state[14];
+    state[4] = state[4] ^ state[9];
+    state[4] = state[4] r<< 12;
+    state[3] = state[3] + state[4];
+    state[14] = state[14] ^ state[3];
+    state[14] = state[14] r<< 8;
+    state[9] = state[9] + state[14];
+    state[4] = state[4] ^ state[9];
+    state[4] = state[4] r<< 7;
+    i++ ;
+    <D.6934>:;
+    if (i <= 9) goto <D.6933>; else goto <D.6935>;
+    <D.6935>:;
+    v = 0;
+    goto <D.6937>;
+    <D.6936>:;
+    state[v] = (long unsigned int) state[v] + (long unsigned int) CW[v];
+    v++ ;
+    <D.6937>:;
+    if (v <= 3) goto <D.6936>; else goto <D.6938>;
+    <D.6938>:;
+    v = 4;
+    goto <D.6940>;
+    <D.6939>:;
+    state[v] = state[v] + *((uint32_t *) &p->state.d + ((sizetype) v + 1073741820) * 4);
+    v++ ;
+    <D.6940>:;
+    if (v <= 13) goto <D.6939>; else goto <D.6941>;
+    <D.6941>:;
+    state[14] = (long unsigned int) state[14] + ((long unsigned int) *((uint32_t *) &p->state.d + 40) ^ (long unsigned int) cc);
+    state[15] = (long unsigned int) state[15] + ((long unsigned int) *((uint32_t *) &p->state.d + 44) ^ (long unsigned int) (cc >> 32));
+    cc++ ;
+    v = 0;
+    goto <D.6943>;
+    <D.6942>:;
+    *((uint32_t *) &p->buf.d + (sizetype) (((v << 3) + u) * 4)) = state[v];
+    v++ ;
+    <D.6943>:;
+    if (v <= 15) goto <D.6942>; else goto <D.6944>;
+    <D.6944>:;
+  }
+  u++ ;
+  <D.6946>:;
+  if (u <= 7) goto <D.6945>; else goto <D.6947>;
+  <D.6947>:;
+  *((uint64_t *) &p->state.d + 48) = cc;
+  p->ptr = 0;
+}
+
+
+;; Function falcon_inner_prng_get_bytes (null)
+;; enabled by -tree-original
+
+
+{
+  uint8_t * buf;
+
+    uint8_t * buf;
+  buf = (uint8_t *) dst;
+  goto <D.6956>;
+  <D.6955>:;
+  {
+    size_t clen;
+
+        size_t clen;
+    clen = 512 - (unsigned int) p->ptr;
+    if (clen > len)
+      {
+        clen = len;
+      }
+    memcpy ((void * restrict) buf, (const void * restrict) &p->buf.d, clen);
+    buf = buf + (sizetype) clen;
+    len = len - clen;
+    p->ptr = p->ptr + clen;
+    if (p->ptr == 512)
+      {
+        falcon_inner_prng_refill (p);
+      }
+  }
+  <D.6956>:;
+  if (len != 0) goto <D.6955>; else goto <D.6957>;
+  <D.6957>:;
+}
+

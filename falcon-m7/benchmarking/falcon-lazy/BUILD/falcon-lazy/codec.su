@@ -1,0 +1,8 @@
+../falcon-lazy/codec.c:36:1:falcon_inner_modq_encode	20	static
+../falcon-lazy/codec.c:77:1:falcon_inner_modq_decode	16	static
+../falcon-lazy/codec.c:117:1:falcon_inner_trim_i16_encode	24	static
+../falcon-lazy/codec.c:162:1:falcon_inner_trim_i16_decode	36	static
+../falcon-lazy/codec.c:213:1:falcon_inner_trim_i8_encode	24	static
+../falcon-lazy/codec.c:258:1:falcon_inner_trim_i8_decode	36	static
+../falcon-lazy/codec.c:308:1:falcon_inner_comp_encode	24	static
+../falcon-lazy/codec.c:405:1:falcon_inner_comp_decode	24	static

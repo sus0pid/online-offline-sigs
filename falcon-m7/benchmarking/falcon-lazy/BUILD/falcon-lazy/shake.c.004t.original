@@ -1,0 +1,381 @@
+
+;; Function set_fpu_cw (null)
+;; enabled by -tree-original
+
+
+{
+  return x;
+}
+
+
+;; Function fpr_ursh (null)
+;; enabled by -tree-original
+
+
+{
+  x = (long long unsigned int) (x >> 32 ^ x) & -(long long unsigned int) (n >> 5) ^ (long long unsigned int) x;
+  return x >> (n & 31);
+}
+
+
+;; Function fpr_irsh (null)
+;; enabled by -tree-original
+
+
+{
+  x = (long long int) (x >> 32 ^ x) & -(long long int) (n >> 5) ^ (long long int) x;
+  return x >> (n & 31);
+}
+
+
+;; Function fpr_ulsh (null)
+;; enabled by -tree-original
+
+
+{
+  x = (long long unsigned int) (x << 32 ^ x) & -(long long unsigned int) (n >> 5) ^ (long long unsigned int) x;
+  return x << (n & 31);
+}
+
+
+;; Function FPR (null)
+;; enabled by -tree-original
+
+
+{
+  fpr x;
+  uint32_t t;
+  unsigned int f;
+
+    fpr x;
+    uint32_t t;
+    unsigned int f;
+  e = e + 1076;
+  t = (long unsigned int) e >> 31;
+  m = (long long unsigned int) t + 18446744073709551615 & (long long unsigned int) m;
+  t = (long unsigned int) (m >> 54);
+  e = -(int) t & e;
+  x = ((long long unsigned int) s << 63 | (long long unsigned int) (m >> 2)) + ((long long unsigned int) (long unsigned int) e << 52);
+  f = (unsigned int) m & 7;
+  x = ((fpr) (200 >> f) & 1) + x;
+  return x;
+}
+
+
+;; Function fpr_of (null)
+;; enabled by -tree-original
+
+
+{
+  return falcon_inner_fpr_scaled (i, 0);
+}
+
+
+;; Function fpr_rint (null)
+;; enabled by -tree-original
+
+
+{
+  uint64_t m;
+  uint64_t d;
+  int e;
+  uint32_t s;
+  uint32_t dd;
+  uint32_t f;
+
+    uint64_t m;
+    uint64_t d;
+    int e;
+    uint32_t s;
+    uint32_t dd;
+    uint32_t f;
+  m = (long long unsigned int) (x << 10) & 4611686018427387903 | 4611686018427387904;
+  e = 1085 - ((int) (x >> 52) & 2047);
+  m = -(long long unsigned int) ((long unsigned int) (e + -64) >> 31) & (long long unsigned int) m;
+  e = e & 63;
+  d = fpr_ulsh (m, 63 - e);
+  dd = (long unsigned int) d | (long unsigned int) (d >> 32) & 536870911;
+  f = (long unsigned int) (d >> 61) | (long unsigned int) ((-dd | dd) >> 31);
+  m = (long long unsigned int) fpr_ursh (m, e) + ((long long unsigned int) (200 >> f) & 1);
+  s = (long unsigned int) (x >> 63);
+  return (int64_t) ((-(long long int) s ^ (long long int) m) + (long long int) s);
+}
+
+
+;; Function fpr_floor (null)
+;; enabled by -tree-original
+
+
+{
+  uint64_t t;
+  int64_t xi;
+  int e;
+  int cc;
+
+    uint64_t t;
+    int64_t xi;
+    int e;
+    int cc;
+  e = (int) (x >> 52) & 2047;
+  t = x >> 63;
+  xi = (long long int) ((long long unsigned int) (x << 10) | 4611686018427387904) & 9223372036854775807;
+  xi = (-(long long int) t ^ (long long int) xi) + (long long int) t;
+  cc = 1085 - e;
+  xi = fpr_irsh (xi, cc & 63);
+  xi = (-(long long int) t ^ (long long int) xi) & -(long long int) ((long unsigned int) (63 - cc) >> 31) ^ (long long int) xi;
+  return xi;
+}
+
+
+;; Function fpr_trunc (null)
+;; enabled by -tree-original
+
+
+{
+  uint64_t t;
+  uint64_t xu;
+  int e;
+  int cc;
+
+    uint64_t t;
+    uint64_t xu;
+    int e;
+    int cc;
+  e = (int) (x >> 52) & 2047;
+  xu = (long long unsigned int) (x << 10) & 4611686018427387903 | 4611686018427387904;
+  cc = 1085 - e;
+  xu = fpr_ursh (xu, cc & 63);
+  xu = -(long long unsigned int) ((long unsigned int) (cc + -64) >> 31) & (long long unsigned int) xu;
+  t = x >> 63;
+  xu = (-t ^ xu) + t;
+  return *(int64_t *) &xu;
+}
+
+
+;; Function fpr_sub (null)
+;; enabled by -tree-original
+
+
+{
+  y = (long long unsigned int) y ^ 9223372036854775808;
+  return falcon_inner_fpr_add (x, y);
+}
+
+
+;; Function fpr_neg (null)
+;; enabled by -tree-original
+
+
+{
+  x = (long long unsigned int) x ^ 9223372036854775808;
+  return x;
+}
+
+
+;; Function fpr_half (null)
+;; enabled by -tree-original
+
+
+{
+  uint32_t t;
+
+    uint32_t t;
+  x = (long long unsigned int) x + 18442240474082181120;
+  t = ((long unsigned int) (x >> 52) & 2047) + 1 >> 11;
+  x = (long long unsigned int) t + 18446744073709551615 & (long long unsigned int) x;
+  return x;
+}
+
+
+;; Function fpr_double (null)
+;; enabled by -tree-original
+
+
+{
+  x = ((long long unsigned int) (((unsigned int) (x >> 52) & 2047) + 2047 >> 11) << 52) + (long long unsigned int) x;
+  return x;
+}
+
+
+;; Function fpr_sqr (null)
+;; enabled by -tree-original
+
+
+{
+  return falcon_inner_fpr_mul (x, x);
+}
+
+
+;; Function fpr_inv (null)
+;; enabled by -tree-original
+
+
+{
+  return falcon_inner_fpr_div (4607182418800017408, x);
+}
+
+
+;; Function fpr_lt (null)
+;; enabled by -tree-original
+
+
+{
+  int cc0;
+  int cc1;
+
+    int cc0;
+    int cc1;
+  cc0 = *(int64_t *) &x < *(int64_t *) &y;
+  cc1 = *(int64_t *) &x > *(int64_t *) &y;
+  return (cc0 ^ cc1) & (int) ((x & y) >> 63) ^ cc0;
+}
+
+
+;; Function prng_get_u64 (null)
+;; enabled by -tree-original
+
+
+{
+  size_t u;
+
+    size_t u;
+  u = p->ptr;
+  if (u > 502)
+    {
+      falcon_inner_prng_refill (p);
+      u = 0;
+    }
+  p->ptr = u + 8;
+  return (uint64_t) ((((((((long long unsigned int) p->buf.d[u] | (long long unsigned int) p->buf.d[u + 1] << 8) | (long long unsigned int) p->buf.d[u + 2] << 16) | (long long unsigned int) p->buf.d[u + 3] << 24) | (long long unsigned int) p->buf.d[u + 4] << 32) | (long long unsigned int) p->buf.d[u + 5] << 40) | (long long unsigned int) p->buf.d[u + 6] << 48) | (long long unsigned int) p->buf.d[u + 7] << 56);
+}
+
+
+;; Function prng_get_u8 (null)
+;; enabled by -tree-original
+
+
+{
+  unsigned int v;
+
+    unsigned int v;
+  v = (unsigned int) p->buf.d[p->ptr++ ];
+  if (p->ptr == 512)
+    {
+      falcon_inner_prng_refill (p);
+    }
+  return v;
+}
+
+
+;; Function process_block (null)
+;; enabled by -tree-original
+
+
+{
+  __asm__ __volatile__("push\t{ r1, r2, r3, r4, r5, r6, r7, r8, r10, r11, r12, lr }\n\tsub\tsp, sp, #232\n\t\n\t@ Invert some words (alternate internal representation, which\n\t@ saves some operations).\n\t\n\t@ Invert A[1] and A[2].\n\tadds\tr1, r0, #8\n\tldm\tr1, { r2, r3, r4, r5 }\n\tmvns\tr2, r2\n\tmvns\tr3, r3\n\tmvns\tr4, r4\n\tmvns\tr5, r5\n\tstm\tr1!, { r2, r3, r4, r5 }\n\t@ Invert A[8]\n\tadds\tr1, r0, #64\n\tldm\tr1, { r2, r3 }\n\tmvns\tr2, r2\n\tmvns\tr3, r3\n\tstm\tr1!, { r2, r3 }\n\t@ Invert A[12]\n\tadds\tr1, r0, #96\n\tldm\tr1, { r2, r3 }\n\tmvns\tr2, r2\n\tmvns\tr3, r3\n\tstm\tr1!, { r2, r3 }\n\t@ Invert A[17]\n\tadds\tr1, r0, #136\n\tldm\tr1, { r2, r3 }\n\tmvns\tr2, r2\n\tmvns\tr3, r3\n\tstm\tr1!, { r2, r3 }\n\t@ Invert A[20]\n\tadds\tr1, r0, #160\n\tldm\tr1, { r2, r3 }\n\tmvns\tr2, r2\n\tmvns\tr3, r3\n\tstm\tr1!, { r2, r3 }\n\t\n\t@ Do 24 rounds. Each loop iteration performs one rounds. We\n\t@ keep eight times the current round counter in [sp] (i.e.\n\t@ a multiple of 8, from 0 to 184).\n\t\n\teors\tr1, r1\n\tstr\tr1, [sp, #0]\n\t.process_block_loop:\n\t\n\t@ xor(A[5*i+0]) -> r1:r2\n\t@ xor(A[5*i+1]) -> r3:r4\n\t@ xor(A[5*i+2]) -> r5:r6\n\t@ xor(A[5*i+3]) -> r7:r8\n\t@ xor(A[5*i+4]) -> r10:r11\n\tldm\tr0!, { r1, r2, r3, r4, r5, r6, r7, r8 }\n\tadds\tr0, #8\n\tldm\tr0!, { r10, r11, r12 }\n\teors\tr1, r10\n\teors\tr2, r11\n\teors\tr3, r12\n\tldm\tr0!, { r10, r11, r12 }\n\teors\tr4, r10\n\teors\tr5, r11\n\teors\tr6, r12\n\tldm\tr0!, { r10, r11 }\n\teors\tr7, r10\n\teors\tr8, r11\n\tadds\tr0, #8\n\tldm\tr0!, { r10, r11, r12 }\n\teors\tr1, r10\n\teors\tr2, r11\n\teors\tr3, r12\n\tldm\tr0!, { r10, r11, r12 }\n\teors\tr4, r10\n\teors\tr5, r11\n\teors\tr6, r12\n\tldm\tr0!, { r10, r11 }\n\teors\tr7, r10\n\teors\tr8, r11\n\tadds\tr0, #8\n\tldm\tr0!, { r10, r11, r12 }\n\teors\tr1, r10\n\teors\tr2, r11\n\teors\tr3, r12\n\tldm\tr0!, { r10, r11, r12 }\n\teors\tr4, r10\n\teors\tr5, r11\n\teors\tr6, r12\n\tldm\tr0!, { r10, r11 }\n\teors\tr7, r10\n\teors\tr8, r11\n\tadds\tr0, #8\n\tldm\tr0!, { r10, r11, r12 }\n\teors\tr1, r10\n\teors\tr2, r11\n\teors\tr3, r12\n\tldm\tr0!, { r10, r11, r12 }\n\teors\tr4, r10\n\teors\tr5, r11\n\teors\tr6, r12\n\tldm\tr0!, { r10, r11 }\n\teors\tr7, r10\n\teors\tr8, r11\n\tldm\tr0!, { r10, r11 }\n\tsubs\tr0, #200\n\tldr\tr12, [r0, #32]\n\teors\tr10, r12\n\tldr\tr12, [r0, #36]\n\teors\tr11, r12\n\tldr\tr12, [r0, #72]\n\teors\tr10, r12\n\tldr\tr12, [r0, #76]\n\teors\tr11, r12\n\tldr\tr12, [r0, #112]\n\teors\tr10, r12\n\tldr\tr12, [r0, #116]\n\teors\tr11, r12\n\tldr\tr12, [r0, #152]\n\teors\tr10, r12\n\tldr\tr12, [r0, #156]\n\teors\tr11, r12\n\t\n\t@ t0 = xor(A[5*i+4]) ^ rotl1(xor(A[5*i+1])) -> r10:r11\n\t@ t1 = xor(A[5*i+0]) ^ rotl1(xor(A[5*i+2])) -> r1:r2\n\t@ t2 = xor(A[5*i+1]) ^ rotl1(xor(A[5*i+3])) -> r3:r4\n\t@ t3 = xor(A[5*i+2]) ^ rotl1(xor(A[5*i+4])) -> r5:r6\n\t@ t4 = xor(A[5*i+3]) ^ rotl1(xor(A[5*i+0])) -> r7:r8\n\tstr\tr11, [sp, #4]\n\tmov\tr12, r10\n\teors\tr10, r10, r3, lsl #1\n\teors\tr10, r10, r4, lsr #31\n\teors\tr11, r11, r4, lsl #1\n\teors\tr11, r11, r3, lsr #31\n\teors\tr3, r3, r7, lsl #1\n\teors\tr3, r3, r8, lsr #31\n\teors\tr4, r4, r8, lsl #1\n\teors\tr4, r4, r7, lsr #31\n\teors\tr7, r7, r1, lsl #1\n\teors\tr7, r7, r2, lsr #31\n\teors\tr8, r8, r2, lsl #1\n\teors\tr8, r8, r1, lsr #31\n\teors\tr1, r1, r5, lsl #1\n\teors\tr1, r1, r6, lsr #31\n\teors\tr2, r2, r6, lsl #1\n\teors\tr2, r2, r5, lsr #31\n\teors\tr5, r5, r12, lsl #1\n\teors\tr6, r6, r12, lsr #31\n\tldr\tr12, [sp, #4]\n\teors\tr5, r5, r12, lsr #31\n\teors\tr6, r6, r12, lsl #1\n\t\n\t@ Save t2, t3 and t4 on the stack.\n\taddw\tr12, sp, #4\n\tstm\tr12, { r3, r4, r5, r6, r7, r8 }\n\t\n\t@ We XOR one of the t0..t4 values into each A[] word, and\n\t@ rotate the result by some amount (each word has its own\n\t@ amount). The results are written back into a stack buffer\n\t@ that starts at sp+32\n\taddw\tr12, sp, #32\n\t\n\t@ XOR t0 into A[5*i+0] and t1 into A[5*i+1]; each A[i] is also\n\t@ rotated left by some amount.\n\t\n\t@ A[0] and A[1]\n\tldm\tr0!, { r5, r6, r7, r8 }\n\teors\tr5, r10\n\teors\tr6, r11\n\teors\tr3, r7, r1\n\teors\tr4, r8, r2\n\tlsl\tr7, r3, #1\n\torr\tr7, r7, r4, lsr #31\n\tlsl\tr8, r4, #1\n\torr\tr8, r8, r3, lsr #31\n\tstm\tr12!, { r5, r6, r7, r8 }\n\t\n\t@ A[5] and A[6]\n\tadds\tr0, #24\n\tldm\tr0!, { r5, r6, r7, r8 }\n\teors\tr3, r5, r10\n\teors\tr4, r6, r11\n\tlsl\tr5, r4, #4\n\torr\tr5, r5, r3, lsr #28\n\tlsl\tr6, r3, #4\n\torr\tr6, r6, r4, lsr #28\n\teors\tr3, r7, r1\n\teors\tr4, r8, r2\n\tlsl\tr7, r4, #12\n\torr\tr7, r7, r3, lsr #20\n\tlsl\tr8, r3, #12\n\torr\tr8, r8, r4, lsr #20\n\tstm\tr12!, { r5, r6, r7, r8 }\n\t\n\t@ A[10] and A[11]\n\tadds\tr0, #24\n\tldm\tr0!, { r5, r6, r7, r8 }\n\teors\tr3, r5, r10\n\teors\tr4, r6, r11\n\tlsl\tr5, r3, #3\n\torr\tr5, r5, r4, lsr #29\n\tlsl\tr6, r4, #3\n\torr\tr6, r6, r3, lsr #29\n\teors\tr3, r7, r1\n\teors\tr4, r8, r2\n\tlsl\tr7, r3, #10\n\torr\tr7, r7, r4, lsr #22\n\tlsl\tr8, r4, #10\n\torr\tr8, r8, r3, lsr #22\n\tstm\tr12!, { r5, r6, r7, r8 }\n\t\n\t@ A[15] and A[16]\n\tadds\tr0, #24\n\tldm\tr0!, { r5, r6, r7, r8 }\n\teors\tr3, r5, r10\n\teors\tr4, r6, r11\n\tlsl\tr5, r4, #9\n\torr\tr5, r5, r3, lsr #23\n\tlsl\tr6, r3, #9\n\torr\tr6, r6, r4, lsr #23\n\teors\tr3, r7, r1\n\teors\tr4, r8, r2\n\tlsl\tr7, r4, #13\n\torr\tr7, r7, r3, lsr #19\n\tlsl\tr8, r3, #13\n\torr\tr8, r8, r4, lsr #19\n\tstm\tr12!, { r5, r6, r7, r8 }\n\t\n\t@ A[20] and A[21]\n\tadds\tr0, #24\n\tldm\tr0!, { r5, r6, r7, r8 }\n\teors\tr3, r5, r10\n\teors\tr4, r6, r11\n\tlsl\tr5, r3, #18\n\torr\tr5, r5, r4, lsr #14\n\tlsl\tr6, r4, #18\n\torr\tr6, r6, r3, lsr #14\n\teors\tr3, r7, r1\n\teors\tr4, r8, r2\n\tlsl\tr7, r3, #2\n\torr\tr7, r7, r4, lsr #30\n\tlsl\tr8, r4, #2\n\torr\tr8, r8, r3, lsr #30\n\tstm\tr12!, { r5, r6, r7, r8 }\n\t\n\t@ XOR t2 into A[5*i+2] and t3 into A[5*i+3]; each A[i] is also\n\t@ rotated left by some amount. We reload t2 into r1:r2 and t3\n\t@ into r3:r4.\n\taddw\tr5, sp, #4\n\tldm\tr5!, { r1, r2, r3, r4 }\n\t\n\t@ A[2] and A[3]\n\tsubs\tr0, #160\n\tldm\tr0!, { r5, r6, r7, r8 }\n\teors\tr10, r5, r1\n\teors\tr11, r6, r2\n\tlsl\tr5, r11, #30\n\torr\tr5, r5, r10, lsr #2\n\tlsl\tr6, r10, #30\n\torr\tr6, r6, r11, lsr #2\n\teors\tr10, r7, r3\n\teors\tr11, r8, r4\n\tlsl\tr7, r10, #28\n\torr\tr7, r7, r11, lsr #4\n\tlsl\tr8, r11, #28\n\torr\tr8, r8, r10, lsr #4\n\tstm\tr12!, { r5, r6, r7, r8 }\n\t\n\t@ A[7] and A[8]\n\tadds\tr0, #24\n\tldm\tr0!, { r5, r6, r7, r8 }\n\teors\tr10, r5, r1\n\teors\tr11, r6, r2\n\tlsl\tr5, r10, #6\n\torr\tr5, r5, r11, lsr #26\n\tlsl\tr6, r11, #6\n\torr\tr6, r6, r10, lsr #26\n\teors\tr10, r7, r3\n\teors\tr11, r8, r4\n\tlsl\tr7, r11, #23\n\torr\tr7, r7, r10, lsr #9\n\tlsl\tr8, r10, #23\n\torr\tr8, r8, r11, lsr #9\n\tstm\tr12!, { r5, r6, r7, r8 }\n\t\n\t@ A[12] and A[13]\n\tadds\tr0, #24\n\tldm\tr0!, { r5, r6, r7, r8 }\n\teors\tr10, r5, r1\n\teors\tr11, r6, r2\n\tlsl\tr5, r11, #11\n\torr\tr5, r5, r10, lsr #21\n\tlsl\tr6, r10, #11\n\torr\tr6, r6, r11, lsr #21\n\teors\tr10, r7, r3\n\teors\tr11, r8, r4\n\tlsl\tr7, r10, #25\n\torr\tr7, r7, r11, lsr #7\n\tlsl\tr8, r11, #25\n\torr\tr8, r8, r10, lsr #7\n\tstm\tr12!, { r5, r6, r7, r8 }\n\t\n\t@ A[17] and A[18]\n\tadds\tr0, #24\n\tldm\tr0!, { r5, r6, r7, r8 }\n\teors\tr10, r5, r1\n\teors\tr11, r6, r2\n\tlsl\tr5, r10, #15\n\torr\tr5, r5, r11, lsr #17\n\tlsl\tr6, r11, #15\n\torr\tr6, r6, r10, lsr #17\n\teors\tr10, r7, r3\n\teors\tr11, r8, r4\n\tlsl\tr7, r10, #21\n\torr\tr7, r7, r11, lsr #11\n\tlsl\tr8, r11, #21\n\torr\tr8, r8, r10, lsr #11\n\tstm\tr12!, { r5, r6, r7, r8 }\n\t\n\t@ A[22] and A[23]\n\tadds\tr0, #24\n\tldm\tr0!, { r5, r6, r7, r8 }\n\teors\tr10, r5, r1\n\teors\tr11, r6, r2\n\tlsl\tr5, r11, #29\n\torr\tr5, r5, r10, lsr #3\n\tlsl\tr6, r10, #29\n\torr\tr6, r6, r11, lsr #3\n\teors\tr10, r7, r3\n\teors\tr11, r8, r4\n\tlsl\tr7, r11, #24\n\torr\tr7, r7, r10, lsr #8\n\tlsl\tr8, r10, #24\n\torr\tr8, r8, r11, lsr #8\n\tstm\tr12!, { r5, r6, r7, r8 }\n\t\n\t@ XOR t4 into A[5*i+4]; each A[i] is also rotated left by some\n\t@ amount. We reload t4 into r1:r2.\n\tldr\tr1, [sp, #20]\n\tldr\tr2, [sp, #24]\n\t\n\t@ A[4]\n\tsubs\tr0, #160\n\tldm\tr0!, { r5, r6 }\n\teors\tr3, r5, r1\n\teors\tr4, r6, r2\n\tlsl\tr5, r3, #27\n\torr\tr5, r5, r4, lsr #5\n\tlsl\tr6, r4, #27\n\torr\tr6, r6, r3, lsr #5\n\tstm\tr12!, { r5, r6 }\n\t\n\t@ A[9]\n\tadds\tr0, #32\n\tldm\tr0!, { r5, r6 }\n\teors\tr3, r5, r1\n\teors\tr4, r6, r2\n\tlsl\tr5, r3, #20\n\torr\tr5, r5, r4, lsr #12\n\tlsl\tr6, r4, #20\n\torr\tr6, r6, r3, lsr #12\n\tstm\tr12!, { r5, r6 }\n\t\n\t@ A[14]\n\tadds\tr0, #32\n\tldm\tr0!, { r5, r6 }\n\teors\tr3, r5, r1\n\teors\tr4, r6, r2\n\tlsl\tr5, r4, #7\n\torr\tr5, r5, r3, lsr #25\n\tlsl\tr6, r3, #7\n\torr\tr6, r6, r4, lsr #25\n\tstm\tr12!, { r5, r6 }\n\t\n\t@ A[19]\n\tadds\tr0, #32\n\tldm\tr0!, { r5, r6 }\n\teors\tr3, r5, r1\n\teors\tr4, r6, r2\n\tlsl\tr5, r3, #8\n\torr\tr5, r5, r4, lsr #24\n\tlsl\tr6, r4, #8\n\torr\tr6, r6, r3, lsr #24\n\tstm\tr12!, { r5, r6 }\n\t\n\t@ A[24]\n\tadds\tr0, #32\n\tldm\tr0!, { r5, r6 }\n\teors\tr3, r5, r1\n\teors\tr4, r6, r2\n\tlsl\tr5, r3, #14\n\torr\tr5, r5, r4, lsr #18\n\tlsl\tr6, r4, #14\n\torr\tr6, r6, r3, lsr #18\n\tstm\tr12!, { r5, r6 }\n\t\n\tsubs\tr0, #200\n\t\n\t@ At that point, the stack buffer at sp+32 contains the words\n\t@ at the following indexes (0 to 24) and offsets (from sp)\n\t@   A[ 0]    0      32\n\t@   A[ 1]    1      40\n\t@   A[ 2]   10     112\n\t@   A[ 3]   11     120\n\t@   A[ 4]   20     192\n\t@   A[ 5]    2      48\n\t@   A[ 6]    3      56\n\t@   A[ 7]   12     128\n\t@   A[ 8]   13     136\n\t@   A[ 9]   21     200\n\t@   A[10]    4      64\n\t@   A[11]    5      72\n\t@   A[12]   14     144\n\t@   A[13]   15     152\n\t@   A[14]   22     208\n\t@   A[15]    6      80\n\t@   A[16]    7      88\n\t@   A[17]   16     160\n\t@   A[18]   17     168\n\t@   A[19]   23     216\n\t@   A[20]    8      96\n\t@   A[21]    9     104\n\t@   A[22]   18     176\n\t@   A[23]   19     184\n\t@   A[24]   24     224\n\t@ A[0], A[6], A[12], A[18] and A[24]\n\tldr\tr1, [sp, #(32 + 8 * 0)]\n\tldr\tr2, [sp, #(36 + 8 * 0)]\n\tldr\tr3, [sp, #(32 + 8 * 3)]\n\tldr\tr4, [sp, #(36 + 8 * 3)]\n\tldr\tr5, [sp, #(32 + 8 * 14)]\n\tldr\tr6, [sp, #(36 + 8 * 14)]\n\tldr\tr7, [sp, #(32 + 8 * 17)]\n\tldr\tr8, [sp, #(36 + 8 * 17)]\n\tldr\tr10, [sp, #(32 + 8 * 24)]\n\tldr\tr11, [sp, #(36 + 8 * 24)]\n\torrs\tr12, r3, r5\n\teors\tr12, r1\n\tstr\tr12, [r0, #(8 * 0)]\n\torrs\tr12, r4, r6\n\teors\tr12, r2\n\tstr\tr12, [r0, #(4 + 8 * 0)]\n\torns\tr12, r7, r5\n\teors\tr12, r3\n\tstr\tr12, [r0, #(8 * 1)]\n\torns\tr12, r8, r6\n\teors\tr12, r4\n\tstr\tr12, [r0, #(4 + 8 * 1)]\n\tands\tr12, r7, r10\n\teors\tr12, r5\n\tstr\tr12, [r0, #(8 * 2)]\n\tands\tr12, r8, r11\n\teors\tr12, r6\n\tstr\tr12, [r0, #(4 + 8 * 2)]\n\torrs\tr12, r1, r10\n\teors\tr12, r7\n\tstr\tr12, [r0, #(8 * 3)]\n\torrs\tr12, r2, r11\n\teors\tr12, r8\n\tstr\tr12, [r0, #(4 + 8 * 3)]\n\tands\tr12, r1, r3\n\teors\tr12, r10\n\tstr\tr12, [r0, #(8 * 4)]\n\tands\tr12, r2, r4\n\teors\tr12, r11\n\tstr\tr12, [r0, #(4 + 8 * 4)]\n\t\n\t@ A[3], A[9], A[10], A[16] and A[22]\n\tldr\tr1, [sp, #(32 + 8 * 11)]\n\tldr\tr2, [sp, #(36 + 8 * 11)]\n\tldr\tr3, [sp, #(32 + 8 * 21)]\n\tldr\tr4, [sp, #(36 + 8 * 21)]\n\tldr\tr5, [sp, #(32 + 8 * 4)]\n\tldr\tr6, [sp, #(36 + 8 * 4)]\n\tldr\tr7, [sp, #(32 + 8 * 7)]\n\tldr\tr8, [sp, #(36 + 8 * 7)]\n\tldr\tr10, [sp, #(32 + 8 * 18)]\n\tldr\tr11, [sp, #(36 + 8 * 18)]\n\torrs\tr12, r3, r5\n\teors\tr12, r1\n\tstr\tr12, [r0, #(8 * 5)]\n\torrs\tr12, r4, r6\n\teors\tr12, r2\n\tstr\tr12, [r0, #(4 + 8 * 5)]\n\tands\tr12, r7, r5\n\teors\tr12, r3\n\tstr\tr12, [r0, #(8 * 6)]\n\tands\tr12, r8, r6\n\teors\tr12, r4\n\tstr\tr12, [r0, #(4 + 8 * 6)]\n\torns\tr12, r7, r10\n\teors\tr12, r5\n\tstr\tr12, [r0, #(8 * 7)]\n\torns\tr12, r8, r11\n\teors\tr12, r6\n\tstr\tr12, [r0, #(4 + 8 * 7)]\n\torrs\tr12, r1, r10\n\teors\tr12, r7\n\tstr\tr12, [r0, #(8 * 8)]\n\torrs\tr12, r2, r11\n\teors\tr12, r8\n\tstr\tr12, [r0, #(4 + 8 * 8)]\n\tands\tr12, r1, r3\n\teors\tr12, r10\n\tstr\tr12, [r0, #(8 * 9)]\n\tands\tr12, r2, r4\n\teors\tr12, r11\n\tstr\tr12, [r0, #(4 + 8 * 9)]\n\t\n\t@ A[1], A[7], A[13], A[19] and A[20]\n\tldr\tr1, [sp, #(32 + 8 * 1)]\n\tldr\tr2, [sp, #(36 + 8 * 1)]\n\tldr\tr3, [sp, #(32 + 8 * 12)]\n\tldr\tr4, [sp, #(36 + 8 * 12)]\n\tldr\tr5, [sp, #(32 + 8 * 15)]\n\tldr\tr6, [sp, #(36 + 8 * 15)]\n\tldr\tr7, [sp, #(32 + 8 * 23)]\n\tldr\tr8, [sp, #(36 + 8 * 23)]\n\tldr\tr10, [sp, #(32 + 8 * 8)]\n\tldr\tr11, [sp, #(36 + 8 * 8)]\n\torrs\tr12, r3, r5\n\teors\tr12, r1\n\tstr\tr12, [r0, #(8 * 10)]\n\torrs\tr12, r4, r6\n\teors\tr12, r2\n\tstr\tr12, [r0, #(4 + 8 * 10)]\n\tands\tr12, r7, r5\n\teors\tr12, r3\n\tstr\tr12, [r0, #(8 * 11)]\n\tands\tr12, r8, r6\n\teors\tr12, r4\n\tstr\tr12, [r0, #(4 + 8 * 11)]\n\tbics\tr12, r10, r7\n\teors\tr12, r5\n\tstr\tr12, [r0, #(8 * 12)]\n\tbics\tr12, r11, r8\n\teors\tr12, r6\n\tstr\tr12, [r0, #(4 + 8 * 12)]\n\tmvns\tr7, r7\n\tmvns\tr8, r8\n\torrs\tr12, r1, r10\n\teors\tr12, r7\n\tstr\tr12, [r0, #(8 * 13)]\n\torrs\tr12, r2, r11\n\teors\tr12, r8\n\tstr\tr12, [r0, #(4 + 8 * 13)]\n\tands\tr12, r1, r3\n\teors\tr12, r10\n\tstr\tr12, [r0, #(8 * 14)]\n\tands\tr12, r2, r4\n\teors\tr12, r11\n\tstr\tr12, [r0, #(4 + 8 * 14)]\n\t\n\t@ A[4], A[5], A[11], A[17] and A[23]\n\tldr\tr1, [sp, #(32 + 8 * 20)]\n\tldr\tr2, [sp, #(36 + 8 * 20)]\n\tldr\tr3, [sp, #(32 + 8 * 2)]\n\tldr\tr4, [sp, #(36 + 8 * 2)]\n\tldr\tr5, [sp, #(32 + 8 * 5)]\n\tldr\tr6, [sp, #(36 + 8 * 5)]\n\tldr\tr7, [sp, #(32 + 8 * 16)]\n\tldr\tr8, [sp, #(36 + 8 * 16)]\n\tldr\tr10, [sp, #(32 + 8 * 19)]\n\tldr\tr11, [sp, #(36 + 8 * 19)]\n\tands\tr12, r3, r5\n\teors\tr12, r1\n\tstr\tr12, [r0, #(8 * 15)]\n\tands\tr12, r4, r6\n\teors\tr12, r2\n\tstr\tr12, [r0, #(4 + 8 * 15)]\n\torrs\tr12, r7, r5\n\teors\tr12, r3\n\tstr\tr12, [r0, #(8 * 16)]\n\torrs\tr12, r8, r6\n\teors\tr12, r4\n\tstr\tr12, [r0, #(4 + 8 * 16)]\n\torns\tr12, r10, r7\n\teors\tr12, r5\n\tstr\tr12, [r0, #(8 * 17)]\n\torns\tr12, r11, r8\n\teors\tr12, r6\n\tstr\tr12, [r0, #(4 + 8 * 17)]\n\tmvns\tr7, r7\n\tmvns\tr8, r8\n\tands\tr12, r1, r10\n\teors\tr12, r7\n\tstr\tr12, [r0, #(8 * 18)]\n\tands\tr12, r2, r11\n\teors\tr12, r8\n\tstr\tr12, [r0, #(4 + 8 * 18)]\n\torrs\tr12, r1, r3\n\teors\tr12, r10\n\tstr\tr12, [r0, #(8 * 19)]\n\torrs\tr12, r2, r4\n\teors\tr12, r11\n\tstr\tr12, [r0, #(4 + 8 * 19)]\n\t\n\t@ A[2], A[8], A[14], A[15] and A[21]\n\tldr\tr1, [sp, #(32 + 8 * 10)]\n\tldr\tr2, [sp, #(36 + 8 * 10)]\n\tldr\tr3, [sp, #(32 + 8 * 13)]\n\tldr\tr4, [sp, #(36 + 8 * 13)]\n\tldr\tr5, [sp, #(32 + 8 * 22)]\n\tldr\tr6, [sp, #(36 + 8 * 22)]\n\tldr\tr7, [sp, #(32 + 8 * 6)]\n\tldr\tr8, [sp, #(36 + 8 * 6)]\n\tldr\tr10, [sp, #(32 + 8 * 9)]\n\tldr\tr11, [sp, #(36 + 8 * 9)]\n\tbics\tr12, r5, r3\n\teors\tr12, r1\n\tstr\tr12, [r0, #(8 * 20)]\n\tbics\tr12, r6, r4\n\teors\tr12, r2\n\tstr\tr12, [r0, #(4 + 8 * 20)]\n\tands\tr12, r1, r3\n\teors\tr12, r10\n\tstr\tr12, [r0, #(8 * 24)]\n\tands\tr12, r2, r4\n\teors\tr12, r11\n\tstr\tr12, [r0, #(4 + 8 * 24)]\n\tmvns\tr3, r3\n\tmvns\tr4, r4\n\torrs\tr12, r7, r5\n\teors\tr12, r3\n\tstr\tr12, [r0, #(8 * 21)]\n\torrs\tr12, r8, r6\n\teors\tr12, r4\n\tstr\tr12, [r0, #(4 + 8 * 21)]\n\tands\tr12, r7, r10\n\teors\tr12, r5\n\tstr\tr12, [r0, #(8 * 22)]\n\tands\tr12, r8, r11\n\teors\tr12, r6\n\tstr\tr12, [r0, #(4 + 8 * 22)]\n\torrs\tr12, r1, r10\n\teors\tr12, r7\n\tstr\tr12, [r0, #(8 * 23)]\n\torrs\tr12, r2, r11\n\teors\tr12, r8\n\tstr\tr12, [r0, #(4 + 8 * 23)]\n\t\n\t@ Get round counter XOR round constant into A[0]\n\tldr\tr1, [sp, #0]\n\tadr\tr2, .process_block_RC\n\tadds\tr2, r1\n\tldm\tr2, { r3, r4 }\n\tldm\tr0, { r5, r6 }\n\teors\tr5, r3\n\teors\tr6, r4\n\tstm\tr0, { r5, r6 }\n\t\n\t@ Increment round counter, loop until all 24 rounds are done.\n\t\n\tadds\tr1, #8\n\tstr\tr1, [sp, #0]\n\tcmp\tr1, #192\n\tblo\t.process_block_loop\n\t@ Invert A[1] and A[2].\n\tadds\tr1, r0, #8\n\tldm\tr1, { r2, r3, r4, r5 }\n\tmvns\tr2, r2\n\tmvns\tr3, r3\n\tmvns\tr4, r4\n\tmvns\tr5, r5\n\tstm\tr1!, { r2, r3, r4, r5 }\n\t@ Invert A[8]\n\tadds\tr1, r0, #64\n\tldm\tr1, { r2, r3 }\n\tmvns\tr2, r2\n\tmvns\tr3, r3\n\tstm\tr1!, { r2, r3 }\n\t@ Invert A[12]\n\tadds\tr1, r0, #96\n\tldm\tr1, { r2, r3 }\n\tmvns\tr2, r2\n\tmvns\tr3, r3\n\tstm\tr1!, { r2, r3 }\n\t@ Invert A[17]\n\tadds\tr1, r0, #136\n\tldm\tr1, { r2, r3 }\n\tmvns\tr2, r2\n\tmvns\tr3, r3\n\tstm\tr1!, { r2, r3 }\n\t@ Invert A[20]\n\tadds\tr1, r0, #160\n\tldm\tr1, { r2, r3 }\n\tmvns\tr2, r2\n\tmvns\tr3, r3\n\tstm\tr1!, { r2, r3 }\n\t\n\tadd\tsp, sp, #232\n\tpop\t{ r1, r2, r3, r4, r5, r6, r7, r8, r10, r11, r12, pc }\n\t\n\t.process_block_RC:\n\t.word\t0x00000001\n\t.word\t0x00000000\n\t.word\t0x00008082\n\t.word\t0x00000000\n\t.word\t0x0000808A\n\t.word\t0x80000000\n\t.word\t0x80008000\n\t.word\t0x80000000\n\t.word\t0x0000808B\n\t.word\t0x00000000\n\t.word\t0x80000001\n\t.word\t0x00000000\n\t.word\t0x80008081\n\t.word\t0x80000000\n\t.word\t0x00008009\n\t.word\t0x80000000\n\t.word\t0x0000008A\n\t.word\t0x00000000\n\t.word\t0x00000088\n\t.word\t0x00000000\n\t.word\t0x80008009\n\t.word\t0x00000000\n\t.word\t0x8000000A\n\t.word\t0x00000000\n\t.word\t0x8000808B\n\t.word\t0x00000000\n\t.word\t0x0000008B\n\t.word\t0x80000000\n\t.word\t0x00008089\n\t.word\t0x80000000\n\t.word\t0x00008003\n\t.word\t0x80000000\n\t.word\t0x00008002\n\t.word\t0x80000000\n\t.word\t0x00000080\n\t.word\t0x80000000\n\t.word\t0x0000800A\n\t.word\t0x00000000\n\t.word\t0x8000000A\n\t.word\t0x80000000\n\t.word\t0x80008081\n\t.word\t0x80000000\n\t.word\t0x00008080\n\t.word\t0x80000000\n\t.word\t0x80000001\n\t.word\t0x00000000\n\t.word\t0x80008008\n\t.word\t0x80000000\n\t"::);
+}
+
+
+;; Function falcon_inner_i_shake256_init (null)
+;; enabled by -tree-original
+
+
+{
+  sc->dptr = 0;
+  memset ((void *) &sc->st.A, 0, 200);
+}
+
+
+;; Function falcon_inner_i_shake256_inject (null)
+;; enabled by -tree-original
+
+
+{
+  size_t dptr;
+
+    size_t dptr;
+  dptr = (unsigned int) sc->dptr;
+  goto <D.6925>;
+  <D.6924>:;
+  {
+    size_t clen;
+    size_t u;
+
+        size_t clen;
+        size_t u;
+    clen = 136 - dptr;
+    if (clen > len)
+      {
+        clen = len;
+      }
+    u = 0;
+    goto <D.6922>;
+    <D.6921>:;
+    sc->st.dbuf[dptr + u] = (uint8_t) ((unsigned char) sc->st.dbuf[dptr + u] ^ (unsigned char) *(in + (sizetype) u));
+    u++ ;
+    <D.6922>:;
+    if (u < clen) goto <D.6921>; else goto <D.6923>;
+    <D.6923>:;
+    dptr = dptr + clen;
+    in = in + (sizetype) clen;
+    len = len - clen;
+    if (dptr == 136)
+      {
+        process_block ((uint64_t *) &sc->st.A);
+        dptr = 0;
+      }
+  }
+  <D.6925>:;
+  if (len != 0) goto <D.6924>; else goto <D.6926>;
+  <D.6926>:;
+  sc->dptr = (uint64_t) dptr;
+}
+
+
+;; Function falcon_inner_i_shake256_flip (null)
+;; enabled by -tree-original
+
+
+{
+  sc->st.dbuf[sc->dptr] = (uint8_t) ((unsigned char) sc->st.dbuf[sc->dptr] ^ 31);
+  sc->st.dbuf[135] = (uint8_t) ((unsigned char) sc->st.dbuf[135] ^ 128);
+  sc->dptr = 136;
+}
+
+
+;; Function falcon_inner_i_shake256_extract (null)
+;; enabled by -tree-original
+
+
+{
+  size_t dptr;
+
+    size_t dptr;
+  dptr = (unsigned int) sc->dptr;
+  goto <D.6938>;
+  <D.6937>:;
+  {
+    size_t clen;
+
+        size_t clen;
+    if (dptr == 136)
+      {
+        process_block ((uint64_t *) &sc->st.A);
+        dptr = 0;
+      }
+    clen = 136 - dptr;
+    if (clen > len)
+      {
+        clen = len;
+      }
+    len = len - clen;
+    memcpy ((void * restrict) out, (const void * restrict) &sc->st.dbuf + (sizetype) dptr, clen);
+    dptr = dptr + clen;
+    out = out + (sizetype) clen;
+  }
+  <D.6938>:;
+  if (len != 0) goto <D.6937>; else goto <D.6939>;
+  <D.6939>:;
+  sc->dptr = (uint64_t) dptr;
+}
+

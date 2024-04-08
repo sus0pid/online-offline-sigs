@@ -1,0 +1,16 @@
+../falcon-lazy/keygen.c:738:1:modp_R2	4	static
+../falcon-lazy/keygen.c:941:1:modp_mkgm2	56	static
+../falcon-lazy/keygen.c:1089:1:modp_poly_rec_res	24	static
+../falcon-lazy/keygen.c:1197:1:zint_mod_small_unsigned	24	static
+../falcon-lazy/keygen.c:1479:1:zint_finish_mod	16	static
+../falcon-lazy/keygen.c:1522:1:zint_co_reduce_mod	96	static
+../falcon-lazy/keygen.c:2107:1:poly_sub_scaled	112	static
+../falcon-lazy/keygen.c:4095:1:poly_small_mkgauss	72	static
+../falcon-lazy/keygen.c:2028:1:poly_big_to_fp	72	static
+../falcon-lazy/keygen.c:979:1:modp_NTT2_ext.part.0	80	static
+../falcon-lazy/keygen.c:1018:1:modp_iNTT2_ext.part.0	88	static
+../falcon-lazy/keygen.c:1333:1:zint_rebuild_CRT.constprop	96	static
+../falcon-lazy/keygen.c:2144:1:poly_sub_scaled_ntt	128	static
+../falcon-lazy/keygen.c:2682:1:make_fg	168	static
+../falcon-lazy/keygen.c:2790:1:solve_NTRU_intermediate	232	static
+../falcon-lazy/keygen.c:4136:1:falcon_inner_keygen	504	static

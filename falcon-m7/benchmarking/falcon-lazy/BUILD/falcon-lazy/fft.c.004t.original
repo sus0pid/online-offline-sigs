@@ -1,0 +1,1511 @@
+
+;; Function set_fpu_cw (null)
+;; enabled by -tree-original
+
+
+{
+  return x;
+}
+
+
+;; Function fpr_ursh (null)
+;; enabled by -tree-original
+
+
+{
+  x = (long long unsigned int) (x >> 32 ^ x) & -(long long unsigned int) (n >> 5) ^ (long long unsigned int) x;
+  return x >> (n & 31);
+}
+
+
+;; Function fpr_irsh (null)
+;; enabled by -tree-original
+
+
+{
+  x = (long long int) (x >> 32 ^ x) & -(long long int) (n >> 5) ^ (long long int) x;
+  return x >> (n & 31);
+}
+
+
+;; Function fpr_ulsh (null)
+;; enabled by -tree-original
+
+
+{
+  x = (long long unsigned int) (x << 32 ^ x) & -(long long unsigned int) (n >> 5) ^ (long long unsigned int) x;
+  return x << (n & 31);
+}
+
+
+;; Function FPR (null)
+;; enabled by -tree-original
+
+
+{
+  fpr x;
+  uint32_t t;
+  unsigned int f;
+
+    fpr x;
+    uint32_t t;
+    unsigned int f;
+  e = e + 1076;
+  t = (long unsigned int) e >> 31;
+  m = (long long unsigned int) t + 18446744073709551615 & (long long unsigned int) m;
+  t = (long unsigned int) (m >> 54);
+  e = -(int) t & e;
+  x = ((long long unsigned int) s << 63 | (long long unsigned int) (m >> 2)) + ((long long unsigned int) (long unsigned int) e << 52);
+  f = (unsigned int) m & 7;
+  x = ((fpr) (200 >> f) & 1) + x;
+  return x;
+}
+
+
+;; Function fpr_of (null)
+;; enabled by -tree-original
+
+
+{
+  return falcon_inner_fpr_scaled (i, 0);
+}
+
+
+;; Function fpr_rint (null)
+;; enabled by -tree-original
+
+
+{
+  uint64_t m;
+  uint64_t d;
+  int e;
+  uint32_t s;
+  uint32_t dd;
+  uint32_t f;
+
+    uint64_t m;
+    uint64_t d;
+    int e;
+    uint32_t s;
+    uint32_t dd;
+    uint32_t f;
+  m = (long long unsigned int) (x << 10) & 4611686018427387903 | 4611686018427387904;
+  e = 1085 - ((int) (x >> 52) & 2047);
+  m = -(long long unsigned int) ((long unsigned int) (e + -64) >> 31) & (long long unsigned int) m;
+  e = e & 63;
+  d = fpr_ulsh (m, 63 - e);
+  dd = (long unsigned int) d | (long unsigned int) (d >> 32) & 536870911;
+  f = (long unsigned int) (d >> 61) | (long unsigned int) ((-dd | dd) >> 31);
+  m = (long long unsigned int) fpr_ursh (m, e) + ((long long unsigned int) (200 >> f) & 1);
+  s = (long unsigned int) (x >> 63);
+  return (int64_t) ((-(long long int) s ^ (long long int) m) + (long long int) s);
+}
+
+
+;; Function fpr_floor (null)
+;; enabled by -tree-original
+
+
+{
+  uint64_t t;
+  int64_t xi;
+  int e;
+  int cc;
+
+    uint64_t t;
+    int64_t xi;
+    int e;
+    int cc;
+  e = (int) (x >> 52) & 2047;
+  t = x >> 63;
+  xi = (long long int) ((long long unsigned int) (x << 10) | 4611686018427387904) & 9223372036854775807;
+  xi = (-(long long int) t ^ (long long int) xi) + (long long int) t;
+  cc = 1085 - e;
+  xi = fpr_irsh (xi, cc & 63);
+  xi = (-(long long int) t ^ (long long int) xi) & -(long long int) ((long unsigned int) (63 - cc) >> 31) ^ (long long int) xi;
+  return xi;
+}
+
+
+;; Function fpr_trunc (null)
+;; enabled by -tree-original
+
+
+{
+  uint64_t t;
+  uint64_t xu;
+  int e;
+  int cc;
+
+    uint64_t t;
+    uint64_t xu;
+    int e;
+    int cc;
+  e = (int) (x >> 52) & 2047;
+  xu = (long long unsigned int) (x << 10) & 4611686018427387903 | 4611686018427387904;
+  cc = 1085 - e;
+  xu = fpr_ursh (xu, cc & 63);
+  xu = -(long long unsigned int) ((long unsigned int) (cc + -64) >> 31) & (long long unsigned int) xu;
+  t = x >> 63;
+  xu = (-t ^ xu) + t;
+  return *(int64_t *) &xu;
+}
+
+
+;; Function fpr_sub (null)
+;; enabled by -tree-original
+
+
+{
+  y = (long long unsigned int) y ^ 9223372036854775808;
+  return falcon_inner_fpr_add (x, y);
+}
+
+
+;; Function fpr_neg (null)
+;; enabled by -tree-original
+
+
+{
+  x = (long long unsigned int) x ^ 9223372036854775808;
+  return x;
+}
+
+
+;; Function fpr_half (null)
+;; enabled by -tree-original
+
+
+{
+  uint32_t t;
+
+    uint32_t t;
+  x = (long long unsigned int) x + 18442240474082181120;
+  t = ((long unsigned int) (x >> 52) & 2047) + 1 >> 11;
+  x = (long long unsigned int) t + 18446744073709551615 & (long long unsigned int) x;
+  return x;
+}
+
+
+;; Function fpr_double (null)
+;; enabled by -tree-original
+
+
+{
+  x = ((long long unsigned int) (((unsigned int) (x >> 52) & 2047) + 2047 >> 11) << 52) + (long long unsigned int) x;
+  return x;
+}
+
+
+;; Function fpr_sqr (null)
+;; enabled by -tree-original
+
+
+{
+  return falcon_inner_fpr_mul (x, x);
+}
+
+
+;; Function fpr_inv (null)
+;; enabled by -tree-original
+
+
+{
+  return falcon_inner_fpr_div (4607182418800017408, x);
+}
+
+
+;; Function fpr_lt (null)
+;; enabled by -tree-original
+
+
+{
+  int cc0;
+  int cc1;
+
+    int cc0;
+    int cc1;
+  cc0 = *(int64_t *) &x < *(int64_t *) &y;
+  cc1 = *(int64_t *) &x > *(int64_t *) &y;
+  return (cc0 ^ cc1) & (int) ((x & y) >> 63) ^ cc0;
+}
+
+
+;; Function prng_get_u64 (null)
+;; enabled by -tree-original
+
+
+{
+  size_t u;
+
+    size_t u;
+  u = p->ptr;
+  if (u > 502)
+    {
+      falcon_inner_prng_refill (p);
+      u = 0;
+    }
+  p->ptr = u + 8;
+  return (uint64_t) ((((((((long long unsigned int) p->buf.d[u] | (long long unsigned int) p->buf.d[u + 1] << 8) | (long long unsigned int) p->buf.d[u + 2] << 16) | (long long unsigned int) p->buf.d[u + 3] << 24) | (long long unsigned int) p->buf.d[u + 4] << 32) | (long long unsigned int) p->buf.d[u + 5] << 40) | (long long unsigned int) p->buf.d[u + 6] << 48) | (long long unsigned int) p->buf.d[u + 7] << 56);
+}
+
+
+;; Function prng_get_u8 (null)
+;; enabled by -tree-original
+
+
+{
+  unsigned int v;
+
+    unsigned int v;
+  v = (unsigned int) p->buf.d[p->ptr++ ];
+  if (p->ptr == 512)
+    {
+      falcon_inner_prng_refill (p);
+    }
+  return v;
+}
+
+
+;; Function falcon_inner_FFT (null)
+;; enabled by -tree-original
+
+
+{
+  unsigned int u;
+  size_t t;
+  size_t n;
+  size_t hn;
+  size_t m;
+
+    unsigned int u;
+    size_t t;
+    size_t n;
+    size_t hn;
+    size_t m;
+  n = 1 << logn;
+  hn = n >> 1;
+  t = hn;
+  u = 1;, m = 2;;
+  goto <D.6945>;
+  <D.6944>:;
+  {
+    size_t ht;
+    size_t hm;
+    size_t i1;
+    size_t j1;
+
+        size_t ht;
+        size_t hm;
+        size_t i1;
+        size_t j1;
+    ht = t >> 1;
+    hm = m >> 1;
+    i1 = 0;, j1 = 0;;
+    goto <D.6942>;
+    <D.6941>:;
+    {
+      size_t j;
+      size_t j2;
+      fpr s_re;
+      fpr s_im;
+
+            size_t j;
+            size_t j2;
+      j2 = j1 + ht;
+            fpr s_re;
+            fpr s_im;
+      s_re = falcon_inner_fpr_gm_tab[m + i1 << 1];
+      s_im = falcon_inner_fpr_gm_tab[(m + i1 << 1) + 1];
+      j = j1;
+      goto <D.6939>;
+      <D.6938>:;
+      {
+        fpr x_re;
+        fpr x_im;
+        fpr y_re;
+        fpr y_im;
+
+                fpr x_re;
+                fpr x_im;
+                fpr y_re;
+                fpr y_im;
+        x_re = *(f + (sizetype) (j * 8));
+        x_im = *(f + (sizetype) ((j + hn) * 8));
+        y_re = *(f + (sizetype) ((j + ht) * 8));
+        y_im = *(f + (sizetype) (((j + ht) + hn) * 8));
+        {
+          fpr fpct_a_re;
+          fpr fpct_a_im;
+          fpr fpct_b_re;
+          fpr fpct_b_im;
+          fpr fpct_d_re;
+          fpr fpct_d_im;
+
+                    fpr fpct_a_re;
+                    fpr fpct_a_im;
+                    fpr fpct_b_re;
+                    fpr fpct_b_im;
+                    fpr fpct_d_re;
+                    fpr fpct_d_im;
+          fpct_a_re = y_re;
+          fpct_a_im = y_im;
+          fpct_b_re = s_re;
+          fpct_b_im = s_im;
+          fpct_d_re = fpr_sub (falcon_inner_fpr_mul (fpct_a_re, fpct_b_re), falcon_inner_fpr_mul (fpct_a_im, fpct_b_im));
+          fpct_d_im = falcon_inner_fpr_add (falcon_inner_fpr_mul (fpct_a_re, fpct_b_im), falcon_inner_fpr_mul (fpct_a_im, fpct_b_re));
+          y_re = fpct_d_re;
+          y_im = fpct_d_im;
+        }
+        {
+          fpr fpct_re;
+          fpr fpct_im;
+
+                    fpr fpct_re;
+                    fpr fpct_im;
+          fpct_re = falcon_inner_fpr_add (x_re, y_re);
+          fpct_im = falcon_inner_fpr_add (x_im, y_im);
+          *(f + (sizetype) (j * 8)) = fpct_re;
+          *(f + (sizetype) ((j + hn) * 8)) = fpct_im;
+        }
+        {
+          fpr fpct_re;
+          fpr fpct_im;
+
+                    fpr fpct_re;
+                    fpr fpct_im;
+          fpct_re = fpr_sub (x_re, y_re);
+          fpct_im = fpr_sub (x_im, y_im);
+          *(f + (sizetype) ((j + ht) * 8)) = fpct_re;
+          *(f + (sizetype) (((j + ht) + hn) * 8)) = fpct_im;
+        }
+      }
+      j++ ;
+      <D.6939>:;
+      if (j < j2) goto <D.6938>; else goto <D.6940>;
+      <D.6940>:;
+    }
+    i1++ ;, j1 = j1 + t;;
+    <D.6942>:;
+    if (i1 < hm) goto <D.6941>; else goto <D.6943>;
+    <D.6943>:;
+    t = ht;
+  }
+  u++ ;, m = m << 1;;
+  <D.6945>:;
+  if (u < logn) goto <D.6944>; else goto <D.6946>;
+  <D.6946>:;
+}
+
+
+;; Function falcon_inner_iFFT (null)
+;; enabled by -tree-original
+
+
+{
+  size_t u;
+  size_t n;
+  size_t hn;
+  size_t t;
+  size_t m;
+
+    size_t u;
+    size_t n;
+    size_t hn;
+    size_t t;
+    size_t m;
+  n = 1 << logn;
+  t = 1;
+  m = n;
+  hn = n >> 1;
+  u = logn;
+  goto <D.6985>;
+  <D.6984>:;
+  {
+    size_t hm;
+    size_t dt;
+    size_t i1;
+    size_t j1;
+
+        size_t hm;
+        size_t dt;
+        size_t i1;
+        size_t j1;
+    hm = m >> 1;
+    dt = t << 1;
+    i1 = 0;, j1 = 0;;
+    goto <D.6982>;
+    <D.6981>:;
+    {
+      size_t j;
+      size_t j2;
+      fpr s_re;
+      fpr s_im;
+
+            size_t j;
+            size_t j2;
+      j2 = j1 + t;
+            fpr s_re;
+            fpr s_im;
+      s_re = falcon_inner_fpr_gm_tab[hm + i1 << 1];
+      s_im = fpr_neg (falcon_inner_fpr_gm_tab[(hm + i1 << 1) + 1]);
+      j = j1;
+      goto <D.6979>;
+      <D.6978>:;
+      {
+        fpr x_re;
+        fpr x_im;
+        fpr y_re;
+        fpr y_im;
+
+                fpr x_re;
+                fpr x_im;
+                fpr y_re;
+                fpr y_im;
+        x_re = *(f + (sizetype) (j * 8));
+        x_im = *(f + (sizetype) ((j + hn) * 8));
+        y_re = *(f + (sizetype) ((j + t) * 8));
+        y_im = *(f + (sizetype) (((j + t) + hn) * 8));
+        {
+          fpr fpct_re;
+          fpr fpct_im;
+
+                    fpr fpct_re;
+                    fpr fpct_im;
+          fpct_re = falcon_inner_fpr_add (x_re, y_re);
+          fpct_im = falcon_inner_fpr_add (x_im, y_im);
+          *(f + (sizetype) (j * 8)) = fpct_re;
+          *(f + (sizetype) ((j + hn) * 8)) = fpct_im;
+        }
+        {
+          fpr fpct_re;
+          fpr fpct_im;
+
+                    fpr fpct_re;
+                    fpr fpct_im;
+          fpct_re = fpr_sub (x_re, y_re);
+          fpct_im = fpr_sub (x_im, y_im);
+          x_re = fpct_re;
+          x_im = fpct_im;
+        }
+        {
+          fpr fpct_a_re;
+          fpr fpct_a_im;
+          fpr fpct_b_re;
+          fpr fpct_b_im;
+          fpr fpct_d_re;
+          fpr fpct_d_im;
+
+                    fpr fpct_a_re;
+                    fpr fpct_a_im;
+                    fpr fpct_b_re;
+                    fpr fpct_b_im;
+                    fpr fpct_d_re;
+                    fpr fpct_d_im;
+          fpct_a_re = x_re;
+          fpct_a_im = x_im;
+          fpct_b_re = s_re;
+          fpct_b_im = s_im;
+          fpct_d_re = fpr_sub (falcon_inner_fpr_mul (fpct_a_re, fpct_b_re), falcon_inner_fpr_mul (fpct_a_im, fpct_b_im));
+          fpct_d_im = falcon_inner_fpr_add (falcon_inner_fpr_mul (fpct_a_re, fpct_b_im), falcon_inner_fpr_mul (fpct_a_im, fpct_b_re));
+          *(f + (sizetype) ((j + t) * 8)) = fpct_d_re;
+          *(f + (sizetype) (((j + t) + hn) * 8)) = fpct_d_im;
+        }
+      }
+      j++ ;
+      <D.6979>:;
+      if (j < j2) goto <D.6978>; else goto <D.6980>;
+      <D.6980>:;
+    }
+    i1++ ;, j1 = j1 + dt;;
+    <D.6982>:;
+    if (j1 < hn) goto <D.6981>; else goto <D.6983>;
+    <D.6983>:;
+    t = dt;
+    m = hm;
+  }
+  u-- ;
+  <D.6985>:;
+  if (u > 1) goto <D.6984>; else goto <D.6986>;
+  <D.6986>:;
+  if (logn != 0)
+    {
+      {
+        fpr ni;
+
+                fpr ni;
+        ni = falcon_inner_fpr_p2_tab[logn];
+        u = 0;
+        goto <D.6989>;
+        <D.6988>:;
+        *(f + (sizetype) (u * 8)) = falcon_inner_fpr_mul (*(f + (sizetype) (u * 8)), ni);
+        u++ ;
+        <D.6989>:;
+        if (u < n) goto <D.6988>; else goto <D.6990>;
+        <D.6990>:;
+      }
+    }
+}
+
+
+;; Function falcon_inner_poly_add (null)
+;; enabled by -tree-original
+
+
+{
+  size_t n;
+  size_t u;
+
+    size_t n;
+    size_t u;
+  n = 1 << logn;
+  u = 0;
+  goto <D.6999>;
+  <D.6998>:;
+  *(a + (sizetype) (u * 8)) = falcon_inner_fpr_add (*(a + (sizetype) (u * 8)), *(b + (sizetype) (u * 8)));
+  u++ ;
+  <D.6999>:;
+  if (u < n) goto <D.6998>; else goto <D.7000>;
+  <D.7000>:;
+}
+
+
+;; Function falcon_inner_poly_sub (null)
+;; enabled by -tree-original
+
+
+{
+  size_t n;
+  size_t u;
+
+    size_t n;
+    size_t u;
+  n = 1 << logn;
+  u = 0;
+  goto <D.7009>;
+  <D.7008>:;
+  *(a + (sizetype) (u * 8)) = fpr_sub (*(a + (sizetype) (u * 8)), *(b + (sizetype) (u * 8)));
+  u++ ;
+  <D.7009>:;
+  if (u < n) goto <D.7008>; else goto <D.7010>;
+  <D.7010>:;
+}
+
+
+;; Function falcon_inner_poly_neg (null)
+;; enabled by -tree-original
+
+
+{
+  size_t n;
+  size_t u;
+
+    size_t n;
+    size_t u;
+  n = 1 << logn;
+  u = 0;
+  goto <D.7018>;
+  <D.7017>:;
+  *(a + (sizetype) (u * 8)) = fpr_neg (*(a + (sizetype) (u * 8)));
+  u++ ;
+  <D.7018>:;
+  if (u < n) goto <D.7017>; else goto <D.7019>;
+  <D.7019>:;
+}
+
+
+;; Function falcon_inner_poly_adj_fft (null)
+;; enabled by -tree-original
+
+
+{
+  size_t n;
+  size_t u;
+
+    size_t n;
+    size_t u;
+  n = 1 << logn;
+  u = n >> 1;
+  goto <D.7027>;
+  <D.7026>:;
+  *(a + (sizetype) (u * 8)) = fpr_neg (*(a + (sizetype) (u * 8)));
+  u++ ;
+  <D.7027>:;
+  if (u < n) goto <D.7026>; else goto <D.7028>;
+  <D.7028>:;
+}
+
+
+;; Function falcon_inner_poly_mul_fft (null)
+;; enabled by -tree-original
+
+
+{
+  size_t n;
+  size_t hn;
+  size_t u;
+
+    size_t n;
+    size_t hn;
+    size_t u;
+  n = 1 << logn;
+  hn = n >> 1;
+  u = 0;
+  goto <D.7048>;
+  <D.7047>:;
+  {
+    fpr a_re;
+    fpr a_im;
+    fpr b_re;
+    fpr b_im;
+
+        fpr a_re;
+        fpr a_im;
+        fpr b_re;
+        fpr b_im;
+    a_re = *(a + (sizetype) (u * 8));
+    a_im = *(a + (sizetype) ((u + hn) * 8));
+    b_re = *(b + (sizetype) (u * 8));
+    b_im = *(b + (sizetype) ((u + hn) * 8));
+    {
+      fpr fpct_a_re;
+      fpr fpct_a_im;
+      fpr fpct_b_re;
+      fpr fpct_b_im;
+      fpr fpct_d_re;
+      fpr fpct_d_im;
+
+            fpr fpct_a_re;
+            fpr fpct_a_im;
+            fpr fpct_b_re;
+            fpr fpct_b_im;
+            fpr fpct_d_re;
+            fpr fpct_d_im;
+      fpct_a_re = a_re;
+      fpct_a_im = a_im;
+      fpct_b_re = b_re;
+      fpct_b_im = b_im;
+      fpct_d_re = fpr_sub (falcon_inner_fpr_mul (fpct_a_re, fpct_b_re), falcon_inner_fpr_mul (fpct_a_im, fpct_b_im));
+      fpct_d_im = falcon_inner_fpr_add (falcon_inner_fpr_mul (fpct_a_re, fpct_b_im), falcon_inner_fpr_mul (fpct_a_im, fpct_b_re));
+      *(a + (sizetype) (u * 8)) = fpct_d_re;
+      *(a + (sizetype) ((u + hn) * 8)) = fpct_d_im;
+    }
+  }
+  u++ ;
+  <D.7048>:;
+  if (u < hn) goto <D.7047>; else goto <D.7049>;
+  <D.7049>:;
+}
+
+
+;; Function falcon_inner_poly_muladj_fft (null)
+;; enabled by -tree-original
+
+
+{
+  size_t n;
+  size_t hn;
+  size_t u;
+
+    size_t n;
+    size_t hn;
+    size_t u;
+  n = 1 << logn;
+  hn = n >> 1;
+  u = 0;
+  goto <D.7069>;
+  <D.7068>:;
+  {
+    fpr a_re;
+    fpr a_im;
+    fpr b_re;
+    fpr b_im;
+
+        fpr a_re;
+        fpr a_im;
+        fpr b_re;
+        fpr b_im;
+    a_re = *(a + (sizetype) (u * 8));
+    a_im = *(a + (sizetype) ((u + hn) * 8));
+    b_re = *(b + (sizetype) (u * 8));
+    b_im = fpr_neg (*(b + (sizetype) ((u + hn) * 8)));
+    {
+      fpr fpct_a_re;
+      fpr fpct_a_im;
+      fpr fpct_b_re;
+      fpr fpct_b_im;
+      fpr fpct_d_re;
+      fpr fpct_d_im;
+
+            fpr fpct_a_re;
+            fpr fpct_a_im;
+            fpr fpct_b_re;
+            fpr fpct_b_im;
+            fpr fpct_d_re;
+            fpr fpct_d_im;
+      fpct_a_re = a_re;
+      fpct_a_im = a_im;
+      fpct_b_re = b_re;
+      fpct_b_im = b_im;
+      fpct_d_re = fpr_sub (falcon_inner_fpr_mul (fpct_a_re, fpct_b_re), falcon_inner_fpr_mul (fpct_a_im, fpct_b_im));
+      fpct_d_im = falcon_inner_fpr_add (falcon_inner_fpr_mul (fpct_a_re, fpct_b_im), falcon_inner_fpr_mul (fpct_a_im, fpct_b_re));
+      *(a + (sizetype) (u * 8)) = fpct_d_re;
+      *(a + (sizetype) ((u + hn) * 8)) = fpct_d_im;
+    }
+  }
+  u++ ;
+  <D.7069>:;
+  if (u < hn) goto <D.7068>; else goto <D.7070>;
+  <D.7070>:;
+}
+
+
+;; Function falcon_inner_poly_mulselfadj_fft (null)
+;; enabled by -tree-original
+
+
+{
+  size_t n;
+  size_t hn;
+  size_t u;
+
+    size_t n;
+    size_t hn;
+    size_t u;
+  n = 1 << logn;
+  hn = n >> 1;
+  u = 0;
+  goto <D.7081>;
+  <D.7080>:;
+  {
+    fpr a_re;
+    fpr a_im;
+
+        fpr a_re;
+        fpr a_im;
+    a_re = *(a + (sizetype) (u * 8));
+    a_im = *(a + (sizetype) ((u + hn) * 8));
+    *(a + (sizetype) (u * 8)) = falcon_inner_fpr_add (fpr_sqr (a_re), fpr_sqr (a_im));
+    *(a + (sizetype) ((u + hn) * 8)) = 0;
+  }
+  u++ ;
+  <D.7081>:;
+  if (u < hn) goto <D.7080>; else goto <D.7082>;
+  <D.7082>:;
+}
+
+
+;; Function falcon_inner_poly_mulconst (null)
+;; enabled by -tree-original
+
+
+{
+  size_t n;
+  size_t u;
+
+    size_t n;
+    size_t u;
+  n = 1 << logn;
+  u = 0;
+  goto <D.7091>;
+  <D.7090>:;
+  *(a + (sizetype) (u * 8)) = falcon_inner_fpr_mul (*(a + (sizetype) (u * 8)), x);
+  u++ ;
+  <D.7091>:;
+  if (u < n) goto <D.7090>; else goto <D.7092>;
+  <D.7092>:;
+}
+
+
+;; Function falcon_inner_poly_div_fft (null)
+;; enabled by -tree-original
+
+
+{
+  size_t n;
+  size_t hn;
+  size_t u;
+
+    size_t n;
+    size_t hn;
+    size_t u;
+  n = 1 << logn;
+  hn = n >> 1;
+  u = 0;
+  goto <D.7113>;
+  <D.7112>:;
+  {
+    fpr a_re;
+    fpr a_im;
+    fpr b_re;
+    fpr b_im;
+
+        fpr a_re;
+        fpr a_im;
+        fpr b_re;
+        fpr b_im;
+    a_re = *(a + (sizetype) (u * 8));
+    a_im = *(a + (sizetype) ((u + hn) * 8));
+    b_re = *(b + (sizetype) (u * 8));
+    b_im = *(b + (sizetype) ((u + hn) * 8));
+    {
+      fpr fpct_a_re;
+      fpr fpct_a_im;
+      fpr fpct_b_re;
+      fpr fpct_b_im;
+      fpr fpct_d_re;
+      fpr fpct_d_im;
+      fpr fpct_m;
+
+            fpr fpct_a_re;
+            fpr fpct_a_im;
+            fpr fpct_b_re;
+            fpr fpct_b_im;
+            fpr fpct_d_re;
+            fpr fpct_d_im;
+            fpr fpct_m;
+      fpct_a_re = a_re;
+      fpct_a_im = a_im;
+      fpct_b_re = b_re;
+      fpct_b_im = b_im;
+      fpct_m = falcon_inner_fpr_add (fpr_sqr (fpct_b_re), fpr_sqr (fpct_b_im));
+      fpct_m = fpr_inv (fpct_m);
+      fpct_b_re = falcon_inner_fpr_mul (fpct_b_re, fpct_m);
+      fpct_b_im = falcon_inner_fpr_mul (fpr_neg (fpct_b_im), fpct_m);
+      fpct_d_re = fpr_sub (falcon_inner_fpr_mul (fpct_a_re, fpct_b_re), falcon_inner_fpr_mul (fpct_a_im, fpct_b_im));
+      fpct_d_im = falcon_inner_fpr_add (falcon_inner_fpr_mul (fpct_a_re, fpct_b_im), falcon_inner_fpr_mul (fpct_a_im, fpct_b_re));
+      *(a + (sizetype) (u * 8)) = fpct_d_re;
+      *(a + (sizetype) ((u + hn) * 8)) = fpct_d_im;
+    }
+  }
+  u++ ;
+  <D.7113>:;
+  if (u < hn) goto <D.7112>; else goto <D.7114>;
+  <D.7114>:;
+}
+
+
+;; Function falcon_inner_poly_invnorm2_fft (null)
+;; enabled by -tree-original
+
+
+{
+  size_t n;
+  size_t hn;
+  size_t u;
+
+    size_t n;
+    size_t hn;
+    size_t u;
+  n = 1 << logn;
+  hn = n >> 1;
+  u = 0;
+  goto <D.7129>;
+  <D.7128>:;
+  {
+    fpr a_re;
+    fpr a_im;
+    fpr b_re;
+    fpr b_im;
+
+        fpr a_re;
+        fpr a_im;
+        fpr b_re;
+        fpr b_im;
+    a_re = *(a + (sizetype) (u * 8));
+    a_im = *(a + (sizetype) ((u + hn) * 8));
+    b_re = *(b + (sizetype) (u * 8));
+    b_im = *(b + (sizetype) ((u + hn) * 8));
+    *(d + (sizetype) (u * 8)) = fpr_inv (falcon_inner_fpr_add (falcon_inner_fpr_add (fpr_sqr (a_re), fpr_sqr (a_im)), falcon_inner_fpr_add (fpr_sqr (b_re), fpr_sqr (b_im))));
+  }
+  u++ ;
+  <D.7129>:;
+  if (u < hn) goto <D.7128>; else goto <D.7130>;
+  <D.7130>:;
+}
+
+
+;; Function falcon_inner_poly_add_muladj_fft (null)
+;; enabled by -tree-original
+
+
+{
+  size_t n;
+  size_t hn;
+  size_t u;
+
+    size_t n;
+    size_t hn;
+    size_t u;
+  n = 1 << logn;
+  hn = n >> 1;
+  u = 0;
+  goto <D.7167>;
+  <D.7166>:;
+  {
+    fpr F_re;
+    fpr F_im;
+    fpr G_re;
+    fpr G_im;
+    fpr f_re;
+    fpr f_im;
+    fpr g_re;
+    fpr g_im;
+    fpr a_re;
+    fpr a_im;
+    fpr b_re;
+    fpr b_im;
+
+        fpr F_re;
+        fpr F_im;
+        fpr G_re;
+        fpr G_im;
+        fpr f_re;
+        fpr f_im;
+        fpr g_re;
+        fpr g_im;
+        fpr a_re;
+        fpr a_im;
+        fpr b_re;
+        fpr b_im;
+    F_re = *(F + (sizetype) (u * 8));
+    F_im = *(F + (sizetype) ((u + hn) * 8));
+    G_re = *(G + (sizetype) (u * 8));
+    G_im = *(G + (sizetype) ((u + hn) * 8));
+    f_re = *(f + (sizetype) (u * 8));
+    f_im = *(f + (sizetype) ((u + hn) * 8));
+    g_re = *(g + (sizetype) (u * 8));
+    g_im = *(g + (sizetype) ((u + hn) * 8));
+    {
+      fpr fpct_a_re;
+      fpr fpct_a_im;
+      fpr fpct_b_re;
+      fpr fpct_b_im;
+      fpr fpct_d_re;
+      fpr fpct_d_im;
+
+            fpr fpct_a_re;
+            fpr fpct_a_im;
+            fpr fpct_b_re;
+            fpr fpct_b_im;
+            fpr fpct_d_re;
+            fpr fpct_d_im;
+      fpct_a_re = F_re;
+      fpct_a_im = F_im;
+      fpct_b_re = f_re;
+      fpct_b_im = fpr_neg (f_im);
+      fpct_d_re = fpr_sub (falcon_inner_fpr_mul (fpct_a_re, fpct_b_re), falcon_inner_fpr_mul (fpct_a_im, fpct_b_im));
+      fpct_d_im = falcon_inner_fpr_add (falcon_inner_fpr_mul (fpct_a_re, fpct_b_im), falcon_inner_fpr_mul (fpct_a_im, fpct_b_re));
+      a_re = fpct_d_re;
+      a_im = fpct_d_im;
+    }
+    {
+      fpr fpct_a_re;
+      fpr fpct_a_im;
+      fpr fpct_b_re;
+      fpr fpct_b_im;
+      fpr fpct_d_re;
+      fpr fpct_d_im;
+
+            fpr fpct_a_re;
+            fpr fpct_a_im;
+            fpr fpct_b_re;
+            fpr fpct_b_im;
+            fpr fpct_d_re;
+            fpr fpct_d_im;
+      fpct_a_re = G_re;
+      fpct_a_im = G_im;
+      fpct_b_re = g_re;
+      fpct_b_im = fpr_neg (g_im);
+      fpct_d_re = fpr_sub (falcon_inner_fpr_mul (fpct_a_re, fpct_b_re), falcon_inner_fpr_mul (fpct_a_im, fpct_b_im));
+      fpct_d_im = falcon_inner_fpr_add (falcon_inner_fpr_mul (fpct_a_re, fpct_b_im), falcon_inner_fpr_mul (fpct_a_im, fpct_b_re));
+      b_re = fpct_d_re;
+      b_im = fpct_d_im;
+    }
+    *(d + (sizetype) (u * 8)) = falcon_inner_fpr_add (a_re, b_re);
+    *(d + (sizetype) ((u + hn) * 8)) = falcon_inner_fpr_add (a_im, b_im);
+  }
+  u++ ;
+  <D.7167>:;
+  if (u < hn) goto <D.7166>; else goto <D.7168>;
+  <D.7168>:;
+}
+
+
+;; Function falcon_inner_poly_mul_autoadj_fft (null)
+;; enabled by -tree-original
+
+
+{
+  size_t n;
+  size_t hn;
+  size_t u;
+
+    size_t n;
+    size_t hn;
+    size_t u;
+  n = 1 << logn;
+  hn = n >> 1;
+  u = 0;
+  goto <D.7178>;
+  <D.7177>:;
+  *(a + (sizetype) (u * 8)) = falcon_inner_fpr_mul (*(a + (sizetype) (u * 8)), *(b + (sizetype) (u * 8)));
+  *(a + (sizetype) ((u + hn) * 8)) = falcon_inner_fpr_mul (*(a + (sizetype) ((u + hn) * 8)), *(b + (sizetype) (u * 8)));
+  u++ ;
+  <D.7178>:;
+  if (u < hn) goto <D.7177>; else goto <D.7179>;
+  <D.7179>:;
+}
+
+
+;; Function falcon_inner_poly_div_autoadj_fft (null)
+;; enabled by -tree-original
+
+
+{
+  size_t n;
+  size_t hn;
+  size_t u;
+
+    size_t n;
+    size_t hn;
+    size_t u;
+  n = 1 << logn;
+  hn = n >> 1;
+  u = 0;
+  goto <D.7190>;
+  <D.7189>:;
+  {
+    fpr ib;
+
+        fpr ib;
+    ib = fpr_inv (*(b + (sizetype) (u * 8)));
+    *(a + (sizetype) (u * 8)) = falcon_inner_fpr_mul (*(a + (sizetype) (u * 8)), ib);
+    *(a + (sizetype) ((u + hn) * 8)) = falcon_inner_fpr_mul (*(a + (sizetype) ((u + hn) * 8)), ib);
+  }
+  u++ ;
+  <D.7190>:;
+  if (u < hn) goto <D.7189>; else goto <D.7191>;
+  <D.7191>:;
+}
+
+
+;; Function falcon_inner_poly_LDL_fft (null)
+;; enabled by -tree-original
+
+
+{
+  size_t n;
+  size_t hn;
+  size_t u;
+
+    size_t n;
+    size_t hn;
+    size_t u;
+  n = 1 << logn;
+  hn = n >> 1;
+  u = 0;
+  goto <D.7225>;
+  <D.7224>:;
+  {
+    fpr g00_re;
+    fpr g00_im;
+    fpr g01_re;
+    fpr g01_im;
+    fpr g11_re;
+    fpr g11_im;
+    fpr mu_re;
+    fpr mu_im;
+
+        fpr g00_re;
+        fpr g00_im;
+        fpr g01_re;
+        fpr g01_im;
+        fpr g11_re;
+        fpr g11_im;
+        fpr mu_re;
+        fpr mu_im;
+    g00_re = *(g00 + (sizetype) (u * 8));
+    g00_im = *(g00 + (sizetype) ((u + hn) * 8));
+    g01_re = *(g01 + (sizetype) (u * 8));
+    g01_im = *(g01 + (sizetype) ((u + hn) * 8));
+    g11_re = *(g11 + (sizetype) (u * 8));
+    g11_im = *(g11 + (sizetype) ((u + hn) * 8));
+    {
+      fpr fpct_a_re;
+      fpr fpct_a_im;
+      fpr fpct_b_re;
+      fpr fpct_b_im;
+      fpr fpct_d_re;
+      fpr fpct_d_im;
+      fpr fpct_m;
+
+            fpr fpct_a_re;
+            fpr fpct_a_im;
+            fpr fpct_b_re;
+            fpr fpct_b_im;
+            fpr fpct_d_re;
+            fpr fpct_d_im;
+            fpr fpct_m;
+      fpct_a_re = g01_re;
+      fpct_a_im = g01_im;
+      fpct_b_re = g00_re;
+      fpct_b_im = g00_im;
+      fpct_m = falcon_inner_fpr_add (fpr_sqr (fpct_b_re), fpr_sqr (fpct_b_im));
+      fpct_m = fpr_inv (fpct_m);
+      fpct_b_re = falcon_inner_fpr_mul (fpct_b_re, fpct_m);
+      fpct_b_im = falcon_inner_fpr_mul (fpr_neg (fpct_b_im), fpct_m);
+      fpct_d_re = fpr_sub (falcon_inner_fpr_mul (fpct_a_re, fpct_b_re), falcon_inner_fpr_mul (fpct_a_im, fpct_b_im));
+      fpct_d_im = falcon_inner_fpr_add (falcon_inner_fpr_mul (fpct_a_re, fpct_b_im), falcon_inner_fpr_mul (fpct_a_im, fpct_b_re));
+      mu_re = fpct_d_re;
+      mu_im = fpct_d_im;
+    }
+    {
+      fpr fpct_a_re;
+      fpr fpct_a_im;
+      fpr fpct_b_re;
+      fpr fpct_b_im;
+      fpr fpct_d_re;
+      fpr fpct_d_im;
+
+            fpr fpct_a_re;
+            fpr fpct_a_im;
+            fpr fpct_b_re;
+            fpr fpct_b_im;
+            fpr fpct_d_re;
+            fpr fpct_d_im;
+      fpct_a_re = mu_re;
+      fpct_a_im = mu_im;
+      fpct_b_re = g01_re;
+      fpct_b_im = fpr_neg (g01_im);
+      fpct_d_re = fpr_sub (falcon_inner_fpr_mul (fpct_a_re, fpct_b_re), falcon_inner_fpr_mul (fpct_a_im, fpct_b_im));
+      fpct_d_im = falcon_inner_fpr_add (falcon_inner_fpr_mul (fpct_a_re, fpct_b_im), falcon_inner_fpr_mul (fpct_a_im, fpct_b_re));
+      g01_re = fpct_d_re;
+      g01_im = fpct_d_im;
+    }
+    {
+      fpr fpct_re;
+      fpr fpct_im;
+
+            fpr fpct_re;
+            fpr fpct_im;
+      fpct_re = fpr_sub (g11_re, g01_re);
+      fpct_im = fpr_sub (g11_im, g01_im);
+      *(g11 + (sizetype) (u * 8)) = fpct_re;
+      *(g11 + (sizetype) ((u + hn) * 8)) = fpct_im;
+    }
+    *(g01 + (sizetype) (u * 8)) = mu_re;
+    *(g01 + (sizetype) ((u + hn) * 8)) = fpr_neg (mu_im);
+  }
+  u++ ;
+  <D.7225>:;
+  if (u < hn) goto <D.7224>; else goto <D.7226>;
+  <D.7226>:;
+}
+
+
+;; Function falcon_inner_poly_LDLmv_fft (null)
+;; enabled by -tree-original
+
+
+{
+  size_t n;
+  size_t hn;
+  size_t u;
+
+    size_t n;
+    size_t hn;
+    size_t u;
+  n = 1 << logn;
+  hn = n >> 1;
+  u = 0;
+  goto <D.7262>;
+  <D.7261>:;
+  {
+    fpr g00_re;
+    fpr g00_im;
+    fpr g01_re;
+    fpr g01_im;
+    fpr g11_re;
+    fpr g11_im;
+    fpr mu_re;
+    fpr mu_im;
+
+        fpr g00_re;
+        fpr g00_im;
+        fpr g01_re;
+        fpr g01_im;
+        fpr g11_re;
+        fpr g11_im;
+        fpr mu_re;
+        fpr mu_im;
+    g00_re = *(g00 + (sizetype) (u * 8));
+    g00_im = *(g00 + (sizetype) ((u + hn) * 8));
+    g01_re = *(g01 + (sizetype) (u * 8));
+    g01_im = *(g01 + (sizetype) ((u + hn) * 8));
+    g11_re = *(g11 + (sizetype) (u * 8));
+    g11_im = *(g11 + (sizetype) ((u + hn) * 8));
+    {
+      fpr fpct_a_re;
+      fpr fpct_a_im;
+      fpr fpct_b_re;
+      fpr fpct_b_im;
+      fpr fpct_d_re;
+      fpr fpct_d_im;
+      fpr fpct_m;
+
+            fpr fpct_a_re;
+            fpr fpct_a_im;
+            fpr fpct_b_re;
+            fpr fpct_b_im;
+            fpr fpct_d_re;
+            fpr fpct_d_im;
+            fpr fpct_m;
+      fpct_a_re = g01_re;
+      fpct_a_im = g01_im;
+      fpct_b_re = g00_re;
+      fpct_b_im = g00_im;
+      fpct_m = falcon_inner_fpr_add (fpr_sqr (fpct_b_re), fpr_sqr (fpct_b_im));
+      fpct_m = fpr_inv (fpct_m);
+      fpct_b_re = falcon_inner_fpr_mul (fpct_b_re, fpct_m);
+      fpct_b_im = falcon_inner_fpr_mul (fpr_neg (fpct_b_im), fpct_m);
+      fpct_d_re = fpr_sub (falcon_inner_fpr_mul (fpct_a_re, fpct_b_re), falcon_inner_fpr_mul (fpct_a_im, fpct_b_im));
+      fpct_d_im = falcon_inner_fpr_add (falcon_inner_fpr_mul (fpct_a_re, fpct_b_im), falcon_inner_fpr_mul (fpct_a_im, fpct_b_re));
+      mu_re = fpct_d_re;
+      mu_im = fpct_d_im;
+    }
+    {
+      fpr fpct_a_re;
+      fpr fpct_a_im;
+      fpr fpct_b_re;
+      fpr fpct_b_im;
+      fpr fpct_d_re;
+      fpr fpct_d_im;
+
+            fpr fpct_a_re;
+            fpr fpct_a_im;
+            fpr fpct_b_re;
+            fpr fpct_b_im;
+            fpr fpct_d_re;
+            fpr fpct_d_im;
+      fpct_a_re = mu_re;
+      fpct_a_im = mu_im;
+      fpct_b_re = g01_re;
+      fpct_b_im = fpr_neg (g01_im);
+      fpct_d_re = fpr_sub (falcon_inner_fpr_mul (fpct_a_re, fpct_b_re), falcon_inner_fpr_mul (fpct_a_im, fpct_b_im));
+      fpct_d_im = falcon_inner_fpr_add (falcon_inner_fpr_mul (fpct_a_re, fpct_b_im), falcon_inner_fpr_mul (fpct_a_im, fpct_b_re));
+      g01_re = fpct_d_re;
+      g01_im = fpct_d_im;
+    }
+    {
+      fpr fpct_re;
+      fpr fpct_im;
+
+            fpr fpct_re;
+            fpr fpct_im;
+      fpct_re = fpr_sub (g11_re, g01_re);
+      fpct_im = fpr_sub (g11_im, g01_im);
+      *(d11 + (sizetype) (u * 8)) = fpct_re;
+      *(d11 + (sizetype) ((u + hn) * 8)) = fpct_im;
+    }
+    *(l10 + (sizetype) (u * 8)) = mu_re;
+    *(l10 + (sizetype) ((u + hn) * 8)) = fpr_neg (mu_im);
+  }
+  u++ ;
+  <D.7262>:;
+  if (u < hn) goto <D.7261>; else goto <D.7263>;
+  <D.7263>:;
+}
+
+
+;; Function falcon_inner_poly_split_fft (null)
+;; enabled by -tree-original
+
+
+{
+  size_t n;
+  size_t hn;
+  size_t qn;
+  size_t u;
+
+    size_t n;
+    size_t hn;
+    size_t qn;
+    size_t u;
+  n = 1 << logn;
+  hn = n >> 1;
+  qn = hn >> 1;
+  *f0 = *f;
+  *f1 = *(f + (sizetype) (hn * 8));
+  u = 0;
+  goto <D.7291>;
+  <D.7290>:;
+  {
+    fpr a_re;
+    fpr a_im;
+    fpr b_re;
+    fpr b_im;
+    fpr t_re;
+    fpr t_im;
+
+        fpr a_re;
+        fpr a_im;
+        fpr b_re;
+        fpr b_im;
+        fpr t_re;
+        fpr t_im;
+    a_re = *(f + (sizetype) (u * 16));
+    a_im = *(f + (sizetype) (((u << 1) + hn) * 8));
+    b_re = *(f + ((sizetype) (u * 16) + 8));
+    b_im = *(f + (sizetype) ((((u << 1) + hn) + 1) * 8));
+    {
+      fpr fpct_re;
+      fpr fpct_im;
+
+            fpr fpct_re;
+            fpr fpct_im;
+      fpct_re = falcon_inner_fpr_add (a_re, b_re);
+      fpct_im = falcon_inner_fpr_add (a_im, b_im);
+      t_re = fpct_re;
+      t_im = fpct_im;
+    }
+    *(f0 + (sizetype) (u * 8)) = fpr_half (t_re);
+    *(f0 + (sizetype) ((u + qn) * 8)) = fpr_half (t_im);
+    {
+      fpr fpct_re;
+      fpr fpct_im;
+
+            fpr fpct_re;
+            fpr fpct_im;
+      fpct_re = fpr_sub (a_re, b_re);
+      fpct_im = fpr_sub (a_im, b_im);
+      t_re = fpct_re;
+      t_im = fpct_im;
+    }
+    {
+      fpr fpct_a_re;
+      fpr fpct_a_im;
+      fpr fpct_b_re;
+      fpr fpct_b_im;
+      fpr fpct_d_re;
+      fpr fpct_d_im;
+
+            fpr fpct_a_re;
+            fpr fpct_a_im;
+            fpr fpct_b_re;
+            fpr fpct_b_im;
+            fpr fpct_d_re;
+            fpr fpct_d_im;
+      fpct_a_re = t_re;
+      fpct_a_im = t_im;
+      fpct_b_re = falcon_inner_fpr_gm_tab[u + hn << 1];
+      fpct_b_im = fpr_neg (falcon_inner_fpr_gm_tab[(u + hn << 1) + 1]);
+      fpct_d_re = fpr_sub (falcon_inner_fpr_mul (fpct_a_re, fpct_b_re), falcon_inner_fpr_mul (fpct_a_im, fpct_b_im));
+      fpct_d_im = falcon_inner_fpr_add (falcon_inner_fpr_mul (fpct_a_re, fpct_b_im), falcon_inner_fpr_mul (fpct_a_im, fpct_b_re));
+      t_re = fpct_d_re;
+      t_im = fpct_d_im;
+    }
+    *(f1 + (sizetype) (u * 8)) = fpr_half (t_re);
+    *(f1 + (sizetype) ((u + qn) * 8)) = fpr_half (t_im);
+  }
+  u++ ;
+  <D.7291>:;
+  if (u < qn) goto <D.7290>; else goto <D.7292>;
+  <D.7292>:;
+}
+
+
+;; Function falcon_inner_poly_merge_fft (null)
+;; enabled by -tree-original
+
+
+{
+  size_t n;
+  size_t hn;
+  size_t qn;
+  size_t u;
+
+    size_t n;
+    size_t hn;
+    size_t qn;
+    size_t u;
+  n = 1 << logn;
+  hn = n >> 1;
+  qn = hn >> 1;
+  *f = *f0;
+  *(f + (sizetype) (hn * 8)) = *f1;
+  u = 0;
+  goto <D.7320>;
+  <D.7319>:;
+  {
+    fpr a_re;
+    fpr a_im;
+    fpr b_re;
+    fpr b_im;
+    fpr t_re;
+    fpr t_im;
+
+        fpr a_re;
+        fpr a_im;
+        fpr b_re;
+        fpr b_im;
+        fpr t_re;
+        fpr t_im;
+    a_re = *(f0 + (sizetype) (u * 8));
+    a_im = *(f0 + (sizetype) ((u + qn) * 8));
+    {
+      fpr fpct_a_re;
+      fpr fpct_a_im;
+      fpr fpct_b_re;
+      fpr fpct_b_im;
+      fpr fpct_d_re;
+      fpr fpct_d_im;
+
+            fpr fpct_a_re;
+            fpr fpct_a_im;
+            fpr fpct_b_re;
+            fpr fpct_b_im;
+            fpr fpct_d_re;
+            fpr fpct_d_im;
+      fpct_a_re = *(f1 + (sizetype) (u * 8));
+      fpct_a_im = *(f1 + (sizetype) ((u + qn) * 8));
+      fpct_b_re = falcon_inner_fpr_gm_tab[u + hn << 1];
+      fpct_b_im = falcon_inner_fpr_gm_tab[(u + hn << 1) + 1];
+      fpct_d_re = fpr_sub (falcon_inner_fpr_mul (fpct_a_re, fpct_b_re), falcon_inner_fpr_mul (fpct_a_im, fpct_b_im));
+      fpct_d_im = falcon_inner_fpr_add (falcon_inner_fpr_mul (fpct_a_re, fpct_b_im), falcon_inner_fpr_mul (fpct_a_im, fpct_b_re));
+      b_re = fpct_d_re;
+      b_im = fpct_d_im;
+    }
+    {
+      fpr fpct_re;
+      fpr fpct_im;
+
+            fpr fpct_re;
+            fpr fpct_im;
+      fpct_re = falcon_inner_fpr_add (a_re, b_re);
+      fpct_im = falcon_inner_fpr_add (a_im, b_im);
+      t_re = fpct_re;
+      t_im = fpct_im;
+    }
+    *(f + (sizetype) (u * 16)) = t_re;
+    *(f + (sizetype) (((u << 1) + hn) * 8)) = t_im;
+    {
+      fpr fpct_re;
+      fpr fpct_im;
+
+            fpr fpct_re;
+            fpr fpct_im;
+      fpct_re = fpr_sub (a_re, b_re);
+      fpct_im = fpr_sub (a_im, b_im);
+      t_re = fpct_re;
+      t_im = fpct_im;
+    }
+    *(f + ((sizetype) (u * 16) + 8)) = t_re;
+    *(f + (sizetype) ((((u << 1) + hn) + 1) * 8)) = t_im;
+  }
+  u++ ;
+  <D.7320>:;
+  if (u < qn) goto <D.7319>; else goto <D.7321>;
+  <D.7321>:;
+}
+

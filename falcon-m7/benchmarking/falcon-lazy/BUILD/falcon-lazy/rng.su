@@ -1,0 +1,4 @@
+../falcon-lazy/rng.c:60:1:falcon_inner_get_seed	0	static
+../falcon-lazy/rng.c:167:1:falcon_inner_prng_refill	176	static
+../falcon-lazy/rng.c:120:1:falcon_inner_prng_init	8	static
+../falcon-lazy/rng.c:359:1:falcon_inner_prng_get_bytes	24	static

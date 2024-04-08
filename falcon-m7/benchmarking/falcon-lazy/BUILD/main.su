@@ -1,0 +1,9 @@
+../mbed/drivers/Serial.h:54:7:mbed::Serial::~Serial()	8	static
+../main.cpp:22:1:void* xmalloc(size_t)	8	static
+../main.cpp:56:5:int main()	416	static
+../mbed/drivers/Serial.h:54:7:virtual mbed::Serial::~Serial()	8	static
+../mbed/drivers/Serial.h:54:7:virtual void* mbed::Serial::_ZThn180_N4mbed6SerialD1Ev()	8	static
+../mbed/drivers/Serial.h:54:7:virtual void* mbed::Serial::_ZThn176_N4mbed6SerialD1Ev()	8	static
+../mbed/drivers/Serial.h:54:7:virtual void* mbed::Serial::_ZThn180_N4mbed6SerialD0Ev()	16	static
+../mbed/drivers/Serial.h:54:7:virtual void* mbed::Serial::_ZThn176_N4mbed6SerialD0Ev()	16	static
+../main.cpp:244:1:cpp)	8	static

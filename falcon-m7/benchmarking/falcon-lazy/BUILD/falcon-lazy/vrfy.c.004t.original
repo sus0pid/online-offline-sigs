@@ -1,0 +1,979 @@
+
+;; Function set_fpu_cw (null)
+;; enabled by -tree-original
+
+
+{
+  return x;
+}
+
+
+;; Function fpr_ursh (null)
+;; enabled by -tree-original
+
+
+{
+  x = (long long unsigned int) (x >> 32 ^ x) & -(long long unsigned int) (n >> 5) ^ (long long unsigned int) x;
+  return x >> (n & 31);
+}
+
+
+;; Function fpr_irsh (null)
+;; enabled by -tree-original
+
+
+{
+  x = (long long int) (x >> 32 ^ x) & -(long long int) (n >> 5) ^ (long long int) x;
+  return x >> (n & 31);
+}
+
+
+;; Function fpr_ulsh (null)
+;; enabled by -tree-original
+
+
+{
+  x = (long long unsigned int) (x << 32 ^ x) & -(long long unsigned int) (n >> 5) ^ (long long unsigned int) x;
+  return x << (n & 31);
+}
+
+
+;; Function FPR (null)
+;; enabled by -tree-original
+
+
+{
+  fpr x;
+  uint32_t t;
+  unsigned int f;
+
+    fpr x;
+    uint32_t t;
+    unsigned int f;
+  e = e + 1076;
+  t = (long unsigned int) e >> 31;
+  m = (long long unsigned int) t + 18446744073709551615 & (long long unsigned int) m;
+  t = (long unsigned int) (m >> 54);
+  e = -(int) t & e;
+  x = ((long long unsigned int) s << 63 | (long long unsigned int) (m >> 2)) + ((long long unsigned int) (long unsigned int) e << 52);
+  f = (unsigned int) m & 7;
+  x = ((fpr) (200 >> f) & 1) + x;
+  return x;
+}
+
+
+;; Function fpr_of (null)
+;; enabled by -tree-original
+
+
+{
+  return falcon_inner_fpr_scaled (i, 0);
+}
+
+
+;; Function fpr_rint (null)
+;; enabled by -tree-original
+
+
+{
+  uint64_t m;
+  uint64_t d;
+  int e;
+  uint32_t s;
+  uint32_t dd;
+  uint32_t f;
+
+    uint64_t m;
+    uint64_t d;
+    int e;
+    uint32_t s;
+    uint32_t dd;
+    uint32_t f;
+  m = (long long unsigned int) (x << 10) & 4611686018427387903 | 4611686018427387904;
+  e = 1085 - ((int) (x >> 52) & 2047);
+  m = -(long long unsigned int) ((long unsigned int) (e + -64) >> 31) & (long long unsigned int) m;
+  e = e & 63;
+  d = fpr_ulsh (m, 63 - e);
+  dd = (long unsigned int) d | (long unsigned int) (d >> 32) & 536870911;
+  f = (long unsigned int) (d >> 61) | (long unsigned int) ((-dd | dd) >> 31);
+  m = (long long unsigned int) fpr_ursh (m, e) + ((long long unsigned int) (200 >> f) & 1);
+  s = (long unsigned int) (x >> 63);
+  return (int64_t) ((-(long long int) s ^ (long long int) m) + (long long int) s);
+}
+
+
+;; Function fpr_floor (null)
+;; enabled by -tree-original
+
+
+{
+  uint64_t t;
+  int64_t xi;
+  int e;
+  int cc;
+
+    uint64_t t;
+    int64_t xi;
+    int e;
+    int cc;
+  e = (int) (x >> 52) & 2047;
+  t = x >> 63;
+  xi = (long long int) ((long long unsigned int) (x << 10) | 4611686018427387904) & 9223372036854775807;
+  xi = (-(long long int) t ^ (long long int) xi) + (long long int) t;
+  cc = 1085 - e;
+  xi = fpr_irsh (xi, cc & 63);
+  xi = (-(long long int) t ^ (long long int) xi) & -(long long int) ((long unsigned int) (63 - cc) >> 31) ^ (long long int) xi;
+  return xi;
+}
+
+
+;; Function fpr_trunc (null)
+;; enabled by -tree-original
+
+
+{
+  uint64_t t;
+  uint64_t xu;
+  int e;
+  int cc;
+
+    uint64_t t;
+    uint64_t xu;
+    int e;
+    int cc;
+  e = (int) (x >> 52) & 2047;
+  xu = (long long unsigned int) (x << 10) & 4611686018427387903 | 4611686018427387904;
+  cc = 1085 - e;
+  xu = fpr_ursh (xu, cc & 63);
+  xu = -(long long unsigned int) ((long unsigned int) (cc + -64) >> 31) & (long long unsigned int) xu;
+  t = x >> 63;
+  xu = (-t ^ xu) + t;
+  return *(int64_t *) &xu;
+}
+
+
+;; Function fpr_sub (null)
+;; enabled by -tree-original
+
+
+{
+  y = (long long unsigned int) y ^ 9223372036854775808;
+  return falcon_inner_fpr_add (x, y);
+}
+
+
+;; Function fpr_neg (null)
+;; enabled by -tree-original
+
+
+{
+  x = (long long unsigned int) x ^ 9223372036854775808;
+  return x;
+}
+
+
+;; Function fpr_half (null)
+;; enabled by -tree-original
+
+
+{
+  uint32_t t;
+
+    uint32_t t;
+  x = (long long unsigned int) x + 18442240474082181120;
+  t = ((long unsigned int) (x >> 52) & 2047) + 1 >> 11;
+  x = (long long unsigned int) t + 18446744073709551615 & (long long unsigned int) x;
+  return x;
+}
+
+
+;; Function fpr_double (null)
+;; enabled by -tree-original
+
+
+{
+  x = ((long long unsigned int) (((unsigned int) (x >> 52) & 2047) + 2047 >> 11) << 52) + (long long unsigned int) x;
+  return x;
+}
+
+
+;; Function fpr_sqr (null)
+;; enabled by -tree-original
+
+
+{
+  return falcon_inner_fpr_mul (x, x);
+}
+
+
+;; Function fpr_inv (null)
+;; enabled by -tree-original
+
+
+{
+  return falcon_inner_fpr_div (4607182418800017408, x);
+}
+
+
+;; Function fpr_lt (null)
+;; enabled by -tree-original
+
+
+{
+  int cc0;
+  int cc1;
+
+    int cc0;
+    int cc1;
+  cc0 = *(int64_t *) &x < *(int64_t *) &y;
+  cc1 = *(int64_t *) &x > *(int64_t *) &y;
+  return (cc0 ^ cc1) & (int) ((x & y) >> 63) ^ cc0;
+}
+
+
+;; Function prng_get_u64 (null)
+;; enabled by -tree-original
+
+
+{
+  size_t u;
+
+    size_t u;
+  u = p->ptr;
+  if (u > 502)
+    {
+      falcon_inner_prng_refill (p);
+      u = 0;
+    }
+  p->ptr = u + 8;
+  return (uint64_t) ((((((((long long unsigned int) p->buf.d[u] | (long long unsigned int) p->buf.d[u + 1] << 8) | (long long unsigned int) p->buf.d[u + 2] << 16) | (long long unsigned int) p->buf.d[u + 3] << 24) | (long long unsigned int) p->buf.d[u + 4] << 32) | (long long unsigned int) p->buf.d[u + 5] << 40) | (long long unsigned int) p->buf.d[u + 6] << 48) | (long long unsigned int) p->buf.d[u + 7] << 56);
+}
+
+
+;; Function prng_get_u8 (null)
+;; enabled by -tree-original
+
+
+{
+  unsigned int v;
+
+    unsigned int v;
+  v = (unsigned int) p->buf.d[p->ptr++ ];
+  if (p->ptr == 512)
+    {
+      falcon_inner_prng_refill (p);
+    }
+  return v;
+}
+
+
+;; Function mq_conv_small (null)
+;; enabled by -tree-original
+
+
+{
+  uint32_t y;
+
+    uint32_t y;
+  y = (long unsigned int) x;
+  y = ((long unsigned int) ((signed int) y >> 31) & 12289) + (long unsigned int) y;
+  return y;
+}
+
+
+;; Function mq_add (null)
+;; enabled by -tree-original
+
+
+{
+  uint32_t d;
+
+    uint32_t d;
+  d = (long unsigned int) (x + y) + 4294955007;
+  d = ((long unsigned int) ((signed int) d >> 31) & 12289) + (long unsigned int) d;
+  return d;
+}
+
+
+;; Function mq_sub (null)
+;; enabled by -tree-original
+
+
+{
+  uint32_t d;
+
+    uint32_t d;
+  d = x - y;
+  d = ((long unsigned int) ((signed int) d >> 31) & 12289) + (long unsigned int) d;
+  return d;
+}
+
+
+;; Function mq_rshift1 (null)
+;; enabled by -tree-original
+
+
+{
+  x = (-((long unsigned int) x & 1) & 12289) + (long unsigned int) x;
+  return x >> 1;
+}
+
+
+;; Function mq_montymul (null)
+;; enabled by -tree-original
+
+
+{
+  uint32_t z;
+  uint32_t w;
+
+    uint32_t z;
+    uint32_t w;
+  z = x * y;
+  w = ((long unsigned int) z * 12287 & 65535) * 12289;
+  z = z + w >> 16;
+  z = (long unsigned int) z + 4294955007;
+  z = ((long unsigned int) ((signed int) z >> 31) & 12289) + (long unsigned int) z;
+  return z;
+}
+
+
+;; Function mq_montysqr (null)
+;; enabled by -tree-original
+
+
+{
+  return mq_montymul (x, x);
+}
+
+
+;; Function mq_div_12289 (null)
+;; enabled by -tree-original
+
+
+{
+  uint32_t y0;
+  uint32_t y1;
+  uint32_t y2;
+  uint32_t y3;
+  uint32_t y4;
+  uint32_t y5;
+  uint32_t y6;
+  uint32_t y7;
+  uint32_t y8;
+  uint32_t y9;
+  uint32_t y10;
+  uint32_t y11;
+  uint32_t y12;
+  uint32_t y13;
+  uint32_t y14;
+  uint32_t y15;
+  uint32_t y16;
+  uint32_t y17;
+  uint32_t y18;
+
+    uint32_t y0;
+    uint32_t y1;
+    uint32_t y2;
+    uint32_t y3;
+    uint32_t y4;
+    uint32_t y5;
+    uint32_t y6;
+    uint32_t y7;
+    uint32_t y8;
+    uint32_t y9;
+    uint32_t y10;
+    uint32_t y11;
+    uint32_t y12;
+    uint32_t y13;
+    uint32_t y14;
+    uint32_t y15;
+    uint32_t y16;
+    uint32_t y17;
+    uint32_t y18;
+  y0 = mq_montymul (y, 10952);
+  y1 = mq_montysqr (y0);
+  y2 = mq_montymul (y1, y0);
+  y3 = mq_montymul (y2, y1);
+  y4 = mq_montysqr (y3);
+  y5 = mq_montysqr (y4);
+  y6 = mq_montysqr (y5);
+  y7 = mq_montysqr (y6);
+  y8 = mq_montysqr (y7);
+  y9 = mq_montymul (y8, y2);
+  y10 = mq_montymul (y9, y8);
+  y11 = mq_montysqr (y10);
+  y12 = mq_montysqr (y11);
+  y13 = mq_montymul (y12, y9);
+  y14 = mq_montysqr (y13);
+  y15 = mq_montysqr (y14);
+  y16 = mq_montymul (y15, y10);
+  y17 = mq_montysqr (y16);
+  y18 = mq_montymul (y17, y0);
+  return mq_montymul (y18, x);
+}
+
+
+;; Function mq_NTT (null)
+;; enabled by -tree-original
+
+
+{
+  size_t n;
+  size_t t;
+  size_t m;
+
+    size_t n;
+    size_t t;
+    size_t m;
+  n = 1 << logn;
+  t = n;
+  m = 1;
+  goto <D.6980>;
+  <D.6979>:;
+  {
+    size_t ht;
+    size_t i;
+    size_t j1;
+
+        size_t ht;
+        size_t i;
+        size_t j1;
+    ht = t >> 1;
+    i = 0;, j1 = 0;;
+    goto <D.6977>;
+    <D.6976>:;
+    {
+      size_t j;
+      size_t j2;
+      uint32_t s;
+
+            size_t j;
+            size_t j2;
+            uint32_t s;
+      s = (uint32_t) GMb[m + i];
+      j2 = j1 + ht;
+      j = j1;
+      goto <D.6974>;
+      <D.6973>:;
+      {
+        uint32_t u;
+        uint32_t v;
+
+                uint32_t u;
+                uint32_t v;
+        u = (uint32_t) *(a + (sizetype) (j * 2));
+        v = mq_montymul ((uint32_t) *(a + (sizetype) ((j + ht) * 2)), s);
+        *(a + (sizetype) (j * 2)) = (short unsigned int) mq_add (u, v);
+        *(a + (sizetype) ((j + ht) * 2)) = (short unsigned int) mq_sub (u, v);
+      }
+      j++ ;
+      <D.6974>:;
+      if (j < j2) goto <D.6973>; else goto <D.6975>;
+      <D.6975>:;
+    }
+    i++ ;, j1 = j1 + t;;
+    <D.6977>:;
+    if (i < m) goto <D.6976>; else goto <D.6978>;
+    <D.6978>:;
+    t = ht;
+  }
+  m = m << 1;
+  <D.6980>:;
+  if (m < n) goto <D.6979>; else goto <D.6981>;
+  <D.6981>:;
+}
+
+
+;; Function mq_iNTT (null)
+;; enabled by -tree-original
+
+
+{
+  size_t n;
+  size_t t;
+  size_t m;
+  uint32_t ni;
+
+    size_t n;
+    size_t t;
+    size_t m;
+    uint32_t ni;
+  n = 1 << logn;
+  t = 1;
+  m = n;
+  goto <D.7007>;
+  <D.7006>:;
+  {
+    size_t hm;
+    size_t dt;
+    size_t i;
+    size_t j1;
+
+        size_t hm;
+        size_t dt;
+        size_t i;
+        size_t j1;
+    hm = m >> 1;
+    dt = t << 1;
+    i = 0;, j1 = 0;;
+    goto <D.7004>;
+    <D.7003>:;
+    {
+      size_t j;
+      size_t j2;
+      uint32_t s;
+
+            size_t j;
+            size_t j2;
+            uint32_t s;
+      j2 = j1 + t;
+      s = (uint32_t) iGMb[hm + i];
+      j = j1;
+      goto <D.7001>;
+      <D.7000>:;
+      {
+        uint32_t u;
+        uint32_t v;
+        uint32_t w;
+
+                uint32_t u;
+                uint32_t v;
+                uint32_t w;
+        u = (uint32_t) *(a + (sizetype) (j * 2));
+        v = (uint32_t) *(a + (sizetype) ((j + t) * 2));
+        *(a + (sizetype) (j * 2)) = (short unsigned int) mq_add (u, v);
+        w = mq_sub (u, v);
+        *(a + (sizetype) ((j + t) * 2)) = (short unsigned int) mq_montymul (w, s);
+      }
+      j++ ;
+      <D.7001>:;
+      if (j < j2) goto <D.7000>; else goto <D.7002>;
+      <D.7002>:;
+    }
+    i++ ;, j1 = j1 + dt;;
+    <D.7004>:;
+    if (i < hm) goto <D.7003>; else goto <D.7005>;
+    <D.7005>:;
+    t = dt;
+    m = hm;
+  }
+  <D.7007>:;
+  if (m > 1) goto <D.7006>; else goto <D.7008>;
+  <D.7008>:;
+  ni = 4091;
+  m = n;
+  goto <D.7010>;
+  <D.7009>:;
+  ni = mq_rshift1 (ni);
+  m = m >> 1;
+  <D.7010>:;
+  if (m > 1) goto <D.7009>; else goto <D.7011>;
+  <D.7011>:;
+  m = 0;
+  goto <D.7013>;
+  <D.7012>:;
+  *(a + (sizetype) (m * 2)) = (short unsigned int) mq_montymul ((uint32_t) *(a + (sizetype) (m * 2)), ni);
+  m++ ;
+  <D.7013>:;
+  if (m < n) goto <D.7012>; else goto <D.7014>;
+  <D.7014>:;
+}
+
+
+;; Function mq_poly_tomonty (null)
+;; enabled by -tree-original
+
+
+{
+  size_t u;
+  size_t n;
+
+    size_t u;
+    size_t n;
+  n = 1 << logn;
+  u = 0;
+  goto <D.7022>;
+  <D.7021>:;
+  *(f + (sizetype) (u * 2)) = (short unsigned int) mq_montymul ((uint32_t) *(f + (sizetype) (u * 2)), 10952);
+  u++ ;
+  <D.7022>:;
+  if (u < n) goto <D.7021>; else goto <D.7023>;
+  <D.7023>:;
+}
+
+
+;; Function mq_poly_montymul_ntt (null)
+;; enabled by -tree-original
+
+
+{
+  size_t u;
+  size_t n;
+
+    size_t u;
+    size_t n;
+  n = 1 << logn;
+  u = 0;
+  goto <D.7032>;
+  <D.7031>:;
+  *(f + (sizetype) (u * 2)) = (short unsigned int) mq_montymul ((uint32_t) *(f + (sizetype) (u * 2)), (uint32_t) *(g + (sizetype) (u * 2)));
+  u++ ;
+  <D.7032>:;
+  if (u < n) goto <D.7031>; else goto <D.7033>;
+  <D.7033>:;
+}
+
+
+;; Function mq_poly_sub (null)
+;; enabled by -tree-original
+
+
+{
+  size_t u;
+  size_t n;
+
+    size_t u;
+    size_t n;
+  n = 1 << logn;
+  u = 0;
+  goto <D.7042>;
+  <D.7041>:;
+  *(f + (sizetype) (u * 2)) = (short unsigned int) mq_sub ((uint32_t) *(f + (sizetype) (u * 2)), (uint32_t) *(g + (sizetype) (u * 2)));
+  u++ ;
+  <D.7042>:;
+  if (u < n) goto <D.7041>; else goto <D.7043>;
+  <D.7043>:;
+}
+
+
+;; Function falcon_inner_to_ntt_monty (null)
+;; enabled by -tree-original
+
+
+{
+  mq_NTT (h, logn);
+  mq_poly_tomonty (h, logn);
+}
+
+
+;; Function falcon_inner_verify_raw (null)
+;; enabled by -tree-original
+
+
+{
+  size_t u;
+  size_t n;
+  uint16_t * tt;
+
+    size_t u;
+    size_t n;
+    uint16_t * tt;
+  n = 1 << logn;
+  tt = (uint16_t *) tmp;
+  u = 0;
+  goto <D.7060>;
+  <D.7059>:;
+  {
+    uint32_t w;
+
+        uint32_t w;
+    w = (long unsigned int) *(s2 + (sizetype) (u * 2));
+    w = ((long unsigned int) ((signed int) w >> 31) & 12289) + (long unsigned int) w;
+    *(tt + (sizetype) (u * 2)) = (short unsigned int) w;
+  }
+  u++ ;
+  <D.7060>:;
+  if (u < n) goto <D.7059>; else goto <D.7061>;
+  <D.7061>:;
+  mq_NTT (tt, logn);
+  mq_poly_montymul_ntt (tt, h, logn);
+  mq_iNTT (tt, logn);
+  mq_poly_sub (tt, c0, logn);
+  u = 0;
+  goto <D.7064>;
+  <D.7063>:;
+  {
+    int32_t w;
+
+        int32_t w;
+    w = (long int) *(tt + (sizetype) (u * 2));
+    w = (long int) w - ((long int) ((signed int) (6144 - (long unsigned int) w) >> 31) & 12289);
+    *((int16_t *) tt + (sizetype) (u * 2)) = (short int) w;
+  }
+  u++ ;
+  <D.7064>:;
+  if (u < n) goto <D.7063>; else goto <D.7065>;
+  <D.7065>:;
+  return falcon_inner_is_short ((const int16_t *) tt, s2, logn);
+}
+
+
+;; Function falcon_inner_compute_public (null)
+;; enabled by -tree-original
+
+
+{
+  size_t u;
+  size_t n;
+  uint16_t * tt;
+
+    size_t u;
+    size_t n;
+    uint16_t * tt;
+  n = 1 << logn;
+  tt = (uint16_t *) tmp;
+  u = 0;
+  goto <D.7077>;
+  <D.7076>:;
+  *(tt + (sizetype) (u * 2)) = (short unsigned int) mq_conv_small ((int) *(f + (sizetype) u));
+  *(h + (sizetype) (u * 2)) = (short unsigned int) mq_conv_small ((int) *(g + (sizetype) u));
+  u++ ;
+  <D.7077>:;
+  if (u < n) goto <D.7076>; else goto <D.7078>;
+  <D.7078>:;
+  mq_NTT (h, logn);
+  mq_NTT (tt, logn);
+  u = 0;
+  goto <D.7080>;
+  <D.7079>:;
+  if (*(tt + (sizetype) (u * 2)) == 0)
+    {
+      return 0;
+    }
+  *(h + (sizetype) (u * 2)) = (short unsigned int) mq_div_12289 ((uint32_t) *(h + (sizetype) (u * 2)), (uint32_t) *(tt + (sizetype) (u * 2)));
+  u++ ;
+  <D.7080>:;
+  if (u < n) goto <D.7079>; else goto <D.7081>;
+  <D.7081>:;
+  mq_iNTT (h, logn);
+  return 1;
+}
+
+
+;; Function falcon_inner_complete_private (null)
+;; enabled by -tree-original
+
+
+{
+  size_t u;
+  size_t n;
+  uint16_t * t1;
+  uint16_t * t2;
+
+    size_t u;
+    size_t n;
+    uint16_t * t1;
+    uint16_t * t2;
+  n = 1 << logn;
+  t1 = (uint16_t *) tmp;
+  t2 = t1 + (sizetype) (n * 2);
+  u = 0;
+  goto <D.7095>;
+  <D.7094>:;
+  *(t1 + (sizetype) (u * 2)) = (short unsigned int) mq_conv_small ((int) *(g + (sizetype) u));
+  *(t2 + (sizetype) (u * 2)) = (short unsigned int) mq_conv_small ((int) *(F + (sizetype) u));
+  u++ ;
+  <D.7095>:;
+  if (u < n) goto <D.7094>; else goto <D.7096>;
+  <D.7096>:;
+  mq_NTT (t1, logn);
+  mq_NTT (t2, logn);
+  mq_poly_tomonty (t1, logn);
+  mq_poly_montymul_ntt (t1, (const uint16_t *) t2, logn);
+  u = 0;
+  goto <D.7098>;
+  <D.7097>:;
+  *(t2 + (sizetype) (u * 2)) = (short unsigned int) mq_conv_small ((int) *(f + (sizetype) u));
+  u++ ;
+  <D.7098>:;
+  if (u < n) goto <D.7097>; else goto <D.7099>;
+  <D.7099>:;
+  mq_NTT (t2, logn);
+  u = 0;
+  goto <D.7101>;
+  <D.7100>:;
+  if (*(t2 + (sizetype) (u * 2)) == 0)
+    {
+      return 0;
+    }
+  *(t1 + (sizetype) (u * 2)) = (short unsigned int) mq_div_12289 ((uint32_t) *(t1 + (sizetype) (u * 2)), (uint32_t) *(t2 + (sizetype) (u * 2)));
+  u++ ;
+  <D.7101>:;
+  if (u < n) goto <D.7100>; else goto <D.7102>;
+  <D.7102>:;
+  mq_iNTT (t1, logn);
+  u = 0;
+  goto <D.7106>;
+  <D.7105>:;
+  {
+    uint32_t w;
+    int32_t gi;
+
+        uint32_t w;
+        int32_t gi;
+    w = (uint32_t) *(t1 + (sizetype) (u * 2));
+    w = (long unsigned int) w - (~(long unsigned int) ((signed int) ((long unsigned int) w + 4294961152) >> 31) & 12289);
+    gi = *(int32_t *) &w;
+    if ((unsigned int) gi + 127 > 254)
+      {
+        return 0;
+      }
+    *(G + (sizetype) u) = (signed char) gi;
+  }
+  u++ ;
+  <D.7106>:;
+  if (u < n) goto <D.7105>; else goto <D.7107>;
+  <D.7107>:;
+  return 1;
+}
+
+
+;; Function falcon_inner_is_invertible (null)
+;; enabled by -tree-original
+
+
+{
+  size_t u;
+  size_t n;
+  uint16_t * tt;
+  uint32_t r;
+
+    size_t u;
+    size_t n;
+    uint16_t * tt;
+    uint32_t r;
+  n = 1 << logn;
+  tt = (uint16_t *) tmp;
+  u = 0;
+  goto <D.7119>;
+  <D.7118>:;
+  {
+    uint32_t w;
+
+        uint32_t w;
+    w = (long unsigned int) *(s2 + (sizetype) (u * 2));
+    w = ((long unsigned int) ((signed int) w >> 31) & 12289) + (long unsigned int) w;
+    *(tt + (sizetype) (u * 2)) = (short unsigned int) w;
+  }
+  u++ ;
+  <D.7119>:;
+  if (u < n) goto <D.7118>; else goto <D.7120>;
+  <D.7120>:;
+  mq_NTT (tt, logn);
+  r = 0;
+  u = 0;
+  goto <D.7122>;
+  <D.7121>:;
+  r = (long unsigned int) ((int) *(tt + (sizetype) (u * 2)) + -1) | (long unsigned int) r;
+  u++ ;
+  <D.7122>:;
+  if (u < n) goto <D.7121>; else goto <D.7123>;
+  <D.7123>:;
+  return (int) ((long unsigned int) ((signed int) r >> 31) + 1);
+}
+
+
+;; Function falcon_inner_verify_recover (null)
+;; enabled by -tree-original
+
+
+{
+  size_t u;
+  size_t n;
+  uint16_t * tt;
+  uint32_t r;
+
+    size_t u;
+    size_t n;
+    uint16_t * tt;
+    uint32_t r;
+  n = 1 << logn;
+  tt = (uint16_t *) tmp;
+  u = 0;
+  goto <D.7138>;
+  <D.7137>:;
+  {
+    uint32_t w;
+
+        uint32_t w;
+    w = (long unsigned int) *(s2 + (sizetype) (u * 2));
+    w = ((long unsigned int) ((signed int) w >> 31) & 12289) + (long unsigned int) w;
+    *(tt + (sizetype) (u * 2)) = (short unsigned int) w;
+    w = (long unsigned int) *(s1 + (sizetype) (u * 2));
+    w = ((long unsigned int) ((signed int) w >> 31) & 12289) + (long unsigned int) w;
+    w = mq_sub ((uint32_t) *(c0 + (sizetype) (u * 2)), w);
+    *(h + (sizetype) (u * 2)) = (short unsigned int) w;
+  }
+  u++ ;
+  <D.7138>:;
+  if (u < n) goto <D.7137>; else goto <D.7139>;
+  <D.7139>:;
+  mq_NTT (tt, logn);
+  mq_NTT (h, logn);
+  r = 0;
+  u = 0;
+  goto <D.7141>;
+  <D.7140>:;
+  r = (long unsigned int) ((int) *(tt + (sizetype) (u * 2)) + -1) | (long unsigned int) r;
+  *(h + (sizetype) (u * 2)) = (short unsigned int) mq_div_12289 ((uint32_t) *(h + (sizetype) (u * 2)), (uint32_t) *(tt + (sizetype) (u * 2)));
+  u++ ;
+  <D.7141>:;
+  if (u < n) goto <D.7140>; else goto <D.7142>;
+  <D.7142>:;
+  mq_iNTT (h, logn);
+  r = (long unsigned int) ~r & (long unsigned int) -falcon_inner_is_short (s1, s2, logn);
+  return (int) (r >> 31);
+}
+
+
+;; Function falcon_inner_count_nttzero (null)
+;; enabled by -tree-original
+
+
+{
+  uint16_t * s2;
+  size_t u;
+  size_t n;
+  uint32_t r;
+
+    uint16_t * s2;
+    size_t u;
+    size_t n;
+    uint32_t r;
+  n = 1 << logn;
+  s2 = (uint16_t *) tmp;
+  u = 0;
+  goto <D.7154>;
+  <D.7153>:;
+  {
+    uint32_t w;
+
+        uint32_t w;
+    w = (long unsigned int) *(sig + (sizetype) (u * 2));
+    w = ((long unsigned int) ((signed int) w >> 31) & 12289) + (long unsigned int) w;
+    *(s2 + (sizetype) (u * 2)) = (short unsigned int) w;
+  }
+  u++ ;
+  <D.7154>:;
+  if (u < n) goto <D.7153>; else goto <D.7155>;
+  <D.7155>:;
+  mq_NTT (s2, logn);
+  r = 0;
+  u = 0;
+  goto <D.7158>;
+  <D.7157>:;
+  {
+    uint32_t w;
+
+        uint32_t w;
+    w = (long unsigned int) *(s2 + (sizetype) (u * 2)) + 4294967295;
+    r = (w >> 31) + r;
+  }
+  u++ ;
+  <D.7158>:;
+  if (u < n) goto <D.7157>; else goto <D.7159>;
+  <D.7159>:;
+  return (int) r;
+}
+

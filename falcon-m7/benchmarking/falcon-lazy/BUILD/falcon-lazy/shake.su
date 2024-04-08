@@ -1,0 +1,5 @@
+../falcon-lazy/shake.c:40:1:process_block	0	static
+../falcon-lazy/shake.c:1076:1:falcon_inner_i_shake256_init	0	static
+../falcon-lazy/shake.c:1089:1:falcon_inner_i_shake256_inject	32	static
+../falcon-lazy/shake.c:1126:1:falcon_inner_i_shake256_flip	0	static
+../falcon-lazy/shake.c:1148:1:falcon_inner_i_shake256_extract	24	static
