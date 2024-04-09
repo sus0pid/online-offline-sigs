@@ -1,6 +1,0 @@
-../falcon-lazy/fpr.c:85:1:falcon_inner_fpr_scaled	0	static
-../falcon-lazy/fpr.c:290:1:falcon_inner_fpr_add	0	static
-../falcon-lazy/fpr.c:587:1:falcon_inner_fpr_mul	0	static
-../falcon-lazy/fpr.c:807:1:falcon_inner_fpr_div	0	static
-../falcon-lazy/fpr.c:1033:1:falcon_inner_fpr_sqrt	0	static
-../falcon-lazy/fpr.c:1287:1:falcon_inner_fpr_expm_p63	48	static

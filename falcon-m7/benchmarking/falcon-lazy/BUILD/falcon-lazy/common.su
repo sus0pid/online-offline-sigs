@@ -1,4 +1,0 @@
-../falcon-lazy/common.c:36:1:falcon_inner_hash_to_point_vartime	32	static
-../falcon-lazy/common.c:71:1:falcon_inner_hash_to_point_ct	208	static
-../falcon-lazy/common.c:257:1:falcon_inner_is_short	12	static
-../falcon-lazy/common.c:288:1:falcon_inner_is_short_half	4	static
