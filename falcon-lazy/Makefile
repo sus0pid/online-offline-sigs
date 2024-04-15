@@ -52,7 +52,7 @@ CFLAGS = -Wall -Wextra -Wshadow -Wundef -O3 -DNEAREST_PLANE_ENABLED
 #-pg -fno-pie
 LD = clang
 LDFLAGS = #-pg -no-pie
-LIBS = #-lm
+LIBS = -lm
 
 # =====================================================================
 

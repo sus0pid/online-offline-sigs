@@ -82,10 +82,10 @@ void v_inv(const fpr a[], fpr result[], size_t size) {
 }
 
 void v_round(const fpr a[], fpr result[], unsigned logn, size_t size) {
-    Zf(iFFT)(a, logn);
+    memcpy(result, a, size*sizeof(fpr));
+    Zf(iFFT)(result, logn);
     for (size_t i = 0; i < size; i++) {
-        result[i] = fpr_of(fpr_rint(a[i]));
-		//a[i]      = fpr_of(result[i]); 
+        result[i] = fpr_of(fpr_rint(result[i]));
     }
     Zf(FFT)(result, logn);
 }
@@ -121,7 +121,7 @@ void v_round(const fpr a[], fpr result[], unsigned logn, size_t size) {
 // }
 void mat_mul(const fpr A00[], const fpr A01[], const fpr A10[], const fpr A11[], const fpr x1[], const fpr x2[], fpr y1[], fpr y2[], size_t size) {
     for (size_t i = 0; i < size; i++) {
-        fpr temp1 = fpr_add((A00[i], x1[i]), fpr_mul(A01[i], x2[i]));
+        fpr temp1 = fpr_add(fpr_mul(A00[i], x1[i]), fpr_mul(A01[i], x2[i]));
         fpr temp2 = fpr_add(fpr_mul(A10[i], x1[i]), fpr_mul(A11[i], x2[i]));
         y1[i] = fpr_add(y1[i], temp1);
         y2[i] = fpr_add(y2[i], temp2);
@@ -130,7 +130,7 @@ void mat_mul(const fpr A00[], const fpr A01[], const fpr A10[], const fpr A11[],
 
 // scalar is set to a float as this is what we need currently
 void v_scalar_mul(const fpr a[], const fpr s, fpr result[], size_t size) {
-	for (int i = 0; i < size; i++) {
+	for (size_t i = 0; i < size; i++) {
 		// might need casting
 		result[i] = fpr_mul(s, a[i]);
 	}
@@ -1318,10 +1318,10 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 	//v_neg(capF, v_neg_F, n);
 	
 	/// format it
-	fpr qB0_inv_fft_fF_0[n];
-	fpr qB0_inv_fft_fF_1[n];
-	fpr qB0_inv_fft_gG_0[n];
-	fpr qB0_inv_fft_gG_1[n];
+	//fpr qB0_inv_fft_fF_0[n];
+	//fpr qB0_inv_fft_fF_1[n];
+	//fpr qB0_inv_fft_gG_0[n];
+	//fpr qB0_inv_fft_gG_1[n];
 
 	// qB0_inv_fft == capG, v_neg_g, v_neg_F, smallf
 
@@ -1368,7 +1368,7 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 	// /// STAGE 3 -- ONLINE
 	// get random array t
 	fpr x1[n];
-	for (int i = 0; i < n; i++) {
+	for (size_t i = 0; i < n; i++) {
 		x1[i] = fpr_of(rand32()); // may need mod q
     }
 	// put this into x = x1,x2
