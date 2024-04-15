@@ -89,7 +89,7 @@ int main()
 {
 
 	// Defs for timing calculations
-	#define BENCHMARK_ROUND 500
+	#define BENCHMARK_ROUND 10000
 	uint64_t start, stop, delta, min, max;
 	int us, cnt;
 	long double average_us, average_clk, avclk_old, var, std_err, ddelta;
@@ -153,7 +153,8 @@ int main()
 	}
 
 	/// LAZY FALCON TESTING
-	unsigned logn = 9; // set to 9 for 512 parameters, 10 for 1024
+	unsigned logn = 10; // set to 9 for 512 parameters, 10 for 1024 for Falcon and Lazy Falcon
+	// define version of dilithium, either 2, 3, or 5, in config.h
 	char seed[16] = {0};
 	shake256_context sc;
 	shake256_init_prng_from_seed(&sc, seed, 16);
@@ -204,7 +205,7 @@ int main()
 	memset(privkey, 0, privkey_len);
 	memset(pubkey, 0, pubkey_len);
 	CALC_RESET
-	for (size_t r=0; r<BENCHMARK_ROUND; r++) {
+	for (size_t r=0; r<(BENCHMARK_ROUND/10); r++) {
 		DWT->CYCCNT = 0;
 		CALC_START
 		ret_val += falcon_keygen_make(&sc, logn, privkey, privkey_len,
@@ -218,7 +219,7 @@ int main()
 	pc.printf("Max clock cycles:        %lld\n\r", max);
 	pc.printf("Std dev of clock cycles: %.1Lf\n\r", (sqrt(var)));
 	pc.printf("Std err of clock cycles: %.1Lf\n\r", (std_err));
-        pc.printf("Avg time in millisecs:   %.1Lf\n\r", average_us/1000);
+    pc.printf("Avg time in millisecs:   %.1Lf\n\r", average_us/1000);
         
 	memset(pubkey, 0xFF, pubkey_len);
 	ret_val += falcon_make_public(pubkey, pubkey_len,
@@ -285,7 +286,7 @@ int main()
 	memset(privkey, 0, privkey_len);
 	memset(pubkey, 0, pubkey_len);
 	CALC_RESET
-	for (size_t r=0; r<BENCHMARK_ROUND; r++) {
+	for (size_t r=0; r<(BENCHMARK_ROUND/10); r++) {
 		DWT->CYCCNT = 0;
 		CALC_START
 		ret_val += falcon_keygen_make(&sc, logn, privkey, privkey_len,
@@ -299,15 +300,15 @@ int main()
 	pc.printf("Max clock cycles:        %lld\n\r", max);
 	pc.printf("Std dev of clock cycles: %.1Lf\n\r", (sqrt(var)));
 	pc.printf("Std err of clock cycles: %.1Lf\n\r", (std_err));
-        pc.printf("Avg time in millisecs:   %.1Lf\n\r", average_us/1000);
+    pc.printf("Avg time in millisecs:   %.1Lf\n\r", average_us/1000);
         
 	memset(pubkey, 0xFF, pubkey_len);
 	ret_val += falcon_make_public(pubkey, pubkey_len,
 			privkey, privkey_len, tmpmp, tmpmp_len);
 		
-	pc.printf("-----------------------\n\r");
-	pc.printf("| Doing Signing (dyn) |\n\r");
-	pc.printf("-----------------------\n\r");
+	pc.printf("-----------------\n\r");
+	pc.printf("| Doing Signing |\n\r");
+	pc.printf("-----------------\n\r");
 	
 	memset(sig, 0, sig_len);
 	CALC_RESET
@@ -325,7 +326,7 @@ int main()
 	pc.printf("Max clock cycles:        %lld\n\r", max);
 	pc.printf("Std dev of clock cycles: %.1Lf\n\r", (sqrt(var)));
 	pc.printf("Std err of clock cycles: %.1Lf\n\r", (std_err));
-        pc.printf("Avg time in millisecs:   %.1Lf\n\r", average_us/1000);
+    pc.printf("Avg time in millisecs:   %.1Lf\n\r", average_us/1000);
 
 	pc.printf("-------------------\n\r");	
 	pc.printf("| Doing Verifying |\n\r");
@@ -346,77 +347,14 @@ int main()
 	pc.printf("Max clock cycles:        %lld\n\r", max);
 	pc.printf("Std dev of clock cycles: %.1Lf\n\r", (sqrt(var)));
 	pc.printf("Std err of clock cycles: %.1Lf\n\r", (std_err));
-        pc.printf("Avg time in millisecs:   %.1Lf\n\r", average_us/1000);
-
-	pc.printf("----------------------------\n\r");
-	pc.printf("| Doing Expand Private Key |\n\r");
-	pc.printf("----------------------------\n\r");
-	
-	CALC_RESET
-	for (size_t r=0; r<BENCHMARK_ROUND; r++) {
-		DWT->CYCCNT = 0;
-		CALC_START			
-		ret_val += falcon_expand_privkey(expkey, expkey_len,
-			privkey, privkey_len, tmpek, tmpek_len);
-		CALC_STOP
-	}
-	CALC_AVG
-
-	pc.printf("Avg clock cycles:        %.0Lf\n\r", average_clk);
-	pc.printf("Min clock cycles:        %lld\n\r", min);
-	pc.printf("Max clock cycles:        %lld\n\r", max);
-	pc.printf("Std dev of clock cycles: %.1Lf\n\r", (sqrt(var)));
-	pc.printf("Std err of clock cycles: %.1Lf\n\r", (std_err));
     pc.printf("Avg time in millisecs:   %.1Lf\n\r", average_us/1000);
 
-	pc.printf("------------------------\n\r");	
-	pc.printf("| Doing Signing (tree) |\n\r");
-	pc.printf("------------------------\n\r");	
-	
-	memset(sig, 0, sig_len);	
-	CALC_RESET
-	for (size_t r=0; r<BENCHMARK_ROUND; r++) {
-		DWT->CYCCNT = 0;
-		CALC_START		
-		ret_val += falcon_sign_tree(&sc, sig, &sig_len, FALCON_SIG_CT, expkey,
-		"data1", 5, tmpst, tmpst_len);
-		CALC_STOP
-	}
-	CALC_AVG
-	
-	pc.printf("Avg clock cycles:        %.0Lf\n\r", average_clk);
-	pc.printf("Min clock cycles:        %lld\n\r", min);
-	pc.printf("Max clock cycles:        %lld\n\r", max);
-	pc.printf("Std dev of clock cycles: %.1Lf\n\r", (sqrt(var)));
-	pc.printf("Std err of clock cycles: %.1Lf\n\r", (std_err));
-    pc.printf("Avg time in millisecs:   %.1Lf\n\r", average_us/1000);
-
-	pc.printf("---------------------\n\r");
-	pc.printf("| Doing Verifying 2 |\n\r");			
-	pc.printf("---------------------\n\r");
-	
-	CALC_RESET
-	for (size_t r=0; r<BENCHMARK_ROUND; r++) {
-		CALC_START
-		ret_val += falcon_verify(sig, sig_len, FALCON_SIG_CT, pubkey, pubkey_len, 
-					"data1", 5, tmpvv, tmpvv_len);
-		CALC_STOP
-	}
-	CALC_AVG
-
-	pc.printf("Avg clock cycles:        %.0Lf\n\r", average_clk);
-	pc.printf("Min clock cycles:        %lld\n\r", min);
-	pc.printf("Max clock cycles:        %lld\n\r", max);
-	pc.printf("Std dev of clock cycles: %.1Lf\n\r", (sqrt(var)));
-	pc.printf("Std err of clock cycles: %.1Lf\n\r", (std_err));
-    pc.printf("Avg time in millisecs:   %.1Lf\n\r", average_us/1000);
 
     pc.printf("-------------------\n\r");	
 	pc.printf("| Falcon Finished |\n\r");
     pc.printf("-------------------\n\r");	
 	display_mallinfo();
 	fflush(stdout);
-
 
 	/*
  	* Dilithium Round 3 code using pqm4 as it's faster than pqclean.
@@ -480,26 +418,6 @@ int main()
 	pc.printf("Std dev of clock cycles: %.1Lf\n\r", (sqrt(var)));
 	pc.printf("Std err of clock cycles: %.1Lf\n\r", (std_err));
     pc.printf("Avg time in millisecs:   %.1Lf\n\r", average_us/1000);
-
-	pc.printf("------------------------\n\r");
-	pc.printf("| Doing Signing (open) |\n\r");
-	pc.printf("------------------------\n\r");
-
-	CALC_RESET
-	for (size_t r=0; r<BENCHMARK_ROUND; r++) {
-		DWT->CYCCNT = 0;		
-		CALC_START
-		ret_val = crypto_sign_open(m2, &mlen, sm, smlen, pk);
-		CALC_STOP
-	}
-	CALC_AVG
-	
-	pc.printf("Avg clock cycles:        %.0Lf\n\r", average_clk);
-	pc.printf("Min clock cycles:        %lld\n\r", min);
-	pc.printf("Max clock cycles:        %lld\n\r", max);
-	pc.printf("Std dev of clock cycles: %.1Lf\n\r", (sqrt(var)));
-	pc.printf("Std err of clock cycles: %.1Lf\n\r", (std_err));
-        pc.printf("Avg time in millisecs:   %.1Lf\n\r", average_us/1000);
 
 	pc.printf("-------------------\n\r");
 	pc.printf("| Doing Verifying |\n\r");
