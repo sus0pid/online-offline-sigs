@@ -436,8 +436,8 @@ main(int argc, char *argv[])
 	printf("\n");
 	printf("degree  kg(ms)   ek(us)   sd(us)  sdc(us)  lazy(us)  st(us)  stc(us)   vv(us)  vvc(us)\n");
 	fflush(stdout);
-	test_speed_falcon(8, threshold);
+	//test_speed_falcon(8, threshold);
 	test_speed_falcon(9, threshold);
-	test_speed_falcon(10, threshold);
+	//test_speed_falcon(10, threshold);
 	return 0;
 }

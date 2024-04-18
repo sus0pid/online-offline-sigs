@@ -45,7 +45,7 @@ PROJECT := ONLINE-OFFLINE-NUCLEO-F767ZI
 ###############################################################################
 # Objects and Paths
 
-OBJECTS += main.o
+OBJECTS += main_profile.o
 # Lazy Falcon specific imports
 OBJECTS += falcon-lazy/codec.o falcon-lazy/common.o falcon-lazy/falcon.o falcon-lazy/fft.o
 OBJECTS += falcon-lazy/fpr.o falcon-lazy/rng.o falcon-lazy/keygen.o
@@ -55,14 +55,14 @@ OBJECTS += falcon-lazy/shake.o falcon-lazy/sign.o  falcon-lazy/vrfy.o
 # OBJECTS += falcon-20201020/fpr.o falcon-20201020/rng.o falcon-20201020/keygen.o 
 # OBJECTS += falcon-20201020/shake.o falcon-20201020/sign.o  falcon-20201020/vrfy.o
 # Dilithium specific imports
-OBJECTS += dilithium-pqm4/ntt.o dilithium-pqm4/packing.o dilithium-pqm4/pointwise_mont.o
-OBJECTS += dilithium-pqm4/poly.o dilithium-pqm4/polyvec.o dilithium-pqm4/rounding.o
-OBJECTS += dilithium-pqm4/sign.o dilithium-pqm4/symmetric-shake.o dilithium-pqm4/vector.o
-OBJECTS += dilithium-pqm4/fips202.o dilithium-pqm4/keccakf1600.o 
+# OBJECTS += dilithium-pqm4/ntt.o dilithium-pqm4/packing.o dilithium-pqm4/pointwise_mont.o
+# OBJECTS += dilithium-pqm4/poly.o dilithium-pqm4/polyvec.o dilithium-pqm4/rounding.o
+# OBJECTS += dilithium-pqm4/sign.o dilithium-pqm4/symmetric-shake.o dilithium-pqm4/vector.o
+# OBJECTS += dilithium-pqm4/fips202.o dilithium-pqm4/keccakf1600.o 
 # ed25519 specific imports
-OBJECTS += ed25519/src/add_scalar.o ed25519/src/fe.o ed25519/src/ge.o ed25519/src/key_exchange.o
-OBJECTS += ed25519/src/keypair.o ed25519/src/sc.o ed25519/src/seed.o
-OBJECTS += ed25519/src/sha512.o ed25519/src/sign.o  ed25519/src/verify.o
+# OBJECTS += ed25519/src/add_scalar.o ed25519/src/fe.o ed25519/src/ge.o ed25519/src/key_exchange.o
+# OBJECTS += ed25519/src/keypair.o ed25519/src/sc.o ed25519/src/seed.o
+# OBJECTS += ed25519/src/sha512.o ed25519/src/sign.o  ed25519/src/verify.o
 
 INCLUDE_PATHS += -I../falcon-lazy/ -I../falcon-20201020/ -I../dilithium-pqm4/ -I../ed25519/src/
 
@@ -100,7 +100,7 @@ C_DEFS += -fmessage-length=0 -fno-exceptions -ffunction-sections -fdata-sections
 C_DEFS += -funsigned-char -MMD -fno-delete-null-pointer-checks
 
 # See config.h for a description of these
-FALCON_FLAGS += -DFALCON_LE -DFALCON_FPEMU # -DFALCON_FPNATIVE #
+FALCON_FLAGS += -DFALCON_LE -DFALCON_FPEMU #-DFALCON_FPNATIVE #
 
 C_FLAGS += -std=gnu11
 C_FLAGS += -include mbed_config.h
