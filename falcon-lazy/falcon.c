@@ -502,22 +502,23 @@ falcon_sign_dyn_finish(shake256_context *rng,
 int
 falcon_sign_dyn_lazy_finish(shake256_context *rng,
 	void *sig, size_t *sig_len, int sig_type,
+	const void *pubkey, size_t pubkey_len,
 	const void *privkey, size_t privkey_len,
 	shake256_context *hash_data, const void *nonce,
 	void *tmp, size_t tmp_len)
 {
 	unsigned logn;
-	const uint8_t *sk;
-	//uint8_t *es;
+	const uint8_t *sk, *pk;
+	uint8_t *es;
 	int8_t *f, *g, *F, *G;
+	uint16_t *h;
 	uint16_t *hm;
 	int16_t *sv;
 	uint8_t *atmp;
-	//size_t u, v; 
+	size_t u, v; 
 	size_t n, es_len;
-	//unsigned oldcw;
-	//inner_shake256_context sav_hash_data;
-	//printf("Hello World");
+	unsigned oldcw;
+	inner_shake256_context sav_hash_data;
 
 	/// adding some stuff to get rid of warnings
 	int8_t *dummy1 = (int8_t *)sig;
@@ -536,6 +537,7 @@ falcon_sign_dyn_lazy_finish(shake256_context *rng,
 		return FALCON_ERR_FORMAT;
 	}
 	sk = privkey;
+
 	if ((sk[0] & 0xF0) != 0x50) {
 		return FALCON_ERR_FORMAT;
 	}
@@ -581,37 +583,48 @@ falcon_sign_dyn_lazy_finish(shake256_context *rng,
 	hm = (uint16_t *)(G + n);
 	sv = (int16_t *)hm;
 	atmp = align_u64(hm + n);
-	// u = 1;
-	// v = Zf(trim_i8_decode)(f, logn, Zf(max_fg_bits)[logn],
-	// 	sk + u, privkey_len - u);
-	// if (v == 0) {
-	// 	return FALCON_ERR_FORMAT;
-	// }
-	// u += v;
-	// v = Zf(trim_i8_decode)(g, logn, Zf(max_fg_bits)[logn],
-	// 	sk + u, privkey_len - u);
-	// if (v == 0) {
-	// 	return FALCON_ERR_FORMAT;
-	// }
-	// u += v;
-	// v = Zf(trim_i8_decode)(F, logn, Zf(max_FG_bits)[logn],
-	// 	sk + u, privkey_len - u);
-	// if (v == 0) {
-	// 	return FALCON_ERR_FORMAT;
-	// }
-	// u += v;
-	// if (u != privkey_len) {
-	// 	return FALCON_ERR_FORMAT;
-	// }
-	// if (!Zf(complete_private)(G, f, g, F, logn, atmp)) {
-	// 	return FALCON_ERR_FORMAT;
-	// }
+	u = 1;
+	v = Zf(trim_i8_decode)(f, logn, Zf(max_fg_bits)[logn],
+		sk + u, privkey_len - u);
+	if (v == 0) {
+		return FALCON_ERR_FORMAT;
+	}
+	u += v;
+	v = Zf(trim_i8_decode)(g, logn, Zf(max_fg_bits)[logn],
+		sk + u, privkey_len - u);
+	if (v == 0) {
+		return FALCON_ERR_FORMAT;
+	}
+	u += v;
+	v = Zf(trim_i8_decode)(F, logn, Zf(max_FG_bits)[logn],
+		sk + u, privkey_len - u);
+	if (v == 0) {
+		return FALCON_ERR_FORMAT;
+	}
+	u += v;
+	if (u != privkey_len) {
+		return FALCON_ERR_FORMAT;
+	}
+	if (!Zf(complete_private)(G, f, g, F, logn, atmp)) {
+		return FALCON_ERR_FORMAT;
+	}
+
+	pk = pubkey;
+	h = (uint16_t *)align_u16(tmp);
+	/*
+	 * Decode public key.
+	 */
+	if (Zf(modq_decode)(h, logn, pk + 1, pubkey_len - 1)
+		!= pubkey_len - 1)
+	{
+		return FALCON_ERR_FORMAT;
+	}
 
 	/*
 	 * Hash message to a point.
 	 */
-	// shake256_flip(hash_data);
-	// sav_hash_data = *(inner_shake256_context *)hash_data;
+	shake256_flip(hash_data);
+	sav_hash_data = *(inner_shake256_context *)hash_data;
 
 	/*
 	 * Compute and encode signature.
@@ -624,26 +637,22 @@ falcon_sign_dyn_lazy_finish(shake256_context *rng,
 		 * we overwrite the hash output with the signature (in order
 		 * to save some RAM).
 		 */
-		//*(inner_shake256_context *)hash_data = sav_hash_data;
-		//*(inner_shake256_context *)hash_data;
-		// if (sig_type == FALCON_SIG_CT) {
-		// 	Zf(hash_to_point_ct)(
-		// 		(inner_shake256_context *)hash_data,
-		// 		hm, logn, atmp);
-		// } else {
-		// 	Zf(hash_to_point_vartime)(
-		// 		(inner_shake256_context *)hash_data,
-		// 		hm, logn);
-		// }
-		// oldcw = set_fpu_cw(2);
-
-		//printf("you have made it here\n");
+		*(inner_shake256_context *)hash_data = sav_hash_data;
+		*(inner_shake256_context *)hash_data;
+		if (sig_type == FALCON_SIG_CT) {
+			Zf(hash_to_point_ct)(
+				(inner_shake256_context *)hash_data,
+				hm, logn, atmp);
+		} else {
+			Zf(hash_to_point_vartime)(
+				(inner_shake256_context *)hash_data,
+				hm, logn);
+		}
+		oldcw = set_fpu_cw(2);
 
 		Zf(sign_dyn_lazy)(sv, (inner_shake256_context *)rng,
-			f, g, F, G, hm, logn, atmp);
-		
-		//printf("you have made it here HERERERERE\n");
-		
+			f, g, F, G, h, hm, logn, atmp);
+				
 		return 0;
 	}
 }
@@ -889,28 +898,23 @@ falcon_sign_dyn(shake256_context *rng,
 int
 falcon_sign_dyn_lazy(shake256_context *rng,
     void *sig, size_t *sig_len, int sig_type,
+	const void *pubkey, size_t pubkey_len,
     const void *privkey, size_t privkey_len,
     const void *data, size_t data_len,
     void *tmp, size_t tmp_len)
 {
     shake256_context hd;
     uint8_t nonce[40];
-    //int r;
+    int r;
 
-	/// adding some stuff to get rid of warnings
-	int8_t *dummy1 = (int8_t *)data;
-	dummy1 = dummy1+1;
-	int8_t *dummy3 = (int8_t *)data_len;
-	dummy3 = dummy3+1;
-	///
-
-    //r = falcon_sign_start(rng, nonce, &hd);
-    //if (r != 0) {
-    //    return r;
-    //}
-    //shake256_inject(&hd, data, data_len);
+    r = falcon_sign_start(rng, nonce, &hd);
+    if (r != 0) {
+        return r;
+    }
+    shake256_inject(&hd, data, data_len);
     return falcon_sign_dyn_lazy_finish(rng, sig, sig_len, sig_type,
-        privkey, privkey_len, &hd, nonce, tmp, tmp_len);
+        pubkey, pubkey_len, 
+		privkey, privkey_len, &hd, nonce, tmp, tmp_len);
 }
 
 /* see falcon.h */

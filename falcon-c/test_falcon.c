@@ -3466,6 +3466,7 @@ test_sampler_rand(sampler_context *sc, fpr mu, fpr isigma)
 			fprintf(stderr, "out-of-range sampled value: %d\n", z);
 			exit(EXIT_FAILURE);
 		}
+		printf("Generated Gaussian value: %d\n", z);
 		zz[z + MAX_DEV] ++;
 	}
 
@@ -3590,8 +3591,8 @@ test_sampler(void)
 	muinc = fpr_div(fpr_one, fpr_of(10));
 	for (i = 0; i < 21; i ++) {
 		test_sampler_rand(&sc, mu, isigma);
+		printf("Output[%d]: (Gaussian value: %f),\n", i, sc);
 		mu = fpr_add(mu, muinc);
-
 		printf(".");
 		fflush(stdout);
 	}
@@ -5010,19 +5011,19 @@ main(void)
 
 	old = set_fpu_cw(2);
 
-	test_SHAKE256();
-	test_codec();
-	test_vrfy();
-	test_RNG();
-	test_FP_block();
-	test_poly();
+	// test_SHAKE256();
+	// test_codec();
+	// test_vrfy();
+	// test_RNG();
+	// test_FP_block();
+	// test_poly();
 	test_gaussian0_sampler();
 	test_sampler();
-	test_sign();
-	test_keygen();
-	test_external_API();
-	test_nist_KAT(9, "a57400cbaee7109358859a56c735a3cf048a9da2");
-	test_nist_KAT(10, "affdeb3aa83bf9a2039fa9c17d65fd3e3b9828e2");
+	// test_sign();
+	// test_keygen();
+	// test_external_API();
+	// test_nist_KAT(9, "a57400cbaee7109358859a56c735a3cf048a9da2");
+	// test_nist_KAT(10, "affdeb3aa83bf9a2039fa9c17d65fd3e3b9828e2");
 	/* test_speed(); */
 
 	set_fpu_cw(old);

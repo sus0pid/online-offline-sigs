@@ -215,10 +215,15 @@ bench_sign_dyn_ct_lazy(void *ctx, unsigned long num)
     bench_context *bc;
 
     bc = ctx;
+
+	size_t pk_len;
+	pk_len = FALCON_PUBKEY_SIZE(bc->logn);
+	
     while (num -- > 0) {
         bc->sigct_len = FALCON_SIG_CT_SIZE(bc->logn);
         CC(falcon_sign_dyn_lazy(&bc->rng,
             bc->sigct, &bc->sigct_len, FALCON_SIG_CT,
+			bc->pk, pk_len,
             bc->sk, FALCON_PRIVKEY_SIZE(bc->logn),
             "data", 4, bc->tmp, bc->tmp_len));
     }

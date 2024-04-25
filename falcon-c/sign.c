@@ -1238,28 +1238,10 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
     //fpr *t0, *t1, *tx, *ty;
     fpr *b00, *b01, *b10, *b11; 
 	//fpr *g00, *g01, *g11;
-
-	//printf("Hello World");
-
-    /// ONLINE OFFLINE declare new stuff
-    //fpr *a, *b, *c, *d;
-    //fpr *a_inv, *bc, *bc_a, *aa, *bc_a_d;
     
     //fpr ni;
     //uint32_t sqn, ng;
     //int16_t *s1tmp, *s2tmp;
-
-
-	/// adding some stuff to get rid of warnings
-	// samplerZ dummy1 = (samplerZ)samp;
-	// dummy1 = dummy1+1;	
-	// int8_t *dummy2 = (int8_t *)samp_ctx;
-	// dummy2 = dummy2+1;
-	// int16_t *dummy3 = (int16_t *)s2;
-	// dummy3 = dummy3+1;
-	// int16_t *dummy4 = (int16_t *)hm;
-	// dummy4 = dummy4+1;
-	///
 
     n = MKN(logn);
 
@@ -1405,6 +1387,9 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 	fpr final_x2[n];	
 	v_sub(x1, sk_y1, final_x1, n);
 	v_sub(x2, sk_y2, final_x2, n);
+
+	// iFFT signatures and reformat a bit, 
+	// reuse b00 pointers from before?
 
 	// gaussian
 	//fpr x3[n];

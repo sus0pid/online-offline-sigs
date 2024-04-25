@@ -572,6 +572,7 @@ int falcon_sign_dyn(shake256_context *rng,
 /// ONLINE OFFLINE COPT OF SIGN DYN
 int falcon_sign_dyn_lazy(shake256_context *rng,
     void *sig, size_t *sig_len, int sig_type,
+	const void *pubkey, size_t pubkey_len,
     const void *privkey, size_t privkey_len,
     const void *data, size_t data_len,
     void *tmp, size_t tmp_len);
@@ -703,6 +704,7 @@ int falcon_sign_dyn_finish(shake256_context *rng,
 
 int falcon_sign_dyn_lazy_finish(shake256_context *rng,
 	void *sig, size_t *sig_len, int sig_type,
+	const void *pubkey, size_t pubkey_len,
 	const void *privkey, size_t privkey_len,
 	shake256_context *hash_data, const void *nonce,
 	void *tmp, size_t tmp_len);

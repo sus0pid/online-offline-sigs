@@ -581,37 +581,37 @@ falcon_sign_dyn_lazy_finish(shake256_context *rng,
 	hm = (uint16_t *)(G + n);
 	sv = (int16_t *)hm;
 	atmp = align_u64(hm + n);
-	// u = 1;
-	// v = Zf(trim_i8_decode)(f, logn, Zf(max_fg_bits)[logn],
-	// 	sk + u, privkey_len - u);
-	// if (v == 0) {
-	// 	return FALCON_ERR_FORMAT;
-	// }
-	// u += v;
-	// v = Zf(trim_i8_decode)(g, logn, Zf(max_fg_bits)[logn],
-	// 	sk + u, privkey_len - u);
-	// if (v == 0) {
-	// 	return FALCON_ERR_FORMAT;
-	// }
-	// u += v;
-	// v = Zf(trim_i8_decode)(F, logn, Zf(max_FG_bits)[logn],
-	// 	sk + u, privkey_len - u);
-	// if (v == 0) {
-	// 	return FALCON_ERR_FORMAT;
-	// }
-	// u += v;
-	// if (u != privkey_len) {
-	// 	return FALCON_ERR_FORMAT;
-	// }
-	// if (!Zf(complete_private)(G, f, g, F, logn, atmp)) {
-	// 	return FALCON_ERR_FORMAT;
-	// }
+	u = 1;
+	v = Zf(trim_i8_decode)(f, logn, Zf(max_fg_bits)[logn],
+		sk + u, privkey_len - u);
+	if (v == 0) {
+		return FALCON_ERR_FORMAT;
+	}
+	u += v;
+	v = Zf(trim_i8_decode)(g, logn, Zf(max_fg_bits)[logn],
+		sk + u, privkey_len - u);
+	if (v == 0) {
+		return FALCON_ERR_FORMAT;
+	}
+	u += v;
+	v = Zf(trim_i8_decode)(F, logn, Zf(max_FG_bits)[logn],
+		sk + u, privkey_len - u);
+	if (v == 0) {
+		return FALCON_ERR_FORMAT;
+	}
+	u += v;
+	if (u != privkey_len) {
+		return FALCON_ERR_FORMAT;
+	}
+	if (!Zf(complete_private)(G, f, g, F, logn, atmp)) {
+		return FALCON_ERR_FORMAT;
+	}
 
 	/*
 	 * Hash message to a point.
 	 */
-	// shake256_flip(hash_data);
-	// sav_hash_data = *(inner_shake256_context *)hash_data;
+	shake256_flip(hash_data);
+	sav_hash_data = *(inner_shake256_context *)hash_data;
 
 	/*
 	 * Compute and encode signature.
@@ -624,26 +624,22 @@ falcon_sign_dyn_lazy_finish(shake256_context *rng,
 		 * we overwrite the hash output with the signature (in order
 		 * to save some RAM).
 		 */
-		//*(inner_shake256_context *)hash_data = sav_hash_data;
-		//*(inner_shake256_context *)hash_data;
-		// if (sig_type == FALCON_SIG_CT) {
-		// 	Zf(hash_to_point_ct)(
-		// 		(inner_shake256_context *)hash_data,
-		// 		hm, logn, atmp);
-		// } else {
-		// 	Zf(hash_to_point_vartime)(
-		// 		(inner_shake256_context *)hash_data,
-		// 		hm, logn);
-		// }
-		// oldcw = set_fpu_cw(2);
-
-		//printf("you have made it here\n");
+		*(inner_shake256_context *)hash_data = sav_hash_data;
+		*(inner_shake256_context *)hash_data;
+		if (sig_type == FALCON_SIG_CT) {
+			Zf(hash_to_point_ct)(
+				(inner_shake256_context *)hash_data,
+				hm, logn, atmp);
+		} else {
+			Zf(hash_to_point_vartime)(
+				(inner_shake256_context *)hash_data,
+				hm, logn);
+		}
+		oldcw = set_fpu_cw(2);
 
 		Zf(sign_dyn_lazy)(sv, (inner_shake256_context *)rng,
 			f, g, F, G, hm, logn, atmp);
-		
-		//printf("you have made it here HERERERERE\n");
-		
+				
 		return 0;
 	}
 }
