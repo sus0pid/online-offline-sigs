@@ -1538,7 +1538,7 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 	Zf(poly_add)(y2, fpr_x4, logn);
 
 	// take everything to int16 from fpr
-	int16_t y1_sig[n], y2_sig[n], y1tmp[n];
+	int16_t y1_sig[n], y2_sig[n], y1tmp[n], y2tmp[n];
 	for (u = 0; u < n; u ++) {
 		y1_sig[u] = (int16_t)fpr_rint(y1[u]);
 		y2_sig[u] = (int16_t)fpr_rint(y2[u]);
@@ -1567,6 +1567,22 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 	}
 	sqn |= -(ng >> 31);
 
+	// for(loop = 0; loop < 10; loop++)
+	// 	printf("compressed_y1[%d]: (%d, %d),\n", loop, y1tmp[loop], y2_sig[loop]);	
+
+	for (u = 0; u < n; u ++) {
+		y2tmp[u] = (int16_t)-y2_sig[u];
+	}
+
+	if (Zf(is_short_half)(sqn, y2tmp, logn)) {
+		memcpy(s2, y2tmp, n * sizeof *s2);
+		memcpy(tmp, y1tmp, n * sizeof *y1tmp);
+		printf("signature size is wrong");
+		return 1;
+	}
+
+	// for(loop = 0; loop < 10; loop++)
+	// 	printf("compressed_y1y2[%d]: (%d, %d),\n", loop, y1tmp[loop], y2tmp[loop]);	
 
 	// double *final_x1ptr;
 	// double *final_x2ptr;		
