@@ -325,7 +325,7 @@ static const uint16_t iGMb[] = {
  * Reduce a small signed integer modulo q. The source integer MUST
  * be between -q/2 and +q/2.
  */
-static inline uint32_t
+inline uint32_t
 mq_conv_small(int x)
 {
 	/*
@@ -501,7 +501,7 @@ mq_div_12289(uint32_t x, uint32_t y)
 /*
  * Compute NTT on a ring element.
  */
-static void
+void
 mq_NTT(uint16_t *a, unsigned logn)
 {
 	size_t n, t, m;
@@ -534,7 +534,7 @@ mq_NTT(uint16_t *a, unsigned logn)
 /*
  * Compute the inverse NTT on a ring element, binary case.
  */
-static void
+void
 mq_iNTT(uint16_t *a, unsigned logn)
 {
 	size_t n, t, m;
@@ -605,7 +605,7 @@ mq_poly_tomonty(uint16_t *f, unsigned logn)
  * Multiply two polynomials together (NTT representation, and using
  * a Montgomery multiplication). Result f*g is written over f.
  */
-static void
+void
 mq_poly_montymul_ntt(uint16_t *f, const uint16_t *g, unsigned logn)
 {
 	size_t u, n;

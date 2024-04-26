@@ -108,6 +108,52 @@ void v_round(const fpr a[], fpr result[], size_t size) {
     }
 }
 
+#define Q     12289
+
+uint32_t
+mq_conv_small_sign(int x)
+{
+	/*
+	 * If x < 0, the cast to uint32_t will set the high bit to 1.
+	 */
+	uint32_t y;
+
+	y = (uint32_t)x;
+	y += Q & -(y >> 31);
+	return y;
+}
+
+uint32_t
+mq_sub_sign(uint32_t x, uint32_t y)
+{
+	/*
+	 * As in mq_add(), we use a conditional addition to ensure the
+	 * result is in the 0..q-1 range.
+	 */
+	uint32_t d;
+
+	d = x - y;
+	d += Q & -(d >> 31);
+	return d;
+}
+
+uint32_t
+mq_add_sign(uint32_t x, uint32_t y)
+{
+	/*
+	 * We compute x + y - q. If the result is negative, then the
+	 * high bit will be set, and 'd >> 31' will be equal to 1;
+	 * thus '-(d >> 31)' will be an all-one pattern. Otherwise,
+	 * it will be an all-zero pattern. In other words, this
+	 * implements a conditional addition of q.
+	 */
+	uint32_t d;
+
+	d = x + y - Q;
+	d += Q & -(d >> 31);
+	return d;
+}
+
 // static inline int64_t
 // fpr_print(fpr x)
 // {
@@ -182,8 +228,7 @@ int randombytes(uint8_t *obuf, size_t len)
 	return 0;
 }
 
-static void
-gauss_sampler(sampler_context *sc, fpr mu, fpr isigma, int result[], size_t n)
+void gauss_sampler(sampler_context *sc, fpr mu, fpr isigma, int result[], size_t n)
 {
 	int z;
 	long ctr, szlo, szhi;
@@ -198,7 +243,7 @@ gauss_sampler(sampler_context *sc, fpr mu, fpr isigma, int result[], size_t n)
 	for (size_t i = 0; i < n; i++) {
 		z = Zf(sampler)(sc, mu, isigma);
 		z -= c;
-		//printf("Generated Gaussian value: %d\n", z);
+		// printf("Generated Gaussian value: %d\n", z);
 		result[i] = z;
 	}
 }
@@ -1316,19 +1361,6 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 	// for(loop = 0; loop < 10; loop++)
 	// 	printf("publickey[%d]: (%ld),\n", loop, pk_h[loop]);	
 
-	fpr t0[n];
-	fpr x1[n];
-	/*
-	 * Set the target vector to [hm, 0] (hm is the hashed message).
-	 */
-	for (u = 0; u < n; u ++) {
-		t0[u] = fpr_of(hm[u]);
-		/* This is implicit.
-		t1[u] = fpr_zero;
-		*/
-	}
-    memcpy(x1, t0, n * sizeof(fpr));	
-
 	// gaussian
 	inner_shake256_context rng;
 	sampler_context sc;
@@ -1346,34 +1378,97 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 	mu = fpr_neg(fpr_one);
 	muinc = fpr_div(fpr_one, fpr_of(10));
 
-	int x3[n];
-	int x4[n];
+	int int_x3[n];
+	int int_x4[n];
 
-	gauss_sampler(&sc, mu, isigma, x3, n);
-	gauss_sampler(&sc, mu, isigma, x4, n);
+	gauss_sampler(&sc, mu, isigma, int_x3, n);
+	gauss_sampler(&sc, mu, isigma, int_x4, n);
 
-	// x3ptr = (int16_t *)x3;
-	// x4ptr = (int16_t *)x4;
-
-	// for(loop = 0; loop < 10; loop++)
-	// 	printf("gauss[%d]: (%d, %d),\n", loop, x3[loop], x3[loop+25]);	
-
-	//Zf(poly_sub)(x1, z, logn);
+	for(loop = 0; loop < 10; loop++)
+		printf("gauss_x3x4[%d]: (%d, %d),\n", loop, int_x3[loop], int_x4[loop]);	
 
 	// use h and two gaussian polys x3, x4
 	// to compute r = x4 + h*x3 mod q
-	// mq_NTT(x3, logn);
-	// mq_poly_montymul_ntt(x3, pk_h, logn);
-	// mq_iNTT(x3, logn);
-	// mq_poly_add(x3, x4, logn);
+	uint16_t x3[n];
+	uint16_t x4[n];
+	for (u = 0; u < n; u ++) {
 
-	// for(loop = 0; loop < 10; loop++)
-	// 	printf("calc_r_x3+x4*h[%d]: (%lf),\n", loop, x3[loop]);	
+		x3[u] = (uint16_t)mq_conv_small_sign(int_x3[u]);
+	}
+
+	for(loop = 0; loop < 10; loop++)
+		printf("x3convsmall[%d]: (%d, %d),\n", loop, x3[loop], x4[loop]);	
+
+	mq_NTT(x3, logn);
+
+	for(loop = 0; loop < 10; loop++)
+		printf("ntt_x3[%d]: (%d),\n", loop, x3[loop]);		
+
+	Zf(to_ntt_monty)(pk_h, logn);
+	mq_poly_montymul_ntt(x3, pk_h, logn); // check this is small enough, i.e. < Q	
+
+	for(loop = 0; loop < 10; loop++)
+		printf("ntt_x3mult[%d]: (%u),\n", loop, x3[loop]);	
+
+	mq_iNTT(x3, logn);
+
+	for(loop = 0; loop < 10; loop++)
+		printf("intt_x3mult[%d]: (%u),\n", loop, x3[loop]);	
+
+	for (u = 0; u < n; u ++) {
+		x4[u] = (uint16_t)int_x4[u];
+	}
+
+	// poly add of x3+x4
+	Zf(poly_add)(x3, x4, logn);
+
+	uint16_t t0[n];
+	fpr x1[n];
+	fpr fpr_x3[n];
+
+	// stored for final sig calc
+	uint16_t z1[n];
+	uint16_t z2[n];
+
+	/*
+	 * Set the target vector to [hm, 0] (hm is the hashed message).
+	 */
+	for (u = 0; u < n; u ++) {
+		t0[u] = (hm[u]);
+		t0[u] = mq_add_sign(t0[u], x3[u]);
+		x1[u] = fpr_of(t0[u]);
+		fpr_x3[u] = fpr_of(x3[u]);
+		z1[u] = uint16_t(x3[u]);
+		z2[u] = uint16_t(x4[u]);
+		/* This is implicit.
+		t1[u] = fpr_zero;
+		*/
+	}
+
+	Zf(poly_add)(x1, fpr_x3, logn);
+
+
+	for(loop = 0; loop < 10; loop++)
+		printf("polyadd_hm+r[%d]: (%u),\n", loop, x1[loop]);
+
+	/*
+	 * Reduce x1 elements modulo q ([0..q-1] range).       FIX THIS
+	 */
+	for (u = 0; u < n; u ++) {
+		uint32_t w;
+
+		w = (uint32_t)x1[u];
+		w += Q & -(w >> 31);
+		x1[u] = (uint16_t)w;
+	}	
+
+	for(loop = 0; loop < 10; loop++)
+		printf("hm+r_modq[%d]: (%u),\n", loop, x1[loop]);
 
 	fpr x2[n];
     memset(x2, 0, n * sizeof(fpr));
-
-	Zf(FFT)(x1, logn);		
+	
+	//Zf(FFT)(x1, logn);		
 	//Zf(FFT)(x2, logn);		
 
 	// for(loop = 0; loop < 10; loop++)
@@ -1385,6 +1480,8 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 	fpr y2[n]; // this is (qB0_inv_fft * x)[1];
     memcpy(y1, x1, n * sizeof(fpr));	
     memset(y2, 0, n * sizeof(fpr));	
+
+	Zf(FFT)(y1, logn);		
 
 	// for(loop = 0; loop < 10; loop++)
 	// 	printf("x1x2_moveto_y1y2[%d]: (%f, %f),\n", loop, y1[loop], y2[loop]);
@@ -1456,35 +1553,29 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 	// for(loop = 0; loop < 10; loop++)
 	// 	printf("B_times_y1y2[%d]: (%f, %f),\n", loop, y1[loop], y2[loop]);	
 
-	// subtraction, x-y
-	// fpr final_x1[n];
-	// fpr final_x2[n];
-	// v_sub(x1, sk_y1, final_x1, n);
-	// v_sub(x2, sk_y2, final_x2, n);
-	Zf(poly_sub)(x1, y1, logn);
-	Zf(poly_sub)(x2, y2, logn);
+	Zf(iFFT)(y1, logn);		
+	Zf(iFFT)(y2, logn);
 
-	// for(loop = 0; loop < 10; loop++)
-	// 	printf("sub_xandy[%d]: (%f, %f),\n", loop, x1[loop], x2[loop]);	
+	// x = (y[0] - t_ + z[0], y[1] + z[1])
+	//int16_t x1_sig[n], x2_sig[n];
 
-	Zf(iFFT)(x1, logn);		
-	Zf(iFFT)(x2, logn);
+	//fpr fpr_x3[n];
+	fpr fpr_x4[n];
+	for (u = 0; u < n; u ++) {
+		//fpr_x3[u] = (fpr)int_x3[u];
+		fpr_x4[u] = fpr_of(int_x4[u]);
+	}
 
-	int16_t ifft_final_x1x2[n];
+	// overwrite y1 and y2, x1=t_
+	Zf(poly_sub)(y1, x1, logn);
+	Zf(poly_sub)(y1, fpr_x3, logn);
+	Zf(poly_add)(y2, fpr_x4, logn);
 
-	Zf(poly_add)(x1, x3, logn);
-	Zf(poly_add)(x2, x4, logn);
+	for(loop = 0; loop < 10; loop++)
+		printf("uncompressed_sig[%d]: (%d, %d),\n", loop, y1[loop], y2[loop]);	
 
-	// for(loop = 0; loop < 10; loop++)
-	// 	printf("gauss_xandy[%d]: (%d, %d),\n", loop, x1[loop], x2[loop]);	
-
-	// norm checking
-	double normx1x2;
-	double normx1;
-	double normx2;
-
-	// sig + gaussian
-	v_add(x1, x2, ifft_final_x1x2, n);
+	int16_t *x1tmp, *x2tmp;
+	//x1tmp = (int16_t *)tx;
 
 	int16_t *final_x1ptr;
 	int16_t *final_x2ptr;
@@ -1492,10 +1583,13 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 	final_x1ptr = (int16_t *)x1;
 	final_x2ptr = (int16_t *)x2;
 
-	/*
-	 * Compute the signature.
-	 */
-	//s1tmp = (int16_t *)tx;
+	for(loop = 0; loop < 10; loop++)
+		printf("iFFT_x_plus_y[%d]: (%d, %d),\n", loop, x1[loop], x2[loop]);	
+
+	// /*
+	//  * Compute the signature.
+	//  */
+	// s1tmp = (int16_t *)tx;
 	// sqn = 0;
 	// ng = 0;
 	// for (u = 0; u < n; u ++) {
