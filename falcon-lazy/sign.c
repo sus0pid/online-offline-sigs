@@ -1314,6 +1314,9 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 
     n = MKN(logn);
 
+
+	// START OFFLINE
+
     /*
      * Lattice basis is B = [[g, -f], [G, -F]]. We convert it to FFT.
      */
@@ -1392,39 +1395,32 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 	uint16_t x3[n];
 	uint16_t x4[n];
 	for (u = 0; u < n; u ++) {
-
-		x3[u] = (uint16_t)mq_conv_small_sign(int_x3[u]);
+		x3[u] = (uint16_t)mq_conv_small_sign(int_x3[u]); // makes x3 small
+		x4[u] = (uint16_t)(int_x4[u]);
 	}
 
 	for(loop = 0; loop < 10; loop++)
 		printf("x3convsmall[%d]: (%d, %d),\n", loop, x3[loop], x4[loop]);	
 
+	// start x3*h in NTT domain, write to x3
 	mq_NTT(x3, logn);
-
-	for(loop = 0; loop < 10; loop++)
-		printf("ntt_x3[%d]: (%d),\n", loop, x3[loop]);		
-
 	Zf(to_ntt_monty)(pk_h, logn);
-	mq_poly_montymul_ntt(x3, pk_h, logn); // check this is small enough, i.e. < Q	
-
-	for(loop = 0; loop < 10; loop++)
-		printf("ntt_x3mult[%d]: (%u),\n", loop, x3[loop]);	
-
+	mq_poly_montymul_ntt(x3, pk_h, logn);
 	mq_iNTT(x3, logn);
 
 	for(loop = 0; loop < 10; loop++)
-		printf("intt_x3mult[%d]: (%u),\n", loop, x3[loop]);	
+		printf("inttx3*h[%d]: (%d, %d),\n", loop, x3[loop], x4[loop]);	
 
-	for (u = 0; u < n; u ++) {
-		x4[u] = (uint16_t)int_x4[u];
-	}
-
-	// poly add of x3+x4
+	// poly add of r=h*x3+x4, write to x3 (not mod q)
 	Zf(poly_add)(x3, x4, logn);
 
+
+	// START ONLINE
+	// t0 = hm
 	uint16_t t0[n];
 	fpr x1[n];
 	fpr fpr_x3[n];
+	fpr fpr_x4[n];
 
 	// stored for final sig calc
 	uint16_t z1[n];
@@ -1434,42 +1430,20 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 	 * Set the target vector to [hm, 0] (hm is the hashed message).
 	 */
 	for (u = 0; u < n; u ++) {
-		t0[u] = (hm[u]);
-		t0[u] = mq_add_sign(t0[u], x3[u]);
+		t0[u] = hm[u];
+		t0[u] = mq_add_sign(t0[u], x3[u]); // t_ = t + r mod q
 		x1[u] = fpr_of(t0[u]);
 		fpr_x3[u] = fpr_of(x3[u]);
-		z1[u] = uint16_t(x3[u]);
-		z2[u] = uint16_t(x4[u]);
+		fpr_x4[u] = fpr_of(int_x4[u]);
+		z1[u] = (uint16_t)(x3[u]);
+		z2[u] = (uint16_t)(x4[u]);
 		/* This is implicit.
 		t1[u] = fpr_zero;
 		*/
 	}
 
-	Zf(poly_add)(x1, fpr_x3, logn);
-
-
-	for(loop = 0; loop < 10; loop++)
-		printf("polyadd_hm+r[%d]: (%u),\n", loop, x1[loop]);
-
-	/*
-	 * Reduce x1 elements modulo q ([0..q-1] range).       FIX THIS
-	 */
-	for (u = 0; u < n; u ++) {
-		uint32_t w;
-
-		w = (uint32_t)x1[u];
-		w += Q & -(w >> 31);
-		x1[u] = (uint16_t)w;
-	}	
-
-	for(loop = 0; loop < 10; loop++)
-		printf("hm+r_modq[%d]: (%u),\n", loop, x1[loop]);
-
 	fpr x2[n];
     memset(x2, 0, n * sizeof(fpr));
-	
-	//Zf(FFT)(x1, logn);		
-	//Zf(FFT)(x2, logn);		
 
 	// for(loop = 0; loop < 10; loop++)
 	// 	printf("fftd_x1x2[%d]: (%f, %f),\n", loop, x1[loop], x2[loop]);
@@ -1557,50 +1531,41 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 	Zf(iFFT)(y2, logn);
 
 	// x = (y[0] - t_ + z[0], y[1] + z[1])
-	//int16_t x1_sig[n], x2_sig[n];
 
-	//fpr fpr_x3[n];
-	fpr fpr_x4[n];
-	for (u = 0; u < n; u ++) {
-		//fpr_x3[u] = (fpr)int_x3[u];
-		fpr_x4[u] = fpr_of(int_x4[u]);
-	}
-
-	// overwrite y1 and y2, x1=t_
+	// overwrite y1 and y2, x1=t_ in fpr
 	Zf(poly_sub)(y1, x1, logn);
-	Zf(poly_sub)(y1, fpr_x3, logn);
+	Zf(poly_add)(y1, fpr_x3, logn);
 	Zf(poly_add)(y2, fpr_x4, logn);
 
-	for(loop = 0; loop < 10; loop++)
-		printf("uncompressed_sig[%d]: (%d, %d),\n", loop, y1[loop], y2[loop]);	
-
-	int16_t *x1tmp, *x2tmp;
-	//x1tmp = (int16_t *)tx;
-
-	int16_t *final_x1ptr;
-	int16_t *final_x2ptr;
-
-	final_x1ptr = (int16_t *)x1;
-	final_x2ptr = (int16_t *)x2;
+	// take everything to int16 from fpr
+	int16_t y1_sig[n], y2_sig[n], y1tmp[n];
+	for (u = 0; u < n; u ++) {
+		y1_sig[u] = (int16_t)fpr_rint(y1[u]);
+		y2_sig[u] = (int16_t)fpr_rint(y2[u]);
+		/* This is implicit.
+		t1[u] = fpr_zero;
+		*/
+	}
 
 	for(loop = 0; loop < 10; loop++)
-		printf("iFFT_x_plus_y[%d]: (%d, %d),\n", loop, x1[loop], x2[loop]);	
+		printf("uncompressed_sig[%d]: (%d, %d),\n", loop, y1_sig[loop], y2_sig[loop]);	
 
-	// /*
-	//  * Compute the signature.
-	//  */
-	// s1tmp = (int16_t *)tx;
-	// sqn = 0;
-	// ng = 0;
-	// for (u = 0; u < n; u ++) {
-	// 	int32_t z;
-
-	// 	z = (int32_t)hm[u] - (int32_t)fpr_rint(t0[u]);
-	// 	sqn += (uint32_t)(z * z);
-	// 	ng |= sqn;
-	// 	final_x1ptr[u] = (int16_t)z;
-	// }
-	// sqn |= -(ng >> 31);
+	/*
+	 * Compute the signature.
+	 */
+	uint32_t sqn, ng;
+	sqn = 0;
+	ng = 0;
+	for (u = 0; u < n; u ++) {
+		int32_t z;
+		y1tmp[u] = (int32_t)y1_sig[u];
+		
+		z = (int32_t)hm[u] - (int32_t)y1_sig[u];
+		sqn += (uint32_t)(z * z);
+		ng |= sqn;
+		y1tmp[u] = (int16_t)z;
+	}
+	sqn |= -(ng >> 31);
 
 
 	// double *final_x1ptr;
