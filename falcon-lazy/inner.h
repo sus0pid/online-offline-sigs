@@ -1137,6 +1137,11 @@ void Zf(sign_dyn_lazy)(int16_t *sig, inner_shake256_context *rng,
 	const uint16_t *h,
 	const uint16_t *hm, unsigned logn, uint8_t *tmp);
 
+/** dest += a mod q (between 0 and q-1) */
+void Zf(mq_poly_addto)(
+        uint16_t *dest, const uint16_t* a, unsigned logn);
+
+
 void mq_NTT(uint16_t *a, unsigned logn);
 
 void mq_iNTT(uint16_t *a, unsigned logn);

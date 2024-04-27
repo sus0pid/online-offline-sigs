@@ -325,7 +325,7 @@ static const uint16_t iGMb[] = {
  * Reduce a small signed integer modulo q. The source integer MUST
  * be between -q/2 and +q/2.
  */
-inline uint32_t
+uint32_t
 mq_conv_small(int x)
 {
 	/*
@@ -636,8 +636,18 @@ mq_poly_sub(uint16_t *f, const uint16_t *g, unsigned logn)
 void
 Zf(to_ntt_monty)(uint16_t *h, unsigned logn)
 {
-	mq_NTT(h, logn);
-	mq_poly_tomonty(h, logn);
+    mq_NTT(h, logn);
+    mq_poly_tomonty(h, logn);
+}
+
+/* see inner.h */
+void
+Zf(mq_poly_addto)(uint16_t *dest, const uint16_t* a, unsigned logn)
+{
+    size_t n = 1u << logn;
+    for (size_t i=0; i<n; ++i) {
+        dest[i] = mq_add(dest[i], a[i]);
+    }
 }
 
 /* see inner.h */

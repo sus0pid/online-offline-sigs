@@ -64,7 +64,7 @@ align_u16(void *tmp)
 }
 
 void v_add(const fpr a[], const fpr b[], fpr result[], size_t size) {
-    for (int i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
         result[i] = fpr_add(a[i], b[i]);
     }
 }
@@ -76,19 +76,19 @@ void v_sub(const fpr a[], const fpr b[], fpr result[], size_t size) {
 }
 
 void v_mul(const fpr a[], const fpr b[], fpr result[], size_t size) {
-    for (int i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
         result[i] = fpr_mul(a[i], b[i]);
     }
 }
 
 void v_neg(const fpr a[], fpr result[], size_t size) {
-    for (int i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
         result[i] = fpr_neg(a[i]);
     }
 }
 
 void v_inv(const fpr a[], fpr result[], size_t size) {
-    for (int i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
         result[i] = fpr_inv(a[i]);
     }
 }
@@ -104,7 +104,7 @@ void v_inv(const fpr a[], fpr result[], size_t size) {
 
 void v_round(const fpr a[], fpr result[], size_t size) {
     for (size_t i = 0; i < size; i++) {
-        result[i] = fpr_of(fpr_rint(result[i]));
+        result[i] = fpr_of(fpr_rint(a[i]));
     }
 }
 
@@ -185,7 +185,7 @@ mq_add_sign(uint32_t x, uint32_t y)
 // }
 
 void mat_mul(const fpr A00[], const fpr A01[], const fpr A10[], const fpr A11[], const fpr x1[], const fpr x2[], fpr y1[], fpr y2[], size_t size) {
-    for (int i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
         fpr temp1 = fpr_add(fpr_mul(A00[i], x1[i]), fpr_mul(A01[i], x2[i]));
         fpr temp2 = fpr_add(fpr_mul(A10[i], x1[i]), fpr_mul(A11[i], x2[i]));
         y1[i] = fpr_add(y1[i], temp1);
@@ -231,7 +231,7 @@ int randombytes(uint8_t *obuf, size_t len)
 void gauss_sampler(sampler_context *sc, fpr mu, fpr isigma, int result[], size_t n)
 {
 	int z;
-	long ctr, szlo, szhi;
+	//long ctr, szlo, szhi;
 	int c;
 
 	/*
@@ -250,7 +250,7 @@ void gauss_sampler(sampler_context *sc, fpr mu, fpr isigma, int result[], size_t
 
 double calc_norm(const double* array, size_t size) {
     double norm = 0.0;
-    for (int i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
 		// printf("array[%d]: (%f),\n", i, array[i]);
         norm += array[i] * array[i];
 		// printf("norm[%d]: (%f),\n", i, norm);
@@ -1302,7 +1302,9 @@ do_sign_dyn(samplerZ samp, void *samp_ctx, int16_t *s2,
 
 /// ONLINE OFFLINE DO SIGN FUNCTION
 static int
-do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
+do_sign_dyn_lazy(samplerZ samp __attribute((unused)), // TODO check if really unused?
+                 void *samp_ctx __attribute((unused)), // TODO check if really unused?
+                 int16_t *s2,
     const int8_t *restrict f, const int8_t *restrict g,
     const int8_t *restrict F, const int8_t *restrict G,
 	const uint16_t *h,
@@ -1367,7 +1369,8 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 	// gaussian
 	inner_shake256_context rng;
 	sampler_context sc;
-	fpr isigma, mu, muinc;
+	fpr isigma, mu;
+    fpr muinc __attribute((unused)); // TODO check if really unused?;
 	uint8_t seed[48];
 
 	randombytes(seed, 48);
@@ -1412,7 +1415,9 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 		printf("inttx3*h[%d]: (%d, %d),\n", loop, x3[loop], x4[loop]);	
 
 	// poly add of r=h*x3+x4, write to x3 (not mod q)
-	Zf(poly_add)(x3, x4, logn);
+    //TODO: this line below is wrong (type error)
+	//Zf(poly_add)(x3, x4, logn);
+    Zf(mq_poly_addto)(x3,x4,logn);
 
 
 	// START ONLINE
@@ -1423,8 +1428,8 @@ do_sign_dyn_lazy(samplerZ samp, void *samp_ctx, int16_t *s2,
 	fpr fpr_x4[n];
 
 	// stored for final sig calc
-	uint16_t z1[n];
-	uint16_t z2[n];
+	uint16_t z1[n] __attribute((unused)); // TODO check if really unused?
+	uint16_t z2[n] __attribute((unused)); // TODO check if really unused?
 
 	/*
 	 * Set the target vector to [hm, 0] (hm is the hashed message).
