@@ -264,6 +264,24 @@ void sample_gaussian(int8_t *res,
 	}
 }
 
+/** computes res = x0 - h*x1 mod q */
+void compute_target(uint16_t* res, uint16_t* h, int8_t* x0, int8_t* x1, unsigned logn)
+{
+	int n;
+	n = MKN(logn);
+	memcpy(res, x1, n * sizeof(uint16_t));	
+
+	mq_NTT(res, logn);
+	Zf(to_ntt_monty)(h, logn);
+	mq_poly_montymul_ntt(res, h, logn);
+	mq_iNTT(res, logn);
+
+    for (size_t i = 0; i < n; i++) {
+        res[i] = -res[i];
+    }
+
+    Zf(mq_poly_add)(res, x0, logn);
+}
 
 
 double calc_norm(const double* array, size_t size) {
