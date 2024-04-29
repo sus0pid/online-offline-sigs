@@ -51,17 +51,17 @@
 
 //#define NEAREST_PLANE_ENABLED
 
-static inline uint8_t *
-align_u16(void *tmp)
-{
-	uint8_t *atmp;
+// static inline uint8_t *
+// align_u16(void *tmp)
+// {
+// 	uint8_t *atmp;
 
-	atmp = tmp;
-	if (((uintptr_t)atmp & 1u) != 0) {
-		atmp ++;
-	}
-	return atmp;
-}
+// 	atmp = tmp;
+// 	if (((uintptr_t)atmp & 1u) != 0) {
+// 		atmp ++;
+// 	}
+// 	return atmp;
+// }
 
 void v_add(const fpr a[], const fpr b[], fpr result[], size_t size) {
     for (size_t i = 0; i < size; i++) {
@@ -247,6 +247,24 @@ void gauss_sampler(sampler_context *sc, fpr mu, fpr isigma, int result[], size_t
 		result[i] = z;
 	}
 }
+
+void sample_gaussian(int8_t *res, 
+                     sampler_context* spc, samplerZ samp,
+					 fpr isigma,
+                     inner_shake256_context *rng, // do we need it?
+                     unsigned logn)
+{
+	int z;
+	int n;
+	n = MKN(logn);
+
+	for (size_t i = 0; i < n; i++) {
+		z = Zf(sampler)(spc, fpr_zero, isigma);
+		res[i] = z;
+	}
+}
+
+
 
 double calc_norm(const double* array, size_t size) {
     double norm = 0.0;
