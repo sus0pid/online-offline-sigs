@@ -6,6 +6,8 @@ extern "C" {
 #include "../inner.h"
 }
 
+#define EXPORT extern "C"
+
 #define REQUIRE_DRAMATICALLY(req_contition, error_msg)                                                        \
   do {                                                                                                        \
     if (!(req_contition)) {                                                                                   \
@@ -237,4 +239,28 @@ TEST(falcon, lazy_sig) {
     // print statistics about this vector and check the norm
     double norm = print_statistics(full_sig);
     ASSERT_LE(norm, 6000);
+}
+
+EXPORT void sample_gaussian(int8_t *res,
+                     sampler_context* spc,
+                     fpr isigma,
+                     unsigned logn);
+
+TEST(falcon, sample_gaussian) {
+    for (const uint64_t logn: {9,10}) {
+        const uint64_t n = 1 << logn;
+        inner_shake256_context rng;
+        inner_shake256_init(&rng);
+        double sigma = 2.; // between 1 and 2
+        fpr isigma = FPR(1./sigma);
+        sampler_context sc;
+        Zf(prng_init)(&sc.p, &rng);
+        sc.sigma_min = fpr_sigma_min[logn];
+        std::vector<int8_t> res(n);
+        sample_gaussian(res.data(), &sc, isigma, logn);
+        std::vector<double> st(n);
+        for (uint64_t i=0; i<n; ++i) st[i]=res[i];
+        double norm = print_statistics(st);
+        ASSERT_LE(norm, 3*n);
+    }
 }

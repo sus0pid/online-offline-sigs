@@ -249,13 +249,12 @@ void gauss_sampler(sampler_context *sc, fpr mu, fpr isigma, int result[], size_t
 }
 
 void sample_gaussian(int8_t *res, 
-                     sampler_context* spc, samplerZ samp,
+                     sampler_context* spc,
 					 fpr isigma,
-                     inner_shake256_context *rng, // do we need it?
                      unsigned logn)
 {
 	int z;
-	int n;
+	size_t n;
 	n = MKN(logn);
 
 	for (size_t i = 0; i < n; i++) {
