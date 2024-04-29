@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <vector>
+#include <random>
 
 #define restrict
 extern "C" {
@@ -94,6 +95,24 @@ vec_modQ starproduct(const vec_modQ& x, const vec_modQ& y) {
     starproduct(res.data(), x.data(), y.data(), n);
     return res;
 }
+vec_modQ operator-(const vec_modQ& x, const vec_modQ& y) {
+    uint64_t n = x.size();
+    REQUIRE_DRAMATICALLY(y.size()==n, "wrong size");
+    vec_modQ res(n);
+    for (uint16_t i=0; i<n; ++i) {
+        res[i] = x[i] - y[i];
+    }
+    return res;
+}
+vec_modQ operator+(const vec_modQ& x, const vec_modQ& y) {
+    uint64_t n = x.size();
+    REQUIRE_DRAMATICALLY(y.size()==n, "wrong size");
+    vec_modQ res(n);
+    for (uint16_t i=0; i<n; ++i) {
+        res[i] = x[i] + y[i];
+    }
+    return res;
+}
 bool operator==(const vec_modQ& x, const vec_modQ& y) {
     uint64_t n = x.size();
     REQUIRE_DRAMATICALLY(y.size()==n, "wrong size");
@@ -101,6 +120,18 @@ bool operator==(const vec_modQ& x, const vec_modQ& y) {
         if (x[i].v != y[i].v) return false;
     }
     return true;
+}
+std::default_random_engine& randgen() {
+    static std::default_random_engine eng;
+    return eng;
+}
+uint64_t random_u64() {
+    static std::uniform_int_distribution<uint64_t> dist;
+    return dist(randgen());
+}
+uint64_t random_i64() {
+    static std::uniform_int_distribution<int64_t> dist;
+    return dist(randgen());
 }
 
 double print_statistics(const std::vector<double>& vec) {
@@ -262,5 +293,32 @@ TEST(falcon, sample_gaussian) {
         for (uint64_t i=0; i<n; ++i) st[i]=res[i];
         double norm = print_statistics(st);
         ASSERT_LE(norm, 3*n);
+    }
+}
+
+/** x0 - h.x1 */
+EXPORT void compute_target(
+        uint16_t* res,
+        uint16_t* h,
+        int8_t* x0, int8_t* x1, unsigned logn);
+
+TEST(falcon, compute_target) {
+    for (const uint64_t logn: {9,10}) {
+        const uint64_t n = 1 << logn;
+        std::vector<uint16_t> actual(n);
+        std::vector<uint16_t> h(n);
+        std::vector<int8_t> x0(n);
+        std::vector<int8_t> x1(n);
+        for (uint16_t i=0; i<n; ++i) {
+            h[i] = posmod(random_u64(), F_Q);
+            x0[i] = centermod(random_u64(), 65);
+            x1[i] = centermod(random_u64(), 65);
+        }
+        vec_modQ hq = to_vec_modQ(h);
+        vec_modQ x0q = to_vec_modQ(x0);
+        vec_modQ x1q = to_vec_modQ(x1);
+        vec_modQ expect = x0q - starproduct(x1q , hq);
+        compute_target(actual.data(), h.data(), x0.data(), x1.data(), logn);
+        ASSERT_EQ(to_vec_modQ(actual), expect);
     }
 }
