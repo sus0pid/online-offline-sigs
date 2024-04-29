@@ -31,5 +31,9 @@ set(TEST_SRCS
 add_library(falcon STATIC ${SRCS})
 target_link_libraries(falcon m)
 
+add_executable(speed speed.c)
+target_link_libraries(speed falcon m)
+
 add_executable(unittest ${TEST_SRCS})
 target_link_libraries(unittest falcon gtest gtest_main)
+
