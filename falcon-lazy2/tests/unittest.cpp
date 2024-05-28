@@ -360,3 +360,81 @@ EXPORT void short_preimage(const uint16_t *target, //
                            int32_t *res0, int32_t *res1,
                            unsigned logn);
 
+static void short_preimage(const uint16_t *target, //
+                           const fpr *f_fft, const fpr *g_fft, // key
+                           const fpr *F_fft, const fpr *G_fft, // key
+                           int32_t *res1, int32_t *res2,
+                           unsigned logn)
+{
+    size_t n;
+    n = MKN(logn);
+
+    // y1 = hm, y2 = 0, put into FFT
+    fpr y1[n];
+    fpr y2[n];
+
+	for (u = 0; u < n; u ++) {
+		y1[u] = fpr_of(target[u]); // y1 = FFT(target)
+		y2[u] = (uint16_t)(0); 
+	}
+
+   	Zf(FFT)(y1, logn);		
+	//Zf(FFT)(y2, logn); implicitly the same, y2 == FFT(y2) == 0
+
+    // (target,0) * [[F, -f][-G,g]]
+    // simplified as two FFT mults:
+    // (h * F,  -h * f)
+    memcpy(y2, y1, n * sizeof(fpr));
+    Zf(poly_mul_fft)(y1, F_fft, logn);
+    Zf(poly_neg)(y2, logn); // f == -f
+    Zf(poly_mul_fft)(y2, f_fft, logn);
+
+    // multiple both polys by q_inv
+	Zf(poly_mulconst)(y1, fpr_inverse_of_q, logn);
+	Zf(poly_mulconst)(y2, fpr_inverse_of_q, logn);
+
+    // round y1,y2
+    // copy y1,y2, round it, subtract from original
+	Zf(iFFT)(y1, logn);		
+	Zf(iFFT)(y2, logn);
+	
+    fpr y1_temp[n];
+    fpr y2_temp[n];
+
+	for (u = 0; u < n; u ++) {
+		y1_temp[u] = fpr_rint(y1[u]); 
+		y2_temp[u] = fpr_rint(y2[u]);
+        y1[u] = fpr_sub(y1[u],y1_temp[u]);
+        y2[u] = fpr_sub(y2[u],y2_temp[u]); 
+	}
+
+	Zf(FFT)(y1, logn);		
+	Zf(FFT)(y2, logn);	    
+
+    // mult by sk
+    memcpy(y1_temp, y1, n * sizeof(fpr));
+    memcpy(y2_temp, y2, n * sizeof(fpr));
+
+    // first row of matrix mult
+    // y[0] := g*y[0] + G*y[1] 
+	Zf(poly_mul_fft)(y1, g_fft, logn);
+	Zf(poly_mul_fft)(y2_temp, G_fft, logn);
+	Zf(poly_add)(y1, y2_temp, logn); // stored in y1
+
+    // second row of matrix mult
+    // y[1] := f*y[0] + F*y[1]
+ 	Zf(poly_mul_fft)(y1_temp, f_fft, logn);
+	Zf(poly_mul_fft)(y2, F_fft, logn);
+	Zf(poly_add)(y2, y1_temp, logn); // stored in y2 
+
+    // round y1 and y2
+	Zf(iFFT)(y1, logn);		
+	Zf(iFFT)(y2, logn);
+
+    // round y1,y2 and write to res1,res2
+	for (u = 0; u < n; u ++) {
+		res1[u] = fpr_rint(y1[u]); 
+		res2[u] = fpr_rint(y2[u]);
+	}
+
+}
