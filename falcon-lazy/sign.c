@@ -111,17 +111,26 @@ void v_round(const fpr a[], fpr result[], size_t size) {
 #define Q     12289
 
 uint32_t
-mq_conv_small_sign(int x)
+mq_conv_small(int x)
 {
-	/*
-	 * If x < 0, the cast to uint32_t will set the high bit to 1.
-	 */
-	uint32_t y;
+    /*
+     * If x < 0, the cast to uint32_t will set the high bit to 1.
+     */
+    uint32_t y;
 
-	y = (uint32_t)x;
-	y += Q & -(y >> 31);
-	return y;
+    y = (uint32_t)x;
+    y += Q & -(y >> 31);
+    return y;
 }
+
+/** converts a signed small polynomial to mod q */
+void mq_conv_poly_small_sign(size_t n, const int8_t* in, uint16_t* res)
+{
+    for (size_t i=0; i<n; ++i) {
+        res[i] = mq_conv_small(in[i]);
+    }
+}
+
 
 uint32_t
 mq_sub_sign(uint32_t x, uint32_t y)
@@ -263,23 +272,55 @@ void sample_gaussian(int8_t *res,
 	}
 }
 
-/** computes res = x0 - h*x1 mod q */
-void compute_target(uint16_t* res, uint16_t* h, int8_t* x0, int8_t* x1, unsigned logn)
+static inline uint32_t
+mq_sub(uint32_t x, uint32_t y)
 {
-	int n;
+    /*
+     * As in mq_add(), we use a conditional addition to ensure the
+     * result is in the 0..q-1 range.
+     */
+    uint32_t d;
+
+    d = x - y;
+    d += Q & -(d >> 31);
+    return d;
+}
+
+static void
+mq_poly_sub2(size_t logn, const uint16_t *a, const uint16_t* b, uint16_t* res)
+{
+    size_t u, n;
+    n = (size_t)1 << logn;
+    for (u = 0; u < n; u ++) {
+        res[u] = (uint16_t)mq_sub(a[u], b[u]);
+    }
+}
+
+static void
+mq_poly_small_sign_minus_mq(size_t logn, const int8_t *a, const uint16_t* b, uint16_t* res)
+{
+    size_t u, n;
+    n = (size_t)1 << logn;
+    for (u = 0; u < n; u ++) {
+        res[u] = (uint16_t)mq_sub(mq_conv_small(a[u]), b[u]);
+    }
+}
+
+/** computes res = x0 - h*x1 mod q
+ *  h is already in NTT monty representation */
+void compute_target(uint16_t* res, const uint16_t* h, const int8_t* x0, const int8_t* x1, unsigned logn)
+{
+	uint64_t n;
 	n = MKN(logn);
-	memcpy(res, x1, n * sizeof(uint16_t));	
+    // convert int8 to uint16
+    mq_conv_poly_small_sign(n, x1, res);
 
 	mq_NTT(res, logn);
-	Zf(to_ntt_monty)(h, logn);
+	//Zf(to_ntt_monty)(h, logn);
 	mq_poly_montymul_ntt(res, h, logn);
 	mq_iNTT(res, logn);
 
-    for (size_t i = 0; i < n; i++) {
-        res[i] = -res[i];
-    }
-
-    Zf(mq_poly_add)(res, x0, logn);
+    mq_poly_small_sign_minus_mq(logn, x0, res, res);
 }
 
 
