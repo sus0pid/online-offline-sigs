@@ -110,18 +110,7 @@ void v_round(const fpr a[], fpr result[], size_t size) {
 
 #define Q     12289
 
-uint32_t
-mq_conv_small(int x)
-{
-    /*
-     * If x < 0, the cast to uint32_t will set the high bit to 1.
-     */
-    uint32_t y;
-
-    y = (uint32_t)x;
-    y += Q & -(y >> 31);
-    return y;
-}
+uint32_t mq_conv_small(int x);
 
 /** converts a signed small polynomial to mod q */
 void mq_conv_poly_small_sign(size_t n, const int8_t* in, uint16_t* res)
@@ -237,7 +226,7 @@ int randombytes(uint8_t *obuf, size_t len)
 	return 0;
 }
 
-void gauss_sampler(sampler_context *sc, fpr mu, fpr isigma, int result[], size_t n)
+void gauss_sampler(sampler_context *sc, fpr mu, fpr isigma, int8_t* result, size_t n)
 {
 	int z;
 	//long ctr, szlo, szhi;
@@ -286,6 +275,7 @@ mq_sub(uint32_t x, uint32_t y)
     return d;
 }
 
+/*
 static void
 mq_poly_sub2(size_t logn, const uint16_t *a, const uint16_t* b, uint16_t* res)
 {
@@ -295,6 +285,7 @@ mq_poly_sub2(size_t logn, const uint16_t *a, const uint16_t* b, uint16_t* res)
         res[u] = (uint16_t)mq_sub(a[u], b[u]);
     }
 }
+*/
 
 static void
 mq_poly_small_sign_minus_mq(size_t logn, const int8_t *a, const uint16_t* b, uint16_t* res)
@@ -1460,41 +1451,20 @@ do_sign_dyn_lazy(samplerZ samp __attribute((unused)), // TODO check if really un
 	mu = fpr_neg(fpr_one);
 	muinc = fpr_div(fpr_one, fpr_of(10));
 
-	int int_x3[n];
-	int int_x4[n];
+	int8_t int_x3[n];
+	int8_t int_x4[n];
 
 	gauss_sampler(&sc, mu, isigma, int_x3, n);
 	gauss_sampler(&sc, mu, isigma, int_x4, n);
 
 	for(loop = 0; loop < 10; loop++)
-		printf("gauss_x3x4[%d]: (%d, %d),\n", loop, int_x3[loop], int_x4[loop]);	
+		printf("gauss_x3x4[%d]: (%d, %d),\n", loop, int_x3[loop], int_x4[loop]);
 
-	// use h and two gaussian polys x3, x4
-	// to compute r = x4 + h*x3 mod q
-	uint16_t x3[n];
-	uint16_t x4[n];
-	for (u = 0; u < n; u ++) {
-		x3[u] = (uint16_t)mq_conv_small_sign(int_x3[u]); // makes x3 small
-		x4[u] = (uint16_t)(int_x4[u]);
-	}
+    uint16_t x3[n];
+    compute_target(x3, h, int_x3, int_x4, logn);
 
 	for(loop = 0; loop < 10; loop++)
-		printf("x3convsmall[%d]: (%d, %d),\n", loop, x3[loop], x4[loop]);	
-
-	// start x3*h in NTT domain, write to x3
-	mq_NTT(x3, logn);
-	Zf(to_ntt_monty)(pk_h, logn);
-	mq_poly_montymul_ntt(x3, pk_h, logn);
-	mq_iNTT(x3, logn);
-
-	for(loop = 0; loop < 10; loop++)
-		printf("inttx3*h[%d]: (%d, %d),\n", loop, x3[loop], x4[loop]);	
-
-	// poly add of r=h*x3+x4, write to x3 (not mod q)
-    //TODO: this line below is wrong (type error)
-	//Zf(poly_add)(x3, x4, logn);
-    Zf(mq_poly_addto)(x3,x4,logn);
-
+		printf("target x3[%d]: (%d),\n", loop, (int) x3[loop]);
 
 	// START ONLINE
 	// t0 = hm
@@ -1517,7 +1487,7 @@ do_sign_dyn_lazy(samplerZ samp __attribute((unused)), // TODO check if really un
 		fpr_x3[u] = fpr_of(x3[u]);
 		fpr_x4[u] = fpr_of(int_x4[u]);
 		z1[u] = (uint16_t)(x3[u]);
-		z2[u] = (uint16_t)(x4[u]);
+		z2[u] = (uint16_t)(0); // TODO: verify if it is really 0 here
 		/* This is implicit.
 		t1[u] = fpr_zero;
 		*/

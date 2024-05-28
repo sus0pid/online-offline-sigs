@@ -302,6 +302,33 @@ EXPORT void compute_target(
         uint16_t* h,
         int8_t* x0, int8_t* x1, unsigned logn);
 
+TEST(falcon, mul_by_h) {
+    for (const uint64_t logn: {9,10}) {
+        const uint64_t n = 1 << logn;
+        std::vector<uint16_t> actual(n);
+        std::vector<uint16_t> h(n);
+        std::vector<uint16_t> x0(n);
+        for (uint16_t i=0; i<n; ++i) {
+            h[i] = posmod(random_u64(), F_Q);
+            x0[i] = posmod(random_u64(), F_Q);
+        }
+        vec_modQ hq = to_vec_modQ(h);
+        vec_modQ x0q = to_vec_modQ(x0);
+        vec_modQ expect = starproduct(x0q , hq);
+        // we need to pass h_monty
+        std::vector<uint16_t> h_monty = h;
+        falcon_inner_to_ntt_monty(h_monty.data(), logn);
+        //
+        std::vector<uint16_t> res = x0;
+        mq_NTT(res.data(), logn);
+        mq_poly_montymul_ntt(res.data(), h_monty.data(), logn);
+        mq_iNTT(res.data(), logn);
+
+        ASSERT_EQ(to_vec_modQ(res), expect);
+    }
+}
+
+
 TEST(falcon, compute_target) {
     for (const uint64_t logn: {9,10}) {
         const uint64_t n = 1 << logn;
@@ -318,7 +345,11 @@ TEST(falcon, compute_target) {
         vec_modQ x0q = to_vec_modQ(x0);
         vec_modQ x1q = to_vec_modQ(x1);
         vec_modQ expect = x0q - starproduct(x1q , hq);
-        compute_target(actual.data(), h.data(), x0.data(), x1.data(), logn);
+        // we need to pass h_monty
+        std::vector<uint16_t> h_monty = h;
+        falcon_inner_to_ntt_monty(h_monty.data(), logn);
+
+        compute_target(actual.data(), h_monty.data(), x0.data(), x1.data(), logn);
         ASSERT_EQ(to_vec_modQ(actual), expect);
     }
 }
