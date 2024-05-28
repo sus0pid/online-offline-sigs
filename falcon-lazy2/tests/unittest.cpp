@@ -297,10 +297,7 @@ TEST(falcon, sample_gaussian) {
 }
 
 /** x0 - h.x1 */
-EXPORT void compute_target(
-        uint16_t* res,
-        uint16_t* h,
-        int8_t* x0, int8_t* x1, unsigned logn);
+EXPORT void compute_target(uint16_t *h, int8_t *x0, int8_t *x1, uint16_t *res, unsigned logn);
 
 TEST(falcon, mul_by_h) {
     for (const uint64_t logn: {9,10}) {
@@ -349,7 +346,7 @@ TEST(falcon, compute_target) {
         std::vector<uint16_t> h_monty = h;
         falcon_inner_to_ntt_monty(h_monty.data(), logn);
 
-        compute_target(actual.data(), h_monty.data(), x0.data(), x1.data(), logn);
+        compute_target(h_monty.data(), x0.data(), x1.data(), actual.data(), logn);
         ASSERT_EQ(to_vec_modQ(actual), expect);
     }
 }

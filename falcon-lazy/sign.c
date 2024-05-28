@@ -288,7 +288,7 @@ mq_poly_sub2(size_t logn, const uint16_t *a, const uint16_t* b, uint16_t* res)
 */
 
 static void
-mq_poly_small_sign_minus_mq(size_t logn, const int8_t *a, const uint16_t* b, uint16_t* res)
+mq_poly_small_sign_minus_mq(const int8_t *a, const uint16_t *b, uint16_t *res, size_t logn)
 {
     size_t u, n;
     n = (size_t)1 << logn;
@@ -299,7 +299,7 @@ mq_poly_small_sign_minus_mq(size_t logn, const int8_t *a, const uint16_t* b, uin
 
 /** computes res = x0 - h*x1 mod q
  *  h is already in NTT monty representation */
-void compute_target(uint16_t* res, const uint16_t* h, const int8_t* x0, const int8_t* x1, unsigned logn)
+void compute_target(const uint16_t *h_monty, const int8_t *x0, const int8_t *x1, uint16_t *res, unsigned logn)
 {
 	uint64_t n;
 	n = MKN(logn);
@@ -308,10 +308,10 @@ void compute_target(uint16_t* res, const uint16_t* h, const int8_t* x0, const in
 
 	mq_NTT(res, logn);
 	//Zf(to_ntt_monty)(h, logn);
-	mq_poly_montymul_ntt(res, h, logn);
+	mq_poly_montymul_ntt(res, h_monty, logn);
 	mq_iNTT(res, logn);
 
-    mq_poly_small_sign_minus_mq(logn, x0, res, res);
+    mq_poly_small_sign_minus_mq(x0, res, res, logn);
 }
 
 
@@ -1451,6 +1451,16 @@ do_sign_dyn_lazy(samplerZ samp __attribute((unused)), // TODO check if really un
 	mu = fpr_neg(fpr_one);
 	muinc = fpr_div(fpr_one, fpr_of(10));
 
+    // modulo_lattice:  2n coords -> n coords mod q
+    //   any lattice point: modulo_lattice = 0
+    //   (x,0)              modulo_lattice(x,0) = x mod q
+    //                      modulo_lattice(q,0)
+    //                      modulo_lattice(h,1)
+    //   g = hf mod q?
+    //                      modulo_lattice(G,g)
+    //                      modulo_lattice(F,G)
+
+    // (int_x3,int_x4) are the small gaussian vector
 	int8_t int_x3[n];
 	int8_t int_x4[n];
 
@@ -1460,8 +1470,9 @@ do_sign_dyn_lazy(samplerZ samp __attribute((unused)), // TODO check if really un
 	for(loop = 0; loop < 10; loop++)
 		printf("gauss_x3x4[%d]: (%d, %d),\n", loop, int_x3[loop], int_x4[loop]);
 
+    // x3 = int_x3 - h * int_x4 mod q the target
     uint16_t x3[n];
-    compute_target(x3, h, int_x3, int_x4, logn);
+    compute_target(h, int_x3, int_x4, x3, logn);
 
 	for(loop = 0; loop < 10; loop++)
 		printf("target x3[%d]: (%d),\n", loop, (int) x3[loop]);
