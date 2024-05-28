@@ -350,3 +350,13 @@ TEST(falcon, compute_target) {
         ASSERT_EQ(to_vec_modQ(actual), expect);
     }
 }
+
+/** find a short lattice point in a coset
+ *  short (res0,res1) s.t.  res0 - h.res1 = target mod q
+ */
+EXPORT void short_preimage(const uint16_t *target, //
+                           const double *f_fft, const double *g_fft, // key
+                           const double *F_fft, const double *G_fft, // key
+                           int32_t *res0, int32_t *res1,
+                           unsigned logn);
+
