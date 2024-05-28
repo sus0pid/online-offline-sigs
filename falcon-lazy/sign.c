@@ -1568,8 +1568,9 @@ do_sign_dyn_lazy(samplerZ samp __attribute((unused)), // TODO check if really un
 
 	if (Zf(is_short_half)(sqn, y2tmp, logn)) {
 		memcpy(s2, y2tmp, n * sizeof *s2);
-		//memcpy(tmp, y1tmp, n * sizeof *y1tmp); //TODO? do they need that the first part of the signature is in tmp??
-		printf("signature size is correct?");
+        // TODO? do they need that the first part of the signature is in tmp??
+        // memcpy(tmp, y1tmp, n * sizeof *y1tmp);
+        printf("signature size is correct?");
 		return 1;
 	}
 
