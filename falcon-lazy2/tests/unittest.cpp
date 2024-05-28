@@ -59,6 +59,11 @@ void convert(modQ* res, const uint16_t* x, uint64_t n) {
         res[k]=modQ(x[k]);
     }
 }
+void convert(modQ* res, const int32_t* x, uint64_t n) {
+    for (uint64_t k=0; k<n; ++k) {
+        res[k]=modQ(x[k]);
+    }
+}
 void starproduct(modQ* res, const modQ* x, const modQ* y, uint64_t n) {
     for (uint64_t k=0; k<n; ++k) {
         modQ rk = 0;
@@ -84,6 +89,11 @@ vec_modQ to_vec_modQ(const std::vector<uint16_t>& v) {
     return res;
 }
 vec_modQ to_vec_modQ(const std::vector<int16_t>& v) {
+    vec_modQ res(v.size());
+    convert(res.data(), v.data(), v.size());
+    return res;
+}
+vec_modQ to_vec_modQ(const std::vector<int32_t>& v) {
     vec_modQ res(v.size());
     convert(res.data(), v.data(), v.size());
     return res;
@@ -134,7 +144,8 @@ uint64_t random_i64() {
     return dist(randgen());
 }
 
-double print_statistics(const std::vector<double>& vec) {
+template<typename T>
+double print_statistics(const std::vector<T>& vec) {
     uint64_t n = vec.size();
     double minv = 1./0.;
     double maxv = -1./0.;
@@ -355,86 +366,54 @@ TEST(falcon, compute_target) {
  *  short (res0,res1) s.t.  res0 - h.res1 = target mod q
  */
 EXPORT void short_preimage(const uint16_t *target, //
-                           const double *f_fft, const double *g_fft, // key
-                           const double *F_fft, const double *G_fft, // key
-                           int32_t *res0, int32_t *res1,
-                           unsigned logn);
-
-static void short_preimage(const uint16_t *target, //
                            const fpr *f_fft, const fpr *g_fft, // key
                            const fpr *F_fft, const fpr *G_fft, // key
                            int32_t *res1, int32_t *res2,
-                           unsigned logn)
-{
-    size_t n;
-    n = MKN(logn);
+                           unsigned logn);
 
-    // y1 = hm, y2 = 0, put into FFT
-    fpr y1[n];
-    fpr y2[n];
+TEST(falcon, short_preimage) {
+    for (const uint64_t logn: {9,10}) {
+        const uint64_t n = 1 << logn;
+        inner_shake256_context rng;
+        inner_shake256_init(&rng);
+        falcon_key_t key = keygen(logn, &rng);
+        std::vector<uint16_t> target(n);
+        std::vector<int32_t> res1(n);
+        std::vector<int32_t> res2(n);
+        for (uint16_t i=0; i<n; ++i) {
+            target[i] = posmod(random_u64(), F_Q);
+        }
+        std::vector<fpr> f_FFT(n);
+        std::vector<fpr> g_FFT(n);
+        std::vector<fpr> F_FFT(n);
+        std::vector<fpr> G_FFT(n);
+        for (uint16_t i=0; i<n; ++i) {
+            f_FFT[i] = fpr_of(key.f[i]);
+            g_FFT[i] = fpr_of(key.g[i]);
+            F_FFT[i] = fpr_of(key.F[i]);
+            G_FFT[i] = fpr_of(key.G[i]);
+        }
+        Zf(FFT)(f_FFT.data(), logn);
+        Zf(FFT)(g_FFT.data(), logn);
+        Zf(FFT)(F_FFT.data(), logn);
+        Zf(FFT)(G_FFT.data(), logn);
+        //
+        short_preimage(target.data(), //
+                       f_FFT.data(), g_FFT.data(), //
+                       F_FFT.data(), G_FFT.data(), //
+                       res1.data(), res2.data(), //
+                       logn);
+        // verify: the norm of res1, res2
+        print_statistics(res1);
+        print_statistics(res2);
 
-	for (u = 0; u < n; u ++) {
-		y1[u] = fpr_of(target[u]); // y1 = FFT(target)
-		y2[u] = (uint16_t)(0); 
-	}
-
-   	Zf(FFT)(y1, logn);		
-	//Zf(FFT)(y2, logn); implicitly the same, y2 == FFT(y2) == 0
-
-    // (target,0) * [[F, -f][-G,g]]
-    // simplified as two FFT mults:
-    // (h * F,  -h * f)
-    memcpy(y2, y1, n * sizeof(fpr));
-    Zf(poly_mul_fft)(y1, F_fft, logn);
-    Zf(poly_neg)(y2, logn); // f == -f
-    Zf(poly_mul_fft)(y2, f_fft, logn);
-
-    // multiple both polys by q_inv
-	Zf(poly_mulconst)(y1, fpr_inverse_of_q, logn);
-	Zf(poly_mulconst)(y2, fpr_inverse_of_q, logn);
-
-    // round y1,y2
-    // copy y1,y2, round it, subtract from original
-	Zf(iFFT)(y1, logn);		
-	Zf(iFFT)(y2, logn);
-	
-    fpr y1_temp[n];
-    fpr y2_temp[n];
-
-	for (u = 0; u < n; u ++) {
-		y1_temp[u] = fpr_rint(y1[u]); 
-		y2_temp[u] = fpr_rint(y2[u]);
-        y1[u] = fpr_sub(y1[u],y1_temp[u]);
-        y2[u] = fpr_sub(y2[u],y2_temp[u]); 
-	}
-
-	Zf(FFT)(y1, logn);		
-	Zf(FFT)(y2, logn);	    
-
-    // mult by sk
-    memcpy(y1_temp, y1, n * sizeof(fpr));
-    memcpy(y2_temp, y2, n * sizeof(fpr));
-
-    // first row of matrix mult
-    // y[0] := g*y[0] + G*y[1] 
-	Zf(poly_mul_fft)(y1, g_fft, logn);
-	Zf(poly_mul_fft)(y2_temp, G_fft, logn);
-	Zf(poly_add)(y1, y2_temp, logn); // stored in y1
-
-    // second row of matrix mult
-    // y[1] := f*y[0] + F*y[1]
- 	Zf(poly_mul_fft)(y1_temp, f_fft, logn);
-	Zf(poly_mul_fft)(y2, F_fft, logn);
-	Zf(poly_add)(y2, y1_temp, logn); // stored in y2 
-
-    // round y1 and y2
-	Zf(iFFT)(y1, logn);		
-	Zf(iFFT)(y2, logn);
-
-    // round y1,y2 and write to res1,res2
-	for (u = 0; u < n; u ++) {
-		res1[u] = fpr_rint(y1[u]); 
-		res2[u] = fpr_rint(y2[u]);
-	}
-
+        // verify that res1-h*res2=target mod q
+        vec_modQ res1q = to_vec_modQ(res1);
+        vec_modQ res2q = to_vec_modQ(res2);
+        vec_modQ hq = to_vec_modQ(key.h);
+        vec_modQ targetq = to_vec_modQ(target);
+        vec_modQ actual = res1q - starproduct(res2q, hq);
+        ASSERT_EQ(actual, targetq);
+    }
 }
+
