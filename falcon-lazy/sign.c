@@ -1514,15 +1514,15 @@ do_sign_dyn_lazy(samplerZ samp __attribute((unused)), // TODO check if really un
 	gauss_sampler(&sc, mu, isigma, int_x3, n);
 	gauss_sampler(&sc, mu, isigma, int_x4, n);
 
-    for(loop = 0; loop < 10; loop++)
-		printf("gauss_x3x4[%d]: (%d, %d),\n", loop, int_x3[loop], int_x4[loop]);
+    // for(loop = 0; loop < 10; loop++)
+	// 	printf("gauss_x3x4[%d]: (%d, %d),\n", loop, int_x3[loop], int_x4[loop]);
 
     // x3 = int_x3 - h * int_x4 mod q the target
     uint16_t x3[n];
     compute_target(h_monty, int_x3, int_x4, x3, logn);
 
-	for(loop = 0; loop < 10; loop++)
-		printf("target x3[%d]: (%d),\n", loop, (int) x3[loop]);
+	// for(loop = 0; loop < 10; loop++)
+	// 	printf("target x3[%d]: (%d),\n", loop, (int) x3[loop]);
 
 	// START ONLINE
     int32_t res1[n];
@@ -1540,8 +1540,8 @@ do_sign_dyn_lazy(samplerZ samp __attribute((unused)), // TODO check if really un
         res2[i] -= int_x4[i];
     }
 
-	for(loop = 0; loop < 10; loop++)
-		printf("uncompressed_sig[%d]: (%d, %d),\n", loop, res1[loop], res2[loop]);
+	// for(loop = 0; loop < 10; loop++)
+	// 	printf("uncompressed_sig[%d]: (%d, %d),\n", loop, res1[loop], res2[loop]);
 
 	/*
 	 * Compute the signature.
@@ -1573,25 +1573,6 @@ do_sign_dyn_lazy(samplerZ samp __attribute((unused)), // TODO check if really un
         printf("signature size is correct?");
 		return 1;
 	}
-
-	// for(loop = 0; loop < 10; loop++)
-	// 	printf("compressed_y1y2[%d]: (%d, %d),\n", loop, y1tmp[loop], y2tmp[loop]);	
-
-	// double *final_x1ptr;
-	// double *final_x2ptr;		
-	// double *ifft_final_x1x2ptr;
-
-	// final_x1ptr = (double *)final_x1;
-	// final_x2ptr = (double *)final_x2;
-	// ifft_final_x1x2ptr = (double *)ifft_final_x1x2;
-
-	// normx1x2 = calc_norm(ifft_final_x1x2ptr, n);
-	// normx1   = calc_norm(final_x1ptr, n);
-	// normx2   = calc_norm(final_x2ptr, n);
-
-	// printf("FINAL_NORM_X1X2: (%f),\n", normx1x2);
-	// printf("FINAL_NORM_X1:   (%f),\n", normx1);
-	// printf("FINAL_NORM_X2:   (%f),\n", normx2);
 
     return 0;
 }
