@@ -3605,8 +3605,21 @@ test_sign_lazy_self(const int8_t *f, const int8_t *g,
 	const int8_t *F, const int8_t *G, const uint16_t *h_src,
 	unsigned logn, uint8_t *tmp)
 {
+    size_t n;
+    n = (size_t)1 << logn;
+
+    int8_t f_copy[n];
+    memcpy(f_copy, f, n*sizeof(int8_t));
+    int8_t g_copy[n];
+    memcpy(g_copy, g, n*sizeof(int8_t));
+    int8_t F_copy[n];
+    memcpy(F_copy, F, n*sizeof(int8_t));
+    int8_t G_copy[n];
+    memcpy(G_copy, G, n*sizeof(int8_t));
+    uint16_t h_src_copy[n];
+    memcpy(h_src_copy, h_src, n*sizeof(uint16_t));
+
 	int i;
-	size_t n;
 	inner_shake256_context rng;
 	char buf[20];
 	uint16_t *h, *hm, *hm2;
@@ -3614,7 +3627,6 @@ test_sign_lazy_self(const int8_t *f, const int8_t *g,
 	uint8_t *tt;
 	fpr *expanded_key;
 
-	n = (size_t)1 << logn;
 	h = (uint16_t *)tmp;
 	hm = h + n;
 	sig = (int16_t *)(hm + n);
@@ -3634,6 +3646,7 @@ test_sign_lazy_self(const int8_t *f, const int8_t *g,
 	inner_shake256_init(&rng);
 	inner_shake256_inject(&rng, (uint8_t *)buf, strlen(buf));
 	inner_shake256_flip(&rng);
+
 	for (i = 0; i < 100; i ++) {
 		uint8_t msg[50];  /* nonce + plain */
 		inner_shake256_context sc, sc2;
@@ -3653,7 +3666,14 @@ test_sign_lazy_self(const int8_t *f, const int8_t *g,
 				exit(EXIT_FAILURE);
 			}
 		}
-		Zf(sign_dyn_lazy)(sig, &rng, f, g, F, G, h_src, hm, logn, tt);
+        if (memcmp(f, f_copy, n)!=0) abort();
+        if (memcmp(g, g_copy, n)!=0) abort();
+        if (memcmp(F, F_copy, n)!=0) abort();
+        if (memcmp(G, G_copy, n)!=0) abort();
+        if (memcmp(h_src, h_src_copy, n*sizeof(uint16_t))!=0) abort();
+        memset(sig, 0, n*sizeof(uint16_t));
+        memset(tt, 0, 178176-(tt-tmp));
+        Zf(sign_dyn_lazy)(sig, &rng, f, g, F, G, h_src, hm, logn, tt);
 		if (!Zf(verify_raw)(hm, sig, h, logn, tt)) {
 			fprintf(stderr, "self signature (dyn) not verified\n");
 			exit(EXIT_FAILURE);
@@ -3696,6 +3716,10 @@ test_sign_lazy_self(const int8_t *f, const int8_t *g,
 	fflush(stdout);
 }
 
+static void
+test_sign_self(const int8_t *f, const int8_t *g,
+               const int8_t *F, const int8_t *G, const uint16_t *h_src,
+               unsigned logn, uint8_t *tmp) __attribute((unused));
 static void
 test_sign_self(const int8_t *f, const int8_t *g,
 	const int8_t *F, const int8_t *G, const uint16_t *h_src,
@@ -3812,8 +3836,8 @@ test_sign(void)
 		ntru_h_1024, 10, tmp);
 	test_sign_lazy_self(ntru_f_512, ntru_g_512, ntru_F_512, ntru_G_512,
 		ntru_h_512, 9, tmp);
-	// test_sign_lazy_self(ntru_f_1024, ntru_g_1024, ntru_F_1024, ntru_G_1024,
-	// 	ntru_h_1024, 10, tmp);
+    test_sign_lazy_self(ntru_f_1024, ntru_g_1024, ntru_F_1024, ntru_G_1024,
+	 	ntru_h_1024, 10, tmp);
 
 
 	xfree(tmp);

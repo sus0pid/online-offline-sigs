@@ -695,7 +695,11 @@ Zf(verify_raw)(const uint16_t *c0, const int16_t *s2,
 	 * Signature is valid if and only if the aggregate (-s1,s2) vector
 	 * is short enough.
 	 */
-	return Zf(is_short)((int16_t *)tt, s2, logn);
+	if (Zf(is_short)((int16_t *)tt, s2, logn)) {
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 /* see inner.h */

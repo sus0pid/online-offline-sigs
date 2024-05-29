@@ -34,6 +34,10 @@ target_link_libraries(falcon m)
 add_executable(speed speed.c)
 target_link_libraries(speed falcon m)
 
+add_executable(test_falcon test_falcon.c)
+target_link_libraries(test_falcon falcon m)
+target_compile_options(test_falcon PRIVATE -Wno-unused)
+
 add_executable(unittest ${TEST_SRCS})
 target_link_libraries(unittest falcon gtest gtest_main)
 
