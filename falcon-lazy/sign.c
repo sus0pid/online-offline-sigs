@@ -1447,79 +1447,16 @@ do_sign_dyn(samplerZ samp, void *samp_ctx, int16_t *s2,
 
 /// ONLINE OFFLINE DO SIGN FUNCTION
 static int
-do_sign_dyn_lazy(samplerZ samp __attribute((unused)), // TODO check if really unused?
-                 void *samp_ctx __attribute((unused)), // TODO check if really unused?
+do_sign_dyn_lazy(int8_t* sample1, int8_t* sample2, uint16_t* sample_target,
                  int16_t *s2,
-    const int8_t *restrict f, const int8_t *restrict g,
-    const int8_t *restrict F, const int8_t *restrict G,
-	const uint16_t *h,
+    const fpr *restrict f_fft, const fpr *restrict g_fft,
+    const fpr *restrict F_fft, const fpr *restrict G_fft,
     const uint16_t *hm, unsigned logn, fpr *restrict tmp __attribute((unused)))
 {
     size_t n, u;
     int loop __attribute((unused));
 
     n = MKN(logn);
-
-    fpr f_fft[n], g_fft[n], F_fft[n], G_fft[n];
-
-
-    // START OFFLINE
-    /*
-     * Lattice basis is B = [[g, f], [G, F]]. We convert it to FFT.
-     */
-    smallints_to_fpr(f_fft, f, logn);
-    smallints_to_fpr(g_fft, g, logn);
-    smallints_to_fpr(F_fft, F, logn);
-    smallints_to_fpr(G_fft, G, logn);
-    Zf(FFT)(f_fft, logn); // f
-    Zf(FFT)(g_fft, logn); // g
-    Zf(FFT)(F_fft, logn); // F
-    Zf(FFT)(G_fft, logn); // G
-
-    uint16_t h_monty[n];
-    memcpy(h_monty, h, n*sizeof(uint16_t));
-    falcon_inner_to_ntt_monty(h_monty, logn);
-
-	// gaussian
-	inner_shake256_context rng;
-	sampler_context sc;
-	fpr isigma __attribute((unused)), mu __attribute((unused));
-    fpr muinc __attribute((unused)); // TODO check if really unused?;
-	uint8_t seed[48];
-
-	randombytes(seed, 48);
-	inner_shake256_init(&rng);
-	inner_shake256_inject(&rng, seed, sizeof seed);
-	inner_shake256_flip(&rng);
-	Zf(prng_init)(&sc.p, &rng);
-	sc.sigma_min = fpr_sigma_min[9];
-
-	isigma = fpr_div(fpr_of(10), fpr_of(17));
-	mu = fpr_neg(fpr_one);
-	muinc = fpr_div(fpr_one, fpr_of(10));
-
-    // modulo_lattice:  2n coords -> n coords mod q
-    //   any lattice point: modulo_lattice = 0
-    //   (x,0)              modulo_lattice(x,0) = x mod q
-    //                      modulo_lattice(q,0)
-    //                      modulo_lattice(h,1)
-    //   g = hf mod q?
-    //                      modulo_lattice(G,g)
-    //                      modulo_lattice(F,G)
-
-    // (int_x3,int_x4) are the small gaussian vector
-	int8_t int_x3[n];
-	int8_t int_x4[n];
-
-	gauss_sampler(&sc, mu, isigma, int_x3, n);
-	gauss_sampler(&sc, mu, isigma, int_x4, n);
-
-    // for(loop = 0; loop < 10; loop++)
-	// 	printf("gauss_x3x4[%d]: (%d, %d),\n", loop, int_x3[loop], int_x4[loop]);
-
-    // x3 = int_x3 - h * int_x4 mod q the target
-    uint16_t x3[n];
-    compute_target(h_monty, int_x3, int_x4, x3, logn);
 
 	// for(loop = 0; loop < 10; loop++)
 	// 	printf("target x3[%d]: (%d),\n", loop, (int) x3[loop]);
@@ -1528,16 +1465,16 @@ do_sign_dyn_lazy(samplerZ samp __attribute((unused)), // TODO check if really un
     int32_t res1[n];
     int32_t res2[n];
     // "real" target = hm + x3
-    falcon_inner_mq_poly_addto(x3, hm, logn);
-    short_preimage(x3, //
+    falcon_inner_mq_poly_addto(sample_target, hm, logn);
+    short_preimage(sample_target, //
                    f_fft, g_fft, //
                    F_fft, G_fft, //
                    res1, res2,  //
                    logn);
     // remove the gaussian sample
     for (size_t i=0; i<n; i++) {
-        res1[i] -= int_x3[i];
-        res2[i] -= int_x4[i];
+        res1[i] -= sample1[i];
+        res2[i] -= sample2[i];
     }
 
 	// for(loop = 0; loop < 10; loop++)
@@ -2021,52 +1958,160 @@ Zf(sign_dyn)(int16_t *sig, inner_shake256_context *rng,
 /* see inner.h */
 void
 Zf(sign_dyn_lazy)(int16_t *sig, inner_shake256_context *rng,
+                  const int8_t *restrict f, const int8_t *restrict g,
+                  const int8_t *restrict F, const int8_t *restrict G,
+                  const uint16_t *h,
+                  const uint16_t *hm, unsigned logn, uint8_t *tmp)
+                  __attribute((noinline));
+void
+Zf(sign_dyn_lazy)(int16_t *sig, inner_shake256_context *rng,
 	const int8_t *restrict f, const int8_t *restrict g,
 	const int8_t *restrict F, const int8_t *restrict G,
 	const uint16_t *h,
 	const uint16_t *hm, unsigned logn, uint8_t *tmp)
 {
+    const size_t n = MKN(logn);
 	fpr *ftmp;
+    fpr f_fft[n], g_fft[n], F_fft[n], G_fft[n];
 
-	ftmp = (fpr *)tmp;
-	for (;;) {
-		/*
-		 * Signature produces short vectors s1 and s2. The
-		 * signature is acceptable only if the aggregate vector
-		 * s1,s2 is short; we must use the same bound as the
-		 * verifier.
-		 *
-		 * If the signature is acceptable, then we return only s2
-		 * (the verifier recomputes s1 from s2, the hashed message,
-		 * and the public key).
-		 */
-		sampler_context spc;
-		samplerZ samp;
-		void *samp_ctx;
 
-		/*
-		 * Normal sampling. We use a fast PRNG seeded from our
-		 * SHAKE context ('rng').
-		 */
-		spc.sigma_min = fpr_sigma_min[logn];
-		Zf(prng_init)(&spc.p, rng);
-		samp = Zf(sampler);
+    // START OFFLINE
+    /*
+     * Lattice basis is B = [[g, f], [G, F]]. We convert it to FFT.
+     */
+    smallints_to_fpr(f_fft, f, logn);
+    smallints_to_fpr(g_fft, g, logn);
+    smallints_to_fpr(F_fft, F, logn);
+    smallints_to_fpr(G_fft, G, logn);
+    Zf(FFT)(f_fft, logn); // f
+    Zf(FFT)(g_fft, logn); // g
+    Zf(FFT)(F_fft, logn); // F
+    Zf(FFT)(G_fft, logn); // G
 
-		// int loop;
-		// for(loop = 0; loop < 10; loop++)
-		// 	printf("gauss[%d]: (%f, %f),\n", loop, samp[loop], samp[loop]);
+    uint16_t h_monty[n];
+    memcpy(h_monty, h, n*sizeof(uint16_t));
+    falcon_inner_to_ntt_monty(h_monty, logn);
 
-		samp_ctx = &spc;
+    // compute the Gaussian blinding sample
+    // gaussian
+    sampler_context sc;
+    fpr isigma __attribute((unused)), mu __attribute((unused));
+    fpr muinc __attribute((unused)); // TODO check if really unused?;
+    Zf(prng_init)(&sc.p, rng);
+    sc.sigma_min = fpr_sigma_min[9];
 
-		/*
-		 * Do the actual signature.
-		 */
-		if (do_sign_dyn_lazy(samp, samp_ctx, sig,
-			f, g, F, G, h, hm, logn, ftmp))
-		{
-			break;
-		} else {
-			break;
-		}
-	}
+    isigma = fpr_div(fpr_of(10), fpr_of(17));
+    mu = fpr_neg(fpr_one);
+    muinc = fpr_div(fpr_one, fpr_of(10));
+
+    // modulo_lattice:  2n coords -> n coords mod q
+    //   any lattice point: modulo_lattice = 0
+    //   (x,0)              modulo_lattice(x,0) = x mod q
+    //                      modulo_lattice(q,0)
+    //                      modulo_lattice(h,1)
+    //   g = hf mod q?
+    //                      modulo_lattice(G,g)
+    //                      modulo_lattice(F,G)
+
+    // (int_x3,int_x4) are the small gaussian vector
+    int8_t sample1[n];
+    int8_t sample2[n];
+
+    gauss_sampler(&sc, mu, isigma, sample1, n);
+    gauss_sampler(&sc, mu, isigma, sample2, n);
+
+    // for(loop = 0; loop < 10; loop++)
+    // 	printf("gauss_x3x4[%d]: (%d, %d),\n", loop, int_x3[loop], int_x4[loop]);
+
+    // x3 = int_x3 - h * int_x4 mod q the target
+    uint16_t sample_target[n];
+    compute_target(h_monty, sample1, sample2, sample_target, logn);
+
+
+
+    ftmp = (fpr *)tmp;
+    /*
+	 * Do the actual signature.
+	 */
+	do_sign_dyn_lazy(
+        sample1,sample2,sample_target,
+        sig,
+	    f_fft, g_fft, F_fft, G_fft,
+        hm, logn, ftmp);
 }
+
+int
+sign_dyn_lazy_online(
+        int8_t* sample1, int8_t* sample2, uint16_t* sample_target,
+                int16_t *s2,
+                 const fpr *restrict f_fft, const fpr *restrict g_fft,
+                 const fpr *restrict F_fft, const fpr *restrict G_fft,
+                 const uint16_t *hm, unsigned logn, fpr *restrict tmp __attribute((unused))) {
+    return do_sign_dyn_lazy(sample1, sample2, sample_target, s2, f_fft, g_fft, F_fft, G_fft, hm, logn, tmp);
+}
+
+void sign_dyn_lazy_offline(
+        // inputs
+        inner_shake256_context *rng,
+                           const int8_t *restrict f, const int8_t *restrict g,
+                           const int8_t *restrict F, const int8_t *restrict G,
+                           const uint16_t *h,
+                           unsigned logn,
+                           //outputs
+        int8_t* sample1, int8_t* sample2, uint16_t* sample_target,
+        fpr *restrict f_fft, fpr *restrict g_fft,
+        fpr *restrict F_fft, fpr *restrict G_fft
+                                   ) {
+    const size_t n = MKN(logn);
+
+    // START OFFLINE
+    /*
+     * Lattice basis is B = [[g, f], [G, F]]. We convert it to FFT.
+     */
+    smallints_to_fpr(f_fft, f, logn);
+    smallints_to_fpr(g_fft, g, logn);
+    smallints_to_fpr(F_fft, F, logn);
+    smallints_to_fpr(G_fft, G, logn);
+    Zf(FFT)(f_fft, logn); // f
+    Zf(FFT)(g_fft, logn); // g
+    Zf(FFT)(F_fft, logn); // F
+    Zf(FFT)(G_fft, logn); // G
+
+    uint16_t h_monty[n];
+    memcpy(h_monty, h, n * sizeof(uint16_t));
+    falcon_inner_to_ntt_monty(h_monty, logn);
+
+    // compute the Gaussian blinding sample
+    // gaussian
+    sampler_context sc;
+    fpr isigma __attribute((unused)), mu __attribute((unused));
+    fpr muinc __attribute((unused)); // TODO check if really unused?;
+    Zf(prng_init)(&sc.p, rng);
+    sc.sigma_min = fpr_sigma_min[9];
+
+    isigma = fpr_div(fpr_of(10), fpr_of(17));
+    mu = fpr_neg(fpr_one);
+    muinc = fpr_div(fpr_one, fpr_of(10));
+
+    // modulo_lattice:  2n coords -> n coords mod q
+    //   any lattice point: modulo_lattice = 0
+    //   (x,0)              modulo_lattice(x,0) = x mod q
+    //                      modulo_lattice(q,0)
+    //                      modulo_lattice(h,1)
+    //   g = hf mod q?
+    //                      modulo_lattice(G,g)
+    //                      modulo_lattice(F,G)
+
+    // (int_x3,int_x4) are the small gaussian vector
+
+    gauss_sampler(&sc, mu, isigma, sample1, n);
+    gauss_sampler(&sc, mu, isigma, sample2, n);
+
+    // for(loop = 0; loop < 10; loop++)
+    // 	printf("gauss_x3x4[%d]: (%d, %d),\n", loop, int_x3[loop], int_x4[loop]);
+
+    // x3 = int_x3 - h * int_x4 mod q the target
+    compute_target(h_monty, sample1, sample2, sample_target, logn);
+}
+
+

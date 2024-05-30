@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <vector>
 #include <random>
+#include <chrono>
 
 #define restrict
 extern "C" {
@@ -247,6 +248,27 @@ TEST(falcon, original_sig) {
     ASSERT_LE(norm, 6000);
 }
 
+EXPORT int sign_dyn_lazy_online(
+        int8_t* sample1, int8_t* sample2, uint16_t* sample_target,
+        int16_t *s2,
+        const fpr *restrict f_fft, const fpr *restrict g_fft,
+        const fpr *restrict F_fft, const fpr *restrict G_fft,
+        const uint16_t *hm, unsigned logn, fpr *restrict tmp __attribute((unused)));
+
+EXPORT void sign_dyn_lazy_offline(
+        // inputs
+        inner_shake256_context *rng,
+        const int8_t *restrict f, const int8_t *restrict g,
+        const int8_t *restrict F, const int8_t *restrict G,
+        const uint16_t *h,
+        unsigned logn,
+        //outputs
+        int8_t* sample1, int8_t* sample2, uint16_t* sample_target,
+        fpr *restrict f_fft, fpr *restrict g_fft,
+        fpr *restrict F_fft, fpr *restrict G_fft
+);
+
+
 TEST(falcon, lazy_sig) {
     const uint64_t logn = 9;
     const uint64_t n = 1 << logn;
@@ -261,6 +283,7 @@ TEST(falcon, lazy_sig) {
         hm[i]=rand()%F_Q;
     }
     uint8_t* tmp = (uint8_t*) aligned_alloc(64, 1024*1024);
+    /*
     falcon_inner_sign_dyn_lazy(
             sig.data(),
             &rng,
@@ -269,6 +292,36 @@ TEST(falcon, lazy_sig) {
             key.h.data(),
             hm.data(),
             logn, tmp);
+            */
+    std::vector<int8_t> sample1(n);
+    std::vector<int8_t> sample2(n);
+    std::vector<uint16_t> sample_target(n);
+    std::vector<fpr> f_FFT(n);
+    std::vector<fpr> g_FFT(n);
+    std::vector<fpr> F_FFT(n);
+    std::vector<fpr> G_FFT(n);
+    uint64_t t0_off = std::chrono::steady_clock::now().time_since_epoch().count();
+    for (uint64_t i=0; i<1000; ++i) {
+        sign_dyn_lazy_offline(&rng, key.f.data(), key.g.data(), key.F.data(), key.G.data(), key.h.data(), logn,
+                              sample1.data(), sample2.data(), sample_target.data(), f_FFT.data(), g_FFT.data(),
+                              F_FFT.data(), G_FFT.data());
+    }
+    uint64_t t1_off = std::chrono::steady_clock::now().time_since_epoch().count();
+    std::vector<uint16_t> orig_sample_target = sample_target;
+    uint64_t t0 = std::chrono::steady_clock::now().time_since_epoch().count();
+    for (uint64_t i=0; i<1000; ++i) {
+        sign_dyn_lazy_online(sample1.data(), sample2.data(), sample_target.data(), sig.data(),
+                             f_FFT.data(), g_FFT.data(), F_FFT.data(), G_FFT.data(), hm.data(), logn,
+                             nullptr);
+    }
+    uint64_t t1 = std::chrono::steady_clock::now().time_since_epoch().count();
+    double time_offline = (t1_off - t0_off)/1e9/1000.*1e6;
+    double time_online = (t1 - t0)/1e9/1000.*1e6;
+    std::cout << "offline time (us): " << time_offline << std::endl;
+    std::cout << "online time (us): " << time_online << std::endl;
+    sign_dyn_lazy_online(sample1.data(), sample2.data(), orig_sample_target.data(), sig.data(),
+                         f_FFT.data(), g_FFT.data(), F_FFT.data(), G_FFT.data(), hm.data(), logn,
+                         nullptr);
     free(tmp);
     // compute the full uncompressed signature
     vec_modQ sigq = to_vec_modQ(sig);
