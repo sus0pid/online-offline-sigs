@@ -3,11 +3,13 @@
 #include <random>
 #include <chrono>
 #include <tuple>
+#include <fstream>
 
 #define restrict
 extern "C" {
 #include "../inner.h"
 }
+
 
 #define EXPORT extern "C"
 
@@ -20,6 +22,12 @@ extern "C" {
   } while (0)
 
 #define F_Q 12289
+
+// from falcon.h
+EXPORT void shake256_init_prng_from_seed(inner_shake256_context *sc,
+                                  const void *seed, size_t seed_len);
+
+
 
 int64_t posmod(int64_t a, int64_t q) {
     int64_t t = a%q;
@@ -174,30 +182,14 @@ double print_statistics(const std::vector<T>& vec) {
 template<typename T>
 std::tuple<double, double> cal_statistics(const std::vector<T>& vec) {
     uint64_t n = vec.size();
-    double minv = 1./0.;
     double maxv = -1./0.;
-    double sumv = 0;
     double sumsq = 0;
     for (uint64_t i=0; i<n; ++i) {
-        double v = vec[i];
+        double v = std::abs(vec[i]);
         if (v > maxv) maxv = v;
-        if (v < minv) minv = v;
-        sumv += v;
         sumsq += v * v;
     }
-    //double mean = sumv/n;
-    //double var = sumsq/n - mean*mean;
-
-    double abs_min = std::abs(minv);
-    double abs_max = std::abs(maxv);
-
-    // Determine the larger absolute value
-    double largest_abs = (abs_min > abs_max) ? abs_min : abs_max;
-
-    // Output the result
-    //std::cout << "The largest absolute value is: " << largest_abs << std::endl;
-
-    return std::make_tuple(std::sqrt(sumsq), largest_abs);
+    return std::make_tuple(std::sqrt(sumsq), maxv);
 }
 
 struct falcon_key_t {
@@ -501,8 +493,28 @@ TEST(falcon, short_preimage) {
     }
 }
 
+EXPORT void
+shake256_extract(inner_shake256_context *sc, void *out, size_t len);
+
+void uniform_random_modq(uint16_t* res, inner_shake256_context* rng, uint64_t n) {
+    static const uint64_t BOUND = UINT64_C(18446744073709545952);
+    uint64_t r;
+    for (uint64_t i=0; i<n; ++i) {
+        for (shake256_extract(rng, &r, 8);
+             r>=BOUND;
+             shake256_extract(rng, &r, 8)) {}
+        res[i] = r % F_Q;
+    }
+}
+
 
 TEST(falcon, lazy_sig_norm) {
+    const uint64_t logn = 9;
+    const uint64_t n = 1 << logn;
+
+    uint64_t seed = 42;
+    inner_shake256_context rng;
+    shake256_init_prng_from_seed(&rng, &seed, 8);
 
     double sum = 0.0;
     double max_sum = 0.0;
@@ -511,18 +523,12 @@ TEST(falcon, lazy_sig_norm) {
 
     //uint64_t t0 = std::chrono::steady_clock::now().time_since_epoch().count();
     for (uint64_t j=0; j<num_iterations; ++j) {
-        const uint64_t logn = 9;
-        const uint64_t n = 1 << logn;
-        inner_shake256_context rng;
-        inner_shake256_init(&rng);
         falcon_key_t key = keygen(logn, &rng);
         vec_modQ hq = to_vec_modQ(key.h);
         std::vector<int16_t> sig(n);
         // use a random hash of message
         std::vector<uint16_t> hm(n);
-        for (uint64_t i=0; i<n; ++i) {
-            hm[i]=rand()%F_Q;
-        }
+        uniform_random_modq(hm.data(), &rng, n);
         uint8_t* tmp = (uint8_t*) aligned_alloc(64, 1024*1024);
         std::vector<int8_t> sample1(n);
         std::vector<int8_t> sample2(n);
@@ -578,7 +584,19 @@ TEST(falcon, lazy_sig_norm) {
 
 }
 
+double get_time() {
+    static uint64_t t0 = std::chrono::steady_clock::now().time_since_epoch().count();
+    uint64_t t = std::chrono::steady_clock::now().time_since_epoch().count();
+    return (t-t0)*1e-9;
+}
+
 TEST(falcon, lazy_sig_norm_multikeys) {
+    std::string signature_coords_filename = "sig_norm_coords.csv";
+
+    const uint64_t logn = 9;
+    const uint64_t n = 1 << logn;
+
+    uint64_t seed = 42;
 
     double sum = 0.0;
     double max_sum = 0.0;
@@ -589,43 +607,52 @@ TEST(falcon, lazy_sig_norm_multikeys) {
     double average = 0.0;
     double average_max = 0.0;
 
-    //uint64_t t0 = std::chrono::steady_clock::now().time_since_epoch().count();
+    std::vector<int16_t> sig(n);
+    // use a random hash of message
+    std::vector<uint16_t> hm(n, 0);
+    uint8_t* tmp = (uint8_t*) aligned_alloc(64, 1024*1024);
+    std::vector<int8_t> sample1(n);
+    std::vector<int8_t> sample2(n);
+    std::vector<uint16_t> sample_target(n);
+    std::vector<fpr> f_FFT(n);
+    std::vector<fpr> g_FFT(n);
+    std::vector<fpr> F_FFT(n);
+    std::vector<fpr> G_FFT(n);
+
+    // write the header of the csv file
+    std::ofstream ofs(signature_coords_filename);
+    ofs << "key_seed,infty_norm,eucl_norm";
+    for (uint64_t i=0; i<2*n; ++i) {
+        ofs << ",s" << i;
+    }
+    ofs << std::endl;
+
+    double last_update_time = 0;
+
     for (uint64_t j=0; j<num_iterations; ++j) {
-        const uint64_t logn = 9;
-        const uint64_t n = 1 << logn;
+        uint64_t key_seed = seed + j;
         inner_shake256_context rng;
-        inner_shake256_init(&rng);
+        shake256_init_prng_from_seed(&rng, &key_seed, 8);
         falcon_key_t key = keygen(logn, &rng);
         vec_modQ hq = to_vec_modQ(key.h);
-        std::vector<int16_t> sig(n);
-        // use a random hash of message
-        std::vector<uint16_t> hm(n);
-        for (uint64_t i=0; i<n; ++i) {
-            hm[i]=rand()%F_Q;
-        }
-        uint8_t* tmp = (uint8_t*) aligned_alloc(64, 1024*1024);
-        std::vector<int8_t> sample1(n);
-        std::vector<int8_t> sample2(n);
-        std::vector<uint16_t> sample_target(n);
-        std::vector<fpr> f_FFT(n);
-        std::vector<fpr> g_FFT(n);
-        std::vector<fpr> F_FFT(n);
-        std::vector<fpr> G_FFT(n);
+        // sign offline
+        sign_dyn_lazy_offline(&rng, key.f.data(), key.g.data(), key.F.data(), key.G.data(), key.h.data(), logn,
+                              sample1.data(), sample2.data(), sample_target.data(), f_FFT.data(), g_FFT.data(),
+                              F_FFT.data(), G_FFT.data());
+        // zero the gaussian sample
+        memset(sample1.data(), 0, n*sizeof(int8_t));
+        memset(sample2.data(), 0, n*sizeof(int8_t));
+        memset(sample_target.data(), 0, n*sizeof(uint16_t));
+
 
         for (uint64_t k=0; k<num_keyreuse; ++k) {
-            sign_dyn_lazy_offline(&rng, key.f.data(), key.g.data(), key.F.data(), key.G.data(), key.h.data(), logn,
-                                    sample1.data(), sample2.data(), sample_target.data(), f_FFT.data(), g_FFT.data(),
-                                    F_FFT.data(), G_FFT.data());
-
-            //uint64_t t1_off = std::chrono::steady_clock::now().time_since_epoch().count();
-            std::vector<uint16_t> orig_sample_target = sample_target;
-            //uint64_t t0 = std::chrono::steady_clock::now().time_since_epoch().count();
-
+            // make hm random
+            uniform_random_modq(hm.data(), &rng, n);
+            // we keep this one since the online phase modifies sample_target
+            memset(sample_target.data(), 0, n*sizeof(uint16_t));
             sign_dyn_lazy_online(sample1.data(), sample2.data(), sample_target.data(), sig.data(),
                                     f_FFT.data(), g_FFT.data(), F_FFT.data(), G_FFT.data(), hm.data(), logn,
                                     nullptr);
-
-            free(tmp);
 
             // compute the full uncompressed signature
             vec_modQ sigq = to_vec_modQ(sig);
@@ -642,33 +669,28 @@ TEST(falcon, lazy_sig_norm_multikeys) {
             double extract_max = std::get<1>(norm);
             max_sum += extract_max;
             total_ongoing_count++;
-            // if ((k + 1) % 100 == 0) {
-            //     std::cout << '.';
-            // }
-            //ASSERT_LE(norm, 6000);
+
+            ofs << key_seed << "," << extract_max << "," << exract_norm;
+            for (uint64_t i=0; i<2*n; ++i) {
+                ofs << "," << full_sig[i];
+            }
+            ofs << std::endl;
         }
-        // if ((j + 1) % 4096 == 0) {
-        //     std::cout << "iteration: " << j << std::endl;
-        //     std::cout << "ongoing avg l2 norm: " << sum/total_ongoing_count << std::endl;
-        //     std::cout << "ongoing avg linf norm: " << max_sum/total_ongoing_count << std::endl;
-        // }
-        // print updates every 1% of the way
-        if ((j+1) % (num_iterations / 100) == 0) {
-            double percentage = (j * 100) / num_iterations;
+
+        if (get_time() >= last_update_time + 60) {
+            last_update_time = get_time();
+            double percentage = (j * 100.) / num_iterations;
             std::cout << "We're " << percentage+1 << "% of the way through" << std::endl;
             std::cout << "---iteration: " << total_ongoing_count << std::endl;
             std::cout << "---ongoing avg l2 norm: " << sum/total_ongoing_count << std::endl;
             std::cout << "---ongoing avg linf norm: " << max_sum/total_ongoing_count << std::endl;
         }
     }
-    //uint64_t t1 = std::chrono::steady_clock::now().time_since_epoch().count();
-    //double time_offline = (t1_off - t0_off)/1e9/num_iterations.*1e6;
-    //double total_time = (t1 - t0)/1e9/num_iter*1e6;
-    //std::cout << "total average time (us): " << total_time << std::endl;
-
     // calculate average norm
     average = sum / total_iterations;
     average_max = max_sum / total_iterations;
     std::cout << "average L2 norm: " << average << std::endl;
     std::cout << "average Linf norm: " << average_max << std::endl;
+    ofs.close();
+    free(tmp);
 }
