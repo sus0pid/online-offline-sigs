@@ -2,6 +2,7 @@
 #include <vector>
 #include <random>
 #include <chrono>
+#include <tuple>
 
 #define restrict
 extern "C" {
@@ -170,6 +171,35 @@ double print_statistics(const std::vector<T>& vec) {
     return sqrt(sumsq);
 }
 
+template<typename T>
+std::tuple<double, double> cal_statistics(const std::vector<T>& vec) {
+    uint64_t n = vec.size();
+    double minv = 1./0.;
+    double maxv = -1./0.;
+    double sumv = 0;
+    double sumsq = 0;
+    for (uint64_t i=0; i<n; ++i) {
+        double v = vec[i];
+        if (v > maxv) maxv = v;
+        if (v < minv) minv = v;
+        sumv += v;
+        sumsq += v * v;
+    }
+    //double mean = sumv/n;
+    //double var = sumsq/n - mean*mean;
+
+    double abs_min = std::abs(minv);
+    double abs_max = std::abs(maxv);
+
+    // Determine the larger absolute value
+    double largest_abs = (abs_min > abs_max) ? abs_min : abs_max;
+
+    // Output the result
+    //std::cout << "The largest absolute value is: " << largest_abs << std::endl;
+
+    return std::make_tuple(std::sqrt(sumsq), largest_abs);
+}
+
 struct falcon_key_t {
     std::vector<int8_t> f;
     std::vector<int8_t> g;
@@ -336,6 +366,7 @@ TEST(falcon, lazy_sig) {
     ASSERT_LE(norm, 6000);
 }
 
+
 EXPORT void sample_gaussian(int8_t *res,
                      sampler_context* spc,
                      fpr isigma,
@@ -470,3 +501,174 @@ TEST(falcon, short_preimage) {
     }
 }
 
+
+TEST(falcon, lazy_sig_norm) {
+
+    double sum = 0.0;
+    double max_sum = 0.0;
+    uint64_t num_iterations = std::pow(2, 5);
+    //double num_iter = (double) num_iterations;
+
+    //uint64_t t0 = std::chrono::steady_clock::now().time_since_epoch().count();
+    for (uint64_t j=0; j<num_iterations; ++j) {
+        const uint64_t logn = 9;
+        const uint64_t n = 1 << logn;
+        inner_shake256_context rng;
+        inner_shake256_init(&rng);
+        falcon_key_t key = keygen(logn, &rng);
+        vec_modQ hq = to_vec_modQ(key.h);
+        std::vector<int16_t> sig(n);
+        // use a random hash of message
+        std::vector<uint16_t> hm(n);
+        for (uint64_t i=0; i<n; ++i) {
+            hm[i]=rand()%F_Q;
+        }
+        uint8_t* tmp = (uint8_t*) aligned_alloc(64, 1024*1024);
+        std::vector<int8_t> sample1(n);
+        std::vector<int8_t> sample2(n);
+        std::vector<uint16_t> sample_target(n);
+        std::vector<fpr> f_FFT(n);
+        std::vector<fpr> g_FFT(n);
+        std::vector<fpr> F_FFT(n);
+        std::vector<fpr> G_FFT(n);
+
+        sign_dyn_lazy_offline(&rng, key.f.data(), key.g.data(), key.F.data(), key.G.data(), key.h.data(), logn,
+                                sample1.data(), sample2.data(), sample_target.data(), f_FFT.data(), g_FFT.data(),
+                                F_FFT.data(), G_FFT.data());
+
+        //uint64_t t1_off = std::chrono::steady_clock::now().time_since_epoch().count();
+        std::vector<uint16_t> orig_sample_target = sample_target;
+        //uint64_t t0 = std::chrono::steady_clock::now().time_since_epoch().count();
+
+        sign_dyn_lazy_online(sample1.data(), sample2.data(), sample_target.data(), sig.data(),
+                                f_FFT.data(), g_FFT.data(), F_FFT.data(), G_FFT.data(), hm.data(), logn,
+                                nullptr);
+
+        free(tmp);
+        // compute the full uncompressed signature
+        vec_modQ sigq = to_vec_modQ(sig);
+        vec_modQ hsigq = starproduct(hq, sigq);
+        std::vector<double> full_sig(2*n);
+        for (uint64_t i=0; i<n; i++) {
+            full_sig[i] = centermod(hm[i]-hsigq[i].v, F_Q);
+            full_sig[i+n] = sig[i];
+        }
+        // print statistics about this vector and check the norm
+        auto norm = cal_statistics(full_sig);
+        double exract_norm = std::get<0>(norm);
+        sum += exract_norm;
+        double extract_max = std::get<1>(norm);
+        max_sum += extract_max;
+        //ASSERT_LE(norm, 6000);
+        if ((j + 1) % 500 == 0) {
+            std::cout << "iteration: " << j << std::endl;
+        }
+    
+    }
+    //uint64_t t1 = std::chrono::steady_clock::now().time_since_epoch().count();
+    //double time_offline = (t1_off - t0_off)/1e9/num_iterations.*1e6;
+    //double total_time = (t1 - t0)/1e9/num_iter*1e6;
+    //std::cout << "total average time (us): " << total_time << std::endl;
+
+    // calculate average norm
+    double average = sum / num_iterations;
+    double average_max = max_sum / num_iterations;
+    std::cout << "average L2 norm: " << average << std::endl;
+    std::cout << "average Linf norm: " << average_max << std::endl;
+
+}
+
+TEST(falcon, lazy_sig_norm_multikeys) {
+
+    double sum = 0.0;
+    double max_sum = 0.0;
+    uint64_t num_iterations = std::pow(2, 12);
+    uint64_t num_keyreuse = std::pow(2, 10);
+    int total_iterations = num_iterations*num_keyreuse;
+    int total_ongoing_count = 0;
+    double average = 0.0;
+    double average_max = 0.0;
+
+    //uint64_t t0 = std::chrono::steady_clock::now().time_since_epoch().count();
+    for (uint64_t j=0; j<num_iterations; ++j) {
+        const uint64_t logn = 9;
+        const uint64_t n = 1 << logn;
+        inner_shake256_context rng;
+        inner_shake256_init(&rng);
+        falcon_key_t key = keygen(logn, &rng);
+        vec_modQ hq = to_vec_modQ(key.h);
+        std::vector<int16_t> sig(n);
+        // use a random hash of message
+        std::vector<uint16_t> hm(n);
+        for (uint64_t i=0; i<n; ++i) {
+            hm[i]=rand()%F_Q;
+        }
+        uint8_t* tmp = (uint8_t*) aligned_alloc(64, 1024*1024);
+        std::vector<int8_t> sample1(n);
+        std::vector<int8_t> sample2(n);
+        std::vector<uint16_t> sample_target(n);
+        std::vector<fpr> f_FFT(n);
+        std::vector<fpr> g_FFT(n);
+        std::vector<fpr> F_FFT(n);
+        std::vector<fpr> G_FFT(n);
+
+        for (uint64_t k=0; k<num_keyreuse; ++k) {
+            sign_dyn_lazy_offline(&rng, key.f.data(), key.g.data(), key.F.data(), key.G.data(), key.h.data(), logn,
+                                    sample1.data(), sample2.data(), sample_target.data(), f_FFT.data(), g_FFT.data(),
+                                    F_FFT.data(), G_FFT.data());
+
+            //uint64_t t1_off = std::chrono::steady_clock::now().time_since_epoch().count();
+            std::vector<uint16_t> orig_sample_target = sample_target;
+            //uint64_t t0 = std::chrono::steady_clock::now().time_since_epoch().count();
+
+            sign_dyn_lazy_online(sample1.data(), sample2.data(), sample_target.data(), sig.data(),
+                                    f_FFT.data(), g_FFT.data(), F_FFT.data(), G_FFT.data(), hm.data(), logn,
+                                    nullptr);
+
+            free(tmp);
+
+            // compute the full uncompressed signature
+            vec_modQ sigq = to_vec_modQ(sig);
+            vec_modQ hsigq = starproduct(hq, sigq);
+            std::vector<double> full_sig(2*n);
+            for (uint64_t i=0; i<n; i++) {
+                full_sig[i] = centermod(hm[i]-hsigq[i].v, F_Q);
+                full_sig[i+n] = sig[i];
+            }
+            // print statistics about this vector and check the norm
+            auto norm = cal_statistics(full_sig);
+            double exract_norm = std::get<0>(norm);
+            sum += exract_norm;
+            double extract_max = std::get<1>(norm);
+            max_sum += extract_max;
+            total_ongoing_count++;
+            // if ((k + 1) % 100 == 0) {
+            //     std::cout << '.';
+            // }
+            //ASSERT_LE(norm, 6000);
+        }
+        // if ((j + 1) % 4096 == 0) {
+        //     std::cout << "iteration: " << j << std::endl;
+        //     std::cout << "ongoing avg l2 norm: " << sum/total_ongoing_count << std::endl;
+        //     std::cout << "ongoing avg linf norm: " << max_sum/total_ongoing_count << std::endl;
+        // }
+        // print updates every 1% of the way
+        if ((j+1) % (num_iterations / 100) == 0) {
+            double percentage = (j * 100) / num_iterations;
+            std::cout << "We're " << percentage+1 << "% of the way through" << std::endl;
+            std::cout << "---iteration: " << total_ongoing_count << std::endl;
+            std::cout << "---ongoing avg l2 norm: " << sum/total_ongoing_count << std::endl;
+            std::cout << "---ongoing avg linf norm: " << max_sum/total_ongoing_count << std::endl;
+        }
+    }
+    //uint64_t t1 = std::chrono::steady_clock::now().time_since_epoch().count();
+    //double time_offline = (t1_off - t0_off)/1e9/num_iterations.*1e6;
+    //double total_time = (t1 - t0)/1e9/num_iter*1e6;
+    //std::cout << "total average time (us): " << total_time << std::endl;
+
+    // calculate average norm
+    average = sum / total_iterations;
+    average_max = max_sum / total_iterations;
+    std::cout << "average L2 norm: " << average << std::endl;
+    std::cout << "average Linf norm: " << average_max << std::endl;
+}
