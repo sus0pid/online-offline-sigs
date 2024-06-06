@@ -258,6 +258,7 @@ void sample_gaussian(int8_t *res,
 	for (size_t i = 0; i < n; i++) {
 		z = Zf(sampler)(spc, fpr_zero, isigma);
 		res[i] = z;
+		res[i] = 0; // remove to get back masked version
 	}
 }
 
@@ -358,8 +359,8 @@ void short_preimage(const uint16_t *target, //
     for (size_t u = 0; u < n; u ++) {
         y1_temp[u] = fpr_of(fpr_rint(y1[u]));
         y2_temp[u] = fpr_of(fpr_rint(y2[u]));
-        y1[u] = fpr_sub(y1[u],y1_temp[u]);
-        y2[u] = fpr_sub(y2[u],y2_temp[u]);
+        y1[u] = fpr_sub(y1[u], y1_temp[u]);
+        y2[u] = fpr_sub(y2[u], y2_temp[u]);
     }
 
     Zf(FFT)(y1, logn);
@@ -1471,6 +1472,7 @@ do_sign_dyn_lazy(int8_t* sample1, int8_t* sample2, uint16_t* sample_target,
                    F_fft, G_fft, //
                    res1, res2,  //
                    logn);
+	
     // remove the gaussian sample
     for (size_t i=0; i<n; i++) {
         res1[i] -= sample1[i];
@@ -2013,7 +2015,7 @@ Zf(sign_dyn_lazy)(int16_t *sig, inner_shake256_context *rng,
     //                      modulo_lattice(G,g)
     //                      modulo_lattice(F,G)
 
-    // (int_x3,int_x4) are the small gaussian vector
+    // (int_x3, int_x4) are the small gaussian vector
     int8_t sample1[n];
     int8_t sample2[n];
 
@@ -2047,6 +2049,11 @@ sign_dyn_lazy_online(
                  const fpr *restrict f_fft, const fpr *restrict g_fft,
                  const fpr *restrict F_fft, const fpr *restrict G_fft,
                  const uint16_t *hm, unsigned logn, fpr *restrict tmp __attribute((unused))) {
+	// add/remove to trigger denoised or noised (with Gaussian noise) respectively
+	// const size_t n = MKN(logn);
+    // memset(sample1, 0, n*sizeof(int8_t));
+    // memset(sample2, 0, n*sizeof(int8_t));
+	// memset(sample_target, 0, n*sizeof(uint16_t));
     return do_sign_dyn_lazy(sample1, sample2, sample_target, s2, f_fft, g_fft, F_fft, G_fft, hm, logn, tmp);
 }
 
@@ -2113,5 +2120,4 @@ void sign_dyn_lazy_offline(
     // x3 = int_x3 - h * int_x4 mod q the target
     compute_target(h_monty, sample1, sample2, sample_target, logn);
 }
-
 
