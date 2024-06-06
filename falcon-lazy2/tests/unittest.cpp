@@ -600,7 +600,7 @@ TEST(falcon, lazy_sig_norm_multikeys) {
 
     double sum = 0.0;
     double max_sum = 0.0;
-    uint64_t num_iterations = std::pow(2, 12);
+    uint64_t num_iterations = std::pow(2, 20);
     uint64_t num_keyreuse = std::pow(2, 10);
     int total_iterations = num_iterations*num_keyreuse;
     int total_ongoing_count = 0;
@@ -622,9 +622,9 @@ TEST(falcon, lazy_sig_norm_multikeys) {
     // write the header of the csv file
     std::ofstream ofs(signature_coords_filename);
     ofs << "key_seed,infty_norm,eucl_norm";
-    for (uint64_t i=0; i<2*n; ++i) {
-        ofs << ",s" << i;
-    }
+    // for (uint64_t i=0; i<2*n; ++i) {
+    //     ofs << ",s" << i;
+    // }
     ofs << std::endl;
 
     double last_update_time = 0;
@@ -657,7 +657,7 @@ TEST(falcon, lazy_sig_norm_multikeys) {
             // compute the full uncompressed signature
             vec_modQ sigq = to_vec_modQ(sig);
             vec_modQ hsigq = starproduct(hq, sigq);
-            std::vector<double> full_sig(2*n);
+            std::vector<int16_t> full_sig(2*n);
             for (uint64_t i=0; i<n; i++) {
                 full_sig[i] = centermod(hm[i]-hsigq[i].v, F_Q);
                 full_sig[i+n] = sig[i];
@@ -671,10 +671,14 @@ TEST(falcon, lazy_sig_norm_multikeys) {
             total_ongoing_count++;
 
             ofs << key_seed << "," << extract_max << "," << exract_norm;
-            for (uint64_t i=0; i<2*n; ++i) {
-                ofs << "," << full_sig[i];
-            }
+            // for (uint64_t i=0; i<2*n; ++i) {
+            //     ofs << "," << full_sig[i];
+            // }
             ofs << std::endl;
+            // ofs.write(reinterpret_cast<const char*>(&key_seed), sizeof(key_seed));
+            // ofs.write(reinterpret_cast<const char*>(&extract_max), sizeof(extract_max));
+            // ofs.write(reinterpret_cast<const char*>(&exract_norm), sizeof(exract_norm));
+            // ofs.write(reinterpret_cast<const char*>(full_sig.data()), full_sig.size() * sizeof(double));
         }
 
         if (get_time() >= last_update_time + 60) {
