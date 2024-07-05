@@ -1180,4 +1180,12 @@ int Zf(gaussian0_sampler)(prng *p);
 
 /* ==================================================================== */
 
+// const size_t N = 512;
+
+// typedef struct {
+//     int32_t	coeffs[N];
+// } polysmall_t;
+
+// void sample_gaussian_poly_bern(int8_t y1[N], int8_t y2[N]);
+
 #endif

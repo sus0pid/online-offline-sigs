@@ -323,7 +323,7 @@ TEST(falcon, lazy_sig) {
     std::vector<fpr> F_FFT(n);
     std::vector<fpr> G_FFT(n);
     uint64_t t0_off = std::chrono::steady_clock::now().time_since_epoch().count();
-    for (uint64_t i=0; i<1000; ++i) {
+    for (uint64_t i=0; i<10000; ++i) {
         sign_dyn_lazy_offline(&rng, key.f.data(), key.g.data(), key.F.data(), key.G.data(), key.h.data(), logn,
                               sample1.data(), sample2.data(), sample_target.data(), f_FFT.data(), g_FFT.data(),
                               F_FFT.data(), G_FFT.data());
@@ -331,7 +331,7 @@ TEST(falcon, lazy_sig) {
     uint64_t t1_off = std::chrono::steady_clock::now().time_since_epoch().count();
     std::vector<uint16_t> orig_sample_target = sample_target;
     uint64_t t0 = std::chrono::steady_clock::now().time_since_epoch().count();
-    for (uint64_t i=0; i<1000; ++i) {
+    for (uint64_t i=0; i<10000; ++i) {
         sign_dyn_lazy_online(sample1.data(), sample2.data(), sample_target.data(), sig.data(),
                              f_FFT.data(), g_FFT.data(), F_FFT.data(), G_FFT.data(), hm.data(), logn,
                              nullptr);
@@ -380,6 +380,28 @@ TEST(falcon, sample_gaussian) {
         for (uint64_t i=0; i<n; ++i) st[i]=res[i];
         double norm = print_statistics(st);
         ASSERT_LE(norm, 3*n);
+    }
+}
+
+EXPORT void sample_gaussian_poly_bern(int8_t *sample1, int8_t *sample2, size_t n);
+
+TEST(falcon, sample_gaussian_poly_bern) {
+    for (const uint64_t n: {512,1024}) {
+        //const uint64_t n = 1 << logn;
+        //inner_shake256_context rng;
+        //inner_shake256_init(&rng);
+        //double sigma = 2.; // between 1 and 2
+        //fpr isigma = FPR(1./sigma);
+        //sampler_context sc;
+        //Zf(prng_init)(&sc.p, &rng);
+        //sc.sigma_min = fpr_sigma_min[logn];
+        std::vector<int8_t> res1(n);
+        std::vector<int8_t> res2(n);
+        sample_gaussian_poly_bern(res1.data(), res2.data(), n);
+        std::vector<double> st(n);
+        for (uint64_t i=0; i<n; ++i) st[i]=res1[i];
+        double norm = print_statistics(st);
+        ASSERT_LE(norm, 4*n);
     }
 }
 
@@ -600,8 +622,8 @@ TEST(falcon, lazy_sig_norm_multikeys) {
 
     double sum = 0.0;
     double max_sum = 0.0;
-    uint64_t num_iterations = std::pow(2, 20);
-    uint64_t num_keyreuse = std::pow(2, 10);
+    uint64_t num_iterations = std::pow(2, 5);
+    uint64_t num_keyreuse = std::pow(2, 3);
     int total_iterations = num_iterations*num_keyreuse;
     int total_ongoing_count = 0;
     double average = 0.0;
@@ -640,9 +662,9 @@ TEST(falcon, lazy_sig_norm_multikeys) {
                               sample1.data(), sample2.data(), sample_target.data(), f_FFT.data(), g_FFT.data(),
                               F_FFT.data(), G_FFT.data());
         // zero the gaussian sample
-        memset(sample1.data(), 0, n*sizeof(int8_t));
-        memset(sample2.data(), 0, n*sizeof(int8_t));
-        memset(sample_target.data(), 0, n*sizeof(uint16_t));
+        // memset(sample1.data(), 0, n*sizeof(int8_t));
+        // memset(sample2.data(), 0, n*sizeof(int8_t));
+        // memset(sample_target.data(), 0, n*sizeof(uint16_t));
 
 
         for (uint64_t k=0; k<num_keyreuse; ++k) {

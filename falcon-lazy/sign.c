@@ -33,6 +33,10 @@
 #include "inner.h"
 #include "math.h"
 
+#include <inttypes.h>
+#include <string.h>
+#include <assert.h>
+
 /* =================================================================== */
 
 /*
@@ -224,6 +228,149 @@ int randombytes(uint8_t *obuf, size_t len)
 		obuf[i] = (fibo_a >> 24) ^ (fibo_b >> 16);
 	}
 	return 0;
+}
+
+#define LSBMASK(c)	(-((c)&1))
+#define	CMUX(x,y,c)	(((x)&(LSBMASK(c)))^((y)&(~LSBMASK(c))))
+#define CFLIP(x,c)	CMUX(x,-(x),c)
+#define CABS(x)		CFLIP(x,x>=0)
+
+uint64_t exp_scaled(uint64_t x)
+{
+    assert(x<=64082*256);
+
+    uint64_t r;
+    r = (( 809438661408LL    )*x) >> 28;
+    r = (( 869506949331LL - r)*x) >> 28;
+    r = (( 640044208952LL - r)*x) >> 27;
+    r = (( 793458686015LL - r)*x) >> 27;
+    r = (( 839743192604LL - r)*x) >> 27;
+    r = (( 740389683060LL - r)*x) >> 26;
+    r = ((1044449863563LL - r)*x) >> 27;
+    r = (( 552517269260LL - r)*x) >> 25;
+    r = (( 779422325990LL - r)*x) >> 23;
+    r =  (2199023255552LL - r);
+
+    return r;
+}
+
+static uint32_t sample_berncdt(uint64_t utop, uint64_t ubot)
+{
+    uint32_t x = 0;
+    uint32_t b = 1;
+    uint32_t r, s, t;
+    t  = (utop >  11881272476311950404ULL);
+    r  = (utop == 11881272476311950404ULL);
+    s  = (ubot >   2232598800125794762ULL);
+    b  = (r && s) || t;
+    x += b;
+    t  = (utop >  17729174351313943813ULL);
+    r  = (utop == 17729174351313943813ULL);
+    s  = (ubot >  17046599807202850264ULL);
+    b  = (r && s) || t;
+    x += b;
+    t  = (utop >  18426461144592799266ULL);
+    r  = (utop == 18426461144592799266ULL);
+    s  = (ubot >   9031501729263515114ULL);
+    b  = (r && s) || t;
+    x += b;
+    t  = (utop >  18446602887327906610ULL);
+    r  = (utop == 18446602887327906610ULL);
+    s  = (ubot >  11817852927693963396ULL);
+    b  = (r && s) || t;
+    x += b;
+    t  = (utop >  18446743834670245612ULL);
+    r  = (utop == 18446743834670245612ULL);
+    s  = (ubot >   7306021935394802834ULL);
+    b  = (r && s) || t;
+    x += b;
+    t  = (utop >  18446744073611412414ULL);
+    r  = (utop == 18446744073611412414ULL);
+    s  = (ubot >  17880792342251759005ULL);
+    b  = (r && s) || t;
+    x += b;
+    t  = (utop >  18446744073709541852ULL);
+    r  = (utop == 18446744073709541852ULL);
+    s  = (ubot >  14689009182029885173ULL);
+    b  = (r && s) || t;
+    x += b;
+    r  = (utop == 18446744073709551615ULL);
+    s  = (ubot >  14106032229701791861ULL);
+    b  = (r && s);
+    x += b;
+    s  = (ubot >  18446718728838181855ULL);
+    b &= s;
+    x += b;
+    s  = (ubot >  18446744073673701140ULL);
+    b &= s;
+    x += b;
+    
+    return x;
+}
+
+
+static inline uint32_t div16404853(uint32_t x) {
+    uint32_t y, z;
+    y = (97488647 * (uint64_t) x) >> 32;
+    z = (x - y) >> 1;
+    return (z + y) >> 23;
+}
+
+#define BERN_RANDMULT	1664
+
+void sample_gaussian_poly_bern(int8_t *sample1, int8_t *sample2, size_t n) 
+{
+    size_t i = 0, pos = 0;
+    uint32_t x, y, t, k;
+    int32_t z;
+
+    uint64_t *us, utop, ubot, v, w;
+    unsigned char *cs, c;
+    unsigned char buf[(3*sizeof(uint64_t) + 2)*BERN_RANDMULT];
+    uint32_t coeffs[2*n];
+
+    randombytes(buf, sizeof buf);
+
+    cs = buf;
+    us = (uint64_t*)(buf+2*BERN_RANDMULT);
+
+    while(i<2*n) {
+	if(pos++ >= BERN_RANDMULT) {
+	    randombytes(buf, sizeof buf);
+	    pos = 0;
+	    cs = buf;
+	    us = (uint64_t*)(buf+2*BERN_RANDMULT);
+	}
+
+	utop = *us++;
+	ubot = *us++;
+	w    = *us++;
+	w  >>= 1;
+
+	x = sample_berncdt(utop, ubot) << 8;
+	y = *cs++;
+	z = x + y;
+
+	y = y*(y + 2*x) << 8;  
+	k = div16404853(y);
+	t = y - 16404853*k;
+	v = exp_scaled(t) << (22-k);
+	
+	c = *cs++;
+	if((w > v) || (c & (z==0)))
+	   continue;
+
+	c >>= 1;
+	coeffs[i++] = CFLIP(z,(int32_t)c);
+    }
+
+	for (size_t j=0; j<n; j++) {
+		sample1[j] = coeffs[j];
+	}
+	for (size_t ii=0; ii<n; ii++) {
+		sample2[ii] = coeffs[n+ii];
+	}
+    
 }
 
 void gauss_sampler(sampler_context *sc, fpr mu, fpr isigma, int8_t* result, size_t n)
@@ -2019,11 +2166,13 @@ Zf(sign_dyn_lazy)(int16_t *sig, inner_shake256_context *rng,
     int8_t sample1[n];
     int8_t sample2[n];
 
-    gauss_sampler(&sc, mu, isigma, sample1, n);
-    gauss_sampler(&sc, mu, isigma, sample2, n);
+    // gauss_sampler(&sc, mu, isigma, sample1, n);
+    // gauss_sampler(&sc, mu, isigma, sample2, n);
 
-    // for(loop = 0; loop < 10; loop++)
-    // 	printf("gauss_x3x4[%d]: (%d, %d),\n", loop, int_x3[loop], int_x4[loop]);
+	sample_gaussian_poly_bern(sample1, sample2, n);
+
+    // for(int loop = 0; loop < 10; loop++)
+    // 	printf("gauss_x3x4[%d]: (%d, %d),\n", loop, sample1[loop], sample2[loop]);
 
     // x3 = int_x3 - h * int_x4 mod q the target
     uint16_t sample_target[n];
@@ -2111,11 +2260,12 @@ void sign_dyn_lazy_offline(
 
     // (int_x3,int_x4) are the small gaussian vector
 
-    gauss_sampler(&sc, mu, isigma, sample1, n);
-    gauss_sampler(&sc, mu, isigma, sample2, n);
+	// remove below for falcon sampler
+    // gauss_sampler(&sc, mu, isigma, sample1, n);
+    // gauss_sampler(&sc, mu, isigma, sample2, n);
 
-    // for(loop = 0; loop < 10; loop++)
-    // 	printf("gauss_x3x4[%d]: (%d, %d),\n", loop, int_x3[loop], int_x4[loop]);
+	// bliss-like gaussian sampler
+	sample_gaussian_poly_bern(sample1, sample2, n);
 
     // x3 = int_x3 - h * int_x4 mod q the target
     compute_target(h_monty, sample1, sample2, sample_target, logn);
