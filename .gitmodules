@@ -4,3 +4,6 @@
 [submodule "ed25519"]
 	path = ed25519
 	url = https://github.com/orlp/ed25519.git
+[submodule "dilithium"]
+	path = dilithium
+	url = https://github.com/pq-crystals/dilithium

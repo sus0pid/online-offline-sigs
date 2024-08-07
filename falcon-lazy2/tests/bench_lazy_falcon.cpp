@@ -1,7 +1,7 @@
 #include "benchmark/benchmark.h"
 #include "testlib.h"
 
-static void lazy_offline(benchmark::State& state) {
+static void falcon_dyn_lazy_offline(benchmark::State& state) {
     // Perform setup here
     const uint64_t logn = 9;
     const uint64_t n = 1 << logn;
@@ -30,7 +30,7 @@ static void lazy_offline(benchmark::State& state) {
     }
 }
 
-static void lazy_online(benchmark::State& state) {
+static void falcon_dyn_lazy_online(benchmark::State& state) {
     // Perform setup here
     const uint64_t logn = 9;
     const uint64_t n = 1 << logn;
@@ -65,7 +65,7 @@ static void lazy_online(benchmark::State& state) {
     }
 }
 
-static void falcon_orig(benchmark::State& state) {
+static void falcon_dyn_orig(benchmark::State& state) {
     const uint64_t logn = 9;
     const uint64_t n = 1 << logn;
     inner_shake256_context rng;
@@ -93,6 +93,74 @@ static void falcon_orig(benchmark::State& state) {
 
 
 // Register the function as a benchmark
-BENCHMARK(lazy_offline);
-BENCHMARK(lazy_online);
-BENCHMARK(falcon_orig);
+BENCHMARK(falcon_dyn_lazy_offline);
+BENCHMARK(falcon_dyn_lazy_online);
+BENCHMARK(falcon_dyn_orig);
+
+#include "ed25519.h"
+
+static void ed25519(benchmark::State& state) {
+    static const uint64_t MSGBYTES=64;
+    unsigned char public_key[32], private_key[64], seed[32];
+    unsigned char signature[64];
+    uint8_t message[MSGBYTES];
+
+
+    /* create a random seed, and a keypair out of that seed */
+    for (uint64_t i=0; i<MSGBYTES; ++i) message[i] = random_u64();
+    ed25519_create_seed(seed);
+    ed25519_create_keypair(public_key, private_key, seed);
+    for (auto _ : state) {
+        ed25519_sign(signature, (const uint8_t*) message, MSGBYTES, public_key, private_key);
+    }
+}
+
+BENCHMARK(ed25519);
+
+extern "C" {
+#include "dilithium/ref/sign.h"
+}
+
+static void dilithium_ref(benchmark::State& state) {
+    static const uint64_t MSGBYTES=64;
+    size_t siglen;
+    uint8_t pk[CRYPTO_PUBLICKEYBYTES];
+    uint8_t sk[CRYPTO_SECRETKEYBYTES];
+    uint8_t sig[CRYPTO_BYTES];
+    uint8_t message[MSGBYTES];
+
+    // TODO (initialize / keygen / etc)
+    pqcrystals_dilithium2_ref_keypair(pk, sk);
+    for (uint64_t i=0; i<MSGBYTES; ++i) message[i] = random_u64();
+    for (auto _ : state) {
+        pqcrystals_dilithium2_ref_signature(sig, &siglen, message, MSGBYTES, sk);
+    }
+    //pqcrystals_dilithium2_ref_verify(sig, CRYPTO_BYTES, sig, CRHBYTES, pk);
+}
+
+BENCHMARK(dilithium_ref);
+
+#ifdef __x86_64__
+// workaround since the macros system does not allow to include dilithium avx2 after ref
+extern "C" typeof(pqcrystals_dilithium2_ref_keypair) pqcrystals_dilithium2_avx2_keypair;
+extern "C" typeof(pqcrystals_dilithium2_ref_signature) pqcrystals_dilithium2_avx2_signature;
+
+static void dilithium_avx(benchmark::State& state) {
+    static const uint64_t MSGBYTES=64;
+    size_t siglen;
+    uint8_t pk[CRYPTO_PUBLICKEYBYTES];
+    uint8_t sk[CRYPTO_SECRETKEYBYTES];
+    uint8_t sig[CRYPTO_BYTES];
+    uint8_t message[MSGBYTES];
+
+    // TODO (initialize / keygen / etc)
+    pqcrystals_dilithium2_avx2_keypair(pk, sk);
+    for (uint64_t i=0; i<MSGBYTES; ++i) message[i] = random_u64();
+    for (auto _ : state) {
+        pqcrystals_dilithium2_avx2_signature(sig, &siglen, message, MSGBYTES, sk);
+    }
+    //pqcrystals_dilithium2_avx2_verify(sig, CRYPTO_BYTES, sig, CRHBYTES, pk);
+}
+
+BENCHMARK(dilithium_avx);
+#endif
