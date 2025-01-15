@@ -2270,4 +2270,3 @@ void sign_dyn_lazy_offline(
     // x3 = int_x3 - h * int_x4 mod q the target
     compute_target(h_monty, sample1, sample2, sample_target, logn);
 }
-
