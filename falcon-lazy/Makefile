@@ -51,7 +51,7 @@ CFLAGS = -Wall -Wextra -Wshadow -Wundef -O3
 #-pg -fno-pie
 LD = clang
 LDFLAGS = #-pg -no-pie
-LIBS = #-lm
+LIBS = -lm
 
 # =====================================================================
 

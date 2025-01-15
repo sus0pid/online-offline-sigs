@@ -94,7 +94,7 @@ do_bench(bench_fun bf, void *ctx, double threshold)
 	for (;;) {
 		clock_t begin, end;
 		double tt;
-		double tt_clks;
+		double tt_clks __attribute((unused));
 
 		begin = clock();
 		r = bf(ctx, num);

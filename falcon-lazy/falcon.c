@@ -509,7 +509,7 @@ falcon_sign_dyn_lazy_finish(shake256_context *rng,
 {
 	unsigned logn;
 	const uint8_t *sk, *pk;
-	uint8_t *es;
+	//uint8_t *es;
 	int8_t *f, *g, *F, *G;
 	uint16_t *h;
 	uint16_t *hm;
@@ -517,7 +517,7 @@ falcon_sign_dyn_lazy_finish(shake256_context *rng,
 	uint8_t *atmp;
 	size_t u, v; 
 	size_t n, es_len;
-	unsigned oldcw;
+	unsigned oldcw __attribute__((unused));
 	inner_shake256_context sav_hash_data;
 
 	/// adding some stuff to get rid of warnings
@@ -638,7 +638,6 @@ falcon_sign_dyn_lazy_finish(shake256_context *rng,
 		 * to save some RAM).
 		 */
 		*(inner_shake256_context *)hash_data = sav_hash_data;
-		*(inner_shake256_context *)hash_data;
 		if (sig_type == FALCON_SIG_CT) {
 			Zf(hash_to_point_ct)(
 				(inner_shake256_context *)hash_data,
